@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b0456bd2df912057327fcee03b31bf70",
+    "content-hash": "f97f2e9f953c58d6484eee077bd9adeb",
     "packages": [
         {
             "name": "algo26-matthias/idna-convert",
@@ -1502,16 +1502,16 @@
         },
         {
             "name": "joomla/database",
-            "version": "3.3.1",
+            "version": "dev-4/interface-createquery",
             "source": {
                 "type": "git",
-                "url": "https://github.com/joomla-framework/database.git",
-                "reference": "d13a7504471b4730a8107e3566c6fe6d476706fc"
+                "url": "https://github.com/heelc29/joomla-framework-database.git",
+                "reference": "7d947a8bd6783e5609798e30032499afcaa1073c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/joomla-framework/database/zipball/d13a7504471b4730a8107e3566c6fe6d476706fc",
-                "reference": "d13a7504471b4730a8107e3566c6fe6d476706fc",
+                "url": "https://api.github.com/repos/heelc29/joomla-framework-database/zipball/7d947a8bd6783e5609798e30032499afcaa1073c",
+                "reference": "7d947a8bd6783e5609798e30032499afcaa1073c",
                 "shasum": ""
             },
             "require": {
@@ -1556,7 +1556,11 @@
                     "Joomla\\Database\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "autoload-dev": {
+                "psr-4": {
+                    "Joomla\\Database\\Tests\\": "Tests/"
+                }
+            },
             "license": [
                 "GPL-2.0-or-later"
             ],
@@ -1567,21 +1571,7 @@
                 "framework",
                 "joomla"
             ],
-            "support": {
-                "issues": "https://github.com/joomla-framework/database/issues",
-                "source": "https://github.com/joomla-framework/database/tree/3.3.1"
-            },
-            "funding": [
-                {
-                    "url": "https://community.joomla.org/sponsorship-campaigns.html",
-                    "type": "custom"
-                },
-                {
-                    "url": "https://github.com/joomla",
-                    "type": "github"
-                }
-            ],
-            "time": "2025-01-26T13:22:09+00:00"
+            "time": "2025-03-15T14:14:26+00:00"
         },
         {
             "name": "joomla/di",
@@ -10152,6 +10142,12 @@
     ],
     "aliases": [
         {
+            "package": "joomla/database",
+            "version": "dev-4/interface-createquery",
+            "alias": "4-dev",
+            "alias_normalized": "4.0.0.0-dev"
+        },
+        {
             "package": "voku/portable-utf8",
             "version": "dev-joomla-5.3",
             "alias": "6.0.13",
@@ -10160,6 +10156,7 @@
     ],
     "minimum-stability": "stable",
     "stability-flags": {
+        "joomla/database": 20,
         "tobscure/json-api": 20,
         "voku/portable-utf8": 20
     },

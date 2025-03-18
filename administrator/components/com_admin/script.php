@@ -170,7 +170,7 @@ class JoomlaInstallerScript
         try {
             // Get the params for the stats plugin
             $params = $db->setQuery(
-                $db->getQuery(true)
+                $db->createQuery()
                     ->select($db->quoteName('params'))
                     ->from($db->quoteName('#__extensions'))
                     ->where($db->quoteName('type') . ' = ' . $db->quote('plugin'))
@@ -192,7 +192,7 @@ class JoomlaInstallerScript
 
         $params = json_encode($params);
 
-        $query = $db->getQuery(true)
+        $query = $db->createQuery()
             ->update($db->quoteName('#__extensions'))
             ->set($db->quoteName('params') . ' = ' . $db->quote($params))
             ->where($db->quoteName('type') . ' = ' . $db->quote('plugin'))
@@ -293,7 +293,7 @@ class JoomlaInstallerScript
 
         foreach ($extensions as $extension) {
             $row = $db->setQuery(
-                $db->getQuery(true)
+                $db->createQuery()
                     ->select('*')
                     ->from($db->quoteName('#__extensions'))
                     ->where($db->quoteName('type') . ' = ' . $db->quote($extension['type']))
@@ -317,7 +317,7 @@ class JoomlaInstallerScript
 
                 // Unlock and unprotect the plugin so we can uninstall it
                 $db->setQuery(
-                    $db->getQuery(true)
+                    $db->createQuery()
                         ->update($db->quoteName('#__extensions'))
                         ->set($db->quoteName('locked') . ' = 0')
                         ->set($db->quoteName('protected') . ' = 0')
@@ -349,7 +349,7 @@ class JoomlaInstallerScript
 
         // Attempt to refresh manifest caches
         $db    = Factory::getDbo();
-        $query = $db->getQuery(true)
+        $query = $db->createQuery()
             ->select('*')
             ->from('#__extensions');
 
