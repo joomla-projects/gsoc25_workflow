@@ -522,9 +522,10 @@ class UpdateModel extends ListModel
      * @param   array    $data      Data for the form.
      * @param   boolean  $loadData  True if the form is to load its own data (default case), false if not.
      *
-     * @return  Form|bool  A Form object on success, false on failure
+     * @return  Form  A Form object
      *
      * @since   2.5.2
+     * @throws  \Exception on failure
      */
     public function getForm($data = [], $loadData = true)
     {
@@ -532,13 +533,6 @@ class UpdateModel extends ListModel
         Form::addFormPath(JPATH_COMPONENT . '/models/forms');
         Form::addFieldPath(JPATH_COMPONENT . '/models/fields');
         $form = Form::getInstance('com_installer.update', 'update', ['load_data' => $loadData]);
-
-        // Check for an error.
-        if ($form == false) {
-            $this->setError($form->getMessage());
-
-            return false;
-        }
 
         // Check the session for previously entered form data.
         $data = $this->loadFormData();

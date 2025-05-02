@@ -148,9 +148,10 @@ class TagModel extends AdminModel
      * @param   array    $data      Data for the form.
      * @param   boolean  $loadData  True if the form is to load its own data (default case), false if not.
      *
-     * @return  bool|\Joomla\CMS\Form\Form  A Form object on success, false on failure
+     * @return  \Joomla\CMS\Form\Form  A Form object
      *
      * @since   3.1
+     * @throws  \Exception on failure
      */
     public function getForm($data = [], $loadData = true)
     {
@@ -158,10 +159,6 @@ class TagModel extends AdminModel
 
         // Get the form.
         $form = $this->loadForm('com_tags.tag', 'tag', ['control' => 'jform', 'load_data' => $loadData]);
-
-        if (empty($form)) {
-            return false;
-        }
 
         $user = $this->getCurrentUser();
 
