@@ -9,6 +9,8 @@
 
 namespace Joomla\CMS\Console;
 
+use Joomla\CMS\Application\CMSApplicationInterface;
+use Joomla\CMS\Plugin\PluginHelper;
 use Joomla\CMS\User\User;
 use Joomla\Console\Command\AbstractCommand;
 use Joomla\Database\DatabaseAwareTrait;
@@ -140,6 +142,13 @@ class AddUserCommand extends AbstractCommand
             $this->ioStyle->error("'" . $this->userGroups[1] . "' user group doesn't exist!");
 
             return Command::FAILURE;
+        }
+
+        // Load the action log plugins when an identity is set
+        $app = $this->getApplication();
+        if ($app instanceof CMSApplicationInterface && $app->getIdentity() instanceof User) {
+            PluginHelper::importPlugin('actionlog');
+            $app->getInput()->set('option', 'com_users');
         }
 
         // Get filter to remove invalid characters

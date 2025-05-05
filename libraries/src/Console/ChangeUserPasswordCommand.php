@@ -9,6 +9,8 @@
 
 namespace Joomla\CMS\Console;
 
+use Joomla\CMS\Application\CMSApplicationInterface;
+use Joomla\CMS\Plugin\PluginHelper;
 use Joomla\CMS\User\User;
 use Joomla\CMS\User\UserHelper;
 use Joomla\Console\Command\AbstractCommand;
@@ -91,6 +93,13 @@ class ChangeUserPasswordCommand extends AbstractCommand
             $this->ioStyle->error("The user " . $this->username . " does not exist!");
 
             return Command::FAILURE;
+        }
+
+        // Load the action log plugins when an identity is set
+        $app = $this->getApplication();
+        if ($app instanceof CMSApplicationInterface && $app->getIdentity() instanceof User) {
+            PluginHelper::importPlugin('actionlog');
+            $app->getInput()->set('option', 'com_users');
         }
 
         $user           = User::getInstance($userId);

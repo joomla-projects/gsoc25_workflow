@@ -74,4 +74,9 @@ $container->alias('session', 'session.cli')
 
 $app                              = \Joomla\CMS\Factory::getContainer()->get(\Joomla\Console\Application::class);
 \Joomla\CMS\Factory::$application = $app;
+
+if ($app instanceof \Joomla\CMS\User\UserFactoryAwareInterface) {
+    $app->setUserFactory($container->get(\Joomla\CMS\User\UserFactoryInterface::class));
+}
+
 $app->execute();

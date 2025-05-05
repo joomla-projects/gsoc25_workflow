@@ -719,7 +719,7 @@ class User
 
             // @todo ACL - this needs to be acl checked
 
-            $my = Factory::getUser();
+            $my = Factory::getApplication()->getIdentity() ?: Factory::getUser();
 
             // Are we creating a new user
             $isNew = empty($this->id);

@@ -16,6 +16,9 @@ use Joomla\CMS\Language\Language;
 use Joomla\CMS\Plugin\PluginHelper;
 use Joomla\CMS\Router\Router;
 use Joomla\CMS\Uri\Uri;
+use Joomla\CMS\User\User;
+use Joomla\CMS\User\UserFactoryAwareInterface;
+use Joomla\CMS\User\UserFactoryAwareTrait;
 use Joomla\CMS\Version;
 use Joomla\Console\Application;
 use Joomla\Database\DatabaseAwareTrait;
@@ -40,7 +43,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  *
  * @since  4.0.0
  */
-class ConsoleApplication extends Application implements CMSApplicationInterface
+class ConsoleApplication extends Application implements CMSApplicationInterface, UserFactoryAwareInterface
 {
     use EventAware;
     use IdentityAware;
@@ -48,6 +51,7 @@ class ConsoleApplication extends Application implements CMSApplicationInterface
     use ExtensionManagerTrait;
     use ExtensionNamespaceMapper;
     use DatabaseAwareTrait;
+    use UserFactoryAwareTrait;
 
     /**
      * The input.
@@ -246,6 +250,8 @@ class ConsoleApplication extends Application implements CMSApplicationInterface
          * a RuntimeException if the populateHttpHost() method has not already executed.
          */
         $this->populateHttpHost();
+
+        $this->populateUser();
 
         // Import CMS plugin groups to be able to subscribe to events
         PluginHelper::importPlugin('behaviour', null, true, $this->getDispatcher());
@@ -523,6 +529,45 @@ class ConsoleApplication extends Application implements CMSApplicationInterface
     }
 
     /**
+     * Populates the user when a console option is set.
+     *
+     * @return  void
+     * @since   __DEPLOY_VERSION__
+     */
+    protected function populateUser(): void
+    {
+        // Load the user when specified
+        $userOption = $this->getConsoleInput()->getParameterOption(['--user'], null);
+
+        if ($userOption === null) {
+            return;
+        }
+
+        try {
+            $factory = $this->getUserFactory();
+        } catch (\UnexpectedValueException) {
+            return;
+        }
+
+        $user = null;
+
+        // If the user id is numeric, load the user by ID
+        if (is_numeric($userOption)) {
+            $user = $factory->loadUserById((int) $userOption);
+        }
+
+        // If the user id is a string, load the user by username
+        if ($user === null) {
+            $user = $factory->loadUserByUsername($userOption);
+        }
+
+        // When the user object is a user from the database, load it as identity in the application
+        if ($user instanceof User && !$user->guest) {
+            $this->loadIdentity($user);
+        }
+    }
+
+    /**
      * Builds the default input definition.
      *
      * @return  InputDefinition
@@ -532,12 +577,22 @@ class ConsoleApplication extends Application implements CMSApplicationInterface
     protected function getDefaultInputDefinition(): InputDefinition
     {
         $inputDefinition = parent::getDefaultInputDefinition();
+
         $inputDefinition->addOption(
             new InputOption(
                 '--live-site',
                 null,
                 InputOption::VALUE_OPTIONAL,
                 'The URL to your site, e.g. https://www.example.com'
+            )
+        );
+
+        $inputDefinition->addOption(
+            new InputOption(
+                '--user',
+                null,
+                InputOption::VALUE_OPTIONAL,
+                'The user to use, can be the user id or username'
             )
         );
 
