@@ -94,7 +94,7 @@ class LocalAdapter implements AdapterInterface
         }
 
         $this->rootPath      = Path::clean(realpath($rootPath), '/');
-        $this->filePath      = $filePath;
+        $this->filePath      = Path::clean($filePath, '/');
         $this->thumbnails    = $thumbnails;
         $this->thumbnailSize = $thumbnailSize;
 

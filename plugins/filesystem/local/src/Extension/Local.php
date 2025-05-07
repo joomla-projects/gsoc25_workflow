@@ -108,15 +108,18 @@ final class Local extends CMSPlugin implements ProviderInterface
     public function getAdapters()
     {
         $adapters    = [];
-        $directories = $this->params->get('directories', [(object) ['directory' => 'images', 'thumbs' => 0], (object) ['directory' => 'files']]);
+        $directories = $this->params->get('directories', [(object) ['directory' => 'images', 'thumbs' => 0, 'access' => ''], (object) ['directory' => 'files', 'access']]);
 
         // Do a check if default settings are not saved by user, if not initialize them manually
         if (\is_string($directories)) {
             $directories = json_decode($directories);
         }
 
+        $currentIdentity = $this->getApplication()->getIdentity();
+        $viewLevels      = $currentIdentity ? $currentIdentity->getAuthorisedViewLevels() : [];
+
         foreach ($directories as $directoryEntity) {
-            if (!$directoryEntity->directory) {
+            if (!$directoryEntity->directory || (!empty($directoryEntity->access) && !\in_array($directoryEntity->access, $viewLevels))) {
                 continue;
             }
 
@@ -134,8 +137,8 @@ final class Local extends CMSPlugin implements ProviderInterface
                 [200, 200]
             );
 
-            if ($this->getApplication()->getIdentity()) {
-                $adapter->setCurrentUser($this->getApplication()->getIdentity());
+            if ($currentIdentity) {
+                $adapter->setCurrentUser($currentIdentity);
             }
 
             $adapters[$adapter->getAdapterName()] = $adapter;
