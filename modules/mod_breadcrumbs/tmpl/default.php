@@ -96,10 +96,8 @@ use Joomla\CMS\WebAsset\WebAssetManager;
             $data['itemListElement'][] = [
                     '@type'    => 'ListItem',
                     'position' => ++$itemsCounter,
-                    'item'     => [
-                            '@id'  => Route::_($item->link, true, Route::TLS_IGNORE, true),
-                            'name' => $item->name,
-                    ],
+                    'name' => $item->name,
+                    'item' => Route::_($item->link, true, Route::TLS_IGNORE, true)
             ];
         } elseif ($key === $last_item_key) {
             // Add the last item (current page) to JSON, but without a link.
@@ -107,9 +105,7 @@ use Joomla\CMS\WebAsset\WebAssetManager;
             $data['itemListElement'][] = [
                     '@type'    => 'ListItem',
                     'position' => ++$itemsCounter,
-                    'item'     => [
-                            'name' => $item->name,
-                    ],
+                    'name' => $item->name,
             ];
         }
     }

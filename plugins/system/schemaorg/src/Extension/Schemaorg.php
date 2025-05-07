@@ -383,13 +383,6 @@ final class Schemaorg extends CMSPlugin implements SubscriberInterface, Dispatch
         $webPageSchema['about']       = ['@id' => $baseId];
         $webPageSchema['inLanguage']  = $app->getLanguage()->getTag();
 
-        // We support Breadcrumb linking
-        $breadcrumbs = ModuleHelper::getModule('mod_breadcrumbs');
-
-        if (!empty($breadcrumbs->id)) {
-            $webPageSchema['breadcrumb'] = ['@id' => $domain . '#/schema/BreadcrumbList/' . (int) $breadcrumbs->id];
-        }
-
         $baseSchema['@graph'][] = $webPageSchema;
 
         if ($itemId > 0) {
