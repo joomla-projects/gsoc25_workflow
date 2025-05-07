@@ -492,7 +492,7 @@
               "defer": true
             },
             "dependencies": [
-              "wcpolyfill"
+              "core"
             ]
           },
           {
@@ -503,7 +503,7 @@
               "type": "module"
             },
             "dependencies": [
-              "wcpolyfill"
+              "core"
             ]
           },
           {
@@ -520,7 +520,7 @@
               "defer": true
             },
             "dependencies": [
-              "wcpolyfill"
+              "core"
             ]
           },
           {
@@ -531,7 +531,7 @@
               "type": "module"
             },
             "dependencies": [
-              "wcpolyfill"
+              "core"
             ]
           }
         ],
@@ -608,28 +608,6 @@
       "tinymce": {
         "name": "tinymce",
         "licenseFilename": "license.txt"
-      },
-      "@webcomponents/webcomponentsjs": {
-        "name": "webcomponentsjs",
-        "js": {
-          "webcomponents-bundle.js": "js/webcomponents-bundle.js"
-        },
-        "dependencies": [],
-        "licenseFilename": "LICENSE.md",
-        "provideAssets": [
-          {
-            "name": "wcpolyfill",
-            "type": "script",
-            "uri": "webcomponents-bundle.js",
-            "attributes": {
-              "nomodule": true,
-              "defer": true
-            },
-            "dependencies": [
-              "core"
-            ]
-          }
-        ]
       },
       "chosen-js": {
         "name": "chosen",
