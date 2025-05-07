@@ -11,6 +11,8 @@
 namespace Joomla\Plugin\Behaviour\Compat\Extension;
 
 use Joomla\CMS\Event\Application\AfterInitialiseDocumentEvent;
+use Joomla\CMS\Event\Application\AfterRouteEvent;
+use Joomla\CMS\Factory;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\Event\DispatcherInterface;
 use Joomla\Event\Priority;
@@ -43,6 +45,7 @@ final class Compat extends CMSPlugin implements SubscriberInterface
          */
         return [
             'onAfterInitialiseDocument' => ['onAfterInitialiseDocument', Priority::HIGH],
+            'onAfterRoute'              => ['onAfterRoute', Priority::HIGH],
         ];
     }
 
@@ -87,6 +90,27 @@ final class Compat extends CMSPlugin implements SubscriberInterface
          * @deprecated 4.4.0 will be removed in 7.0
          */
         \defined('JPATH_PLATFORM') or \define('JPATH_PLATFORM', __DIR__);
+    }
+
+    /**
+     * The after Route logic
+     *
+     * @param  AfterRouteEvent $event
+     * @return void
+     *
+     * @since  __DEPLOY_VERSION__
+     */
+    public function onAfterRoute($event)
+    {
+        /**
+         * Load the deprecated HTMLHelper classes/functions
+         * likely be removed in Joomla 7.0
+         */
+        if ($this->params->get('html_helpers', '1')) {
+            // Restore HTMLHelper::Bootstrap('framework')
+            Factory::getContainer()->get(\Joomla\CMS\HTML\Registry::class)
+                ->register('bootstrap', \Joomla\Plugin\Behaviour\Compat\HTMLHelper\Bootstrap::class, true);
+        }
     }
 
     /**
