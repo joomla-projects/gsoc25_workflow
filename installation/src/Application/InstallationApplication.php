@@ -187,11 +187,6 @@ final class InstallationApplication extends CMSApplication
         // Register the document object with Factory.
         Factory::$document = $document;
 
-        // Define component path.
-        \define('JPATH_COMPONENT', JPATH_BASE);
-        \define('JPATH_COMPONENT_SITE', JPATH_SITE);
-        \define('JPATH_COMPONENT_ADMINISTRATOR', JPATH_ADMINISTRATOR);
-
         // Execute the task.
         ob_start();
         $this->executeController();
