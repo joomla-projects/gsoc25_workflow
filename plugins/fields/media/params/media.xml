@@ -27,6 +27,21 @@
 				label="PLG_FIELDS_MEDIA_PARAMS_IMAGE_CLASS_LABEL"
 				validate="CssIdentifier"
 			/>
+
+			<field
+				name="types"
+				type="list"
+				label="PLG_FIELDS_MEDIA_PARAMS_TYPES_LABEL"
+				description="PLG_FIELDS_MEDIA_PARAMS_TYPES_DESCRIPTION"
+				default="images"
+				multiple="true"
+				layout="joomla.form.field.list-fancy-select"
+				>
+				<option value="images">PLG_FIELDS_MEDIA_PARAMS_TYPES_IMAGES</option>
+				<option value="audios">PLG_FIELDS_MEDIA_PARAMS_TYPES_AUDIOS</option>
+				<option value="videos">PLG_FIELDS_MEDIA_PARAMS_TYPES_VIDEOS</option>
+				<option value="documents">PLG_FIELDS_MEDIA_PARAMS_TYPES_DOCUMENTS</option>
+			</field>
 		</fieldset>
 	</fields>
 </form>
