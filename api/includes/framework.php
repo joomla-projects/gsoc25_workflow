@@ -11,6 +11,7 @@
 
 use Joomla\CMS\Version;
 use Joomla\Utilities\IpHelper;
+use Symfony\Component\Dotenv\Dotenv;
 
 // System includes
 require_once JPATH_LIBRARIES . '/bootstrap.php';
@@ -38,13 +39,30 @@ if (
     exit;
 }
 
+// Load .env files
+if (file_exists(JPATH_ROOT . '/.env.local.php') || file_exists(JPATH_ROOT . '/.env')) {
+    (new Dotenv('JOOMLA_ENV', 'JOOMLA_DEBUG'))->bootEnv(JPATH_ROOT . '/.env', 'prod');
+}
+
 // Pre-Load configuration. Don't remove the Output Buffering due to BOM issues, see JCode 26026
 ob_start();
 require_once JPATH_CONFIGURATION . '/configuration.php';
 ob_end_clean();
 
+// getenv() is not thread-safe and it can cause segmentaion fault, so we should try $_SERVER first
+$envs = !empty($_SERVER) ? $_SERVER : getenv();
+
 // System configuration.
-$config = new JConfig();
+$config                  = new JConfig();
+$config->error_reporting = $envs['JOOMLA_ERROR_REPORTING'] ?? $config->error_reporting;
+$config->debug           = (bool) ($envs['JOOMLA_DEBUG'] ?? $config->debug);
+if (isset($envs['JOOMLA_LOG_DEPRECATED'])) {
+    $config->log_deprecated = (int) $envs['JOOMLA_LOG_DEPRECATED'];
+}
+if (isset($envs['JOOMLA_BEHIND_LOADBALANCER'])) {
+    $config->behind_loadbalancer = (bool) $envs['JOOMLA_BEHIND_LOADBALANCER'];
+}
+unset($envs);
 
 // Set the error_reporting
 switch ($config->error_reporting) {

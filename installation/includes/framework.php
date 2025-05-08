@@ -10,8 +10,7 @@
 
 \defined('_JEXEC') or die;
 
-// Ensure sensible default for JDEBUG is set.
-const JDEBUG = false;
+use Symfony\Component\Dotenv\Dotenv;
 
 // Check if a configuration file already exists.
 if (
@@ -25,6 +24,14 @@ if (
 
 // Import the Joomla Platform.
 require_once JPATH_LIBRARIES . '/bootstrap.php';
+
+// Load .env files
+if (file_exists(JPATH_ROOT . '/.env.local.php') || file_exists(JPATH_ROOT . '/.env')) {
+    (new Dotenv('JOOMLA_ENV', 'JOOMLA_DEBUG'))->bootEnv(JPATH_ROOT . '/.env', 'prod');
+}
+
+// Ensure sensible default for JDEBUG is set.
+\define('JDEBUG', (bool) ($_SERVER['JOOMLA_DEBUG'] ?? getenv('JOOMLA_DEBUG')));
 
 // If debug mode enabled, set new Exception handler with debug enabled.
 if (JDEBUG) {
