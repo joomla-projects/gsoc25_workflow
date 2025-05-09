@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "56639ab836a78d0113b90cd46650b674",
+    "content-hash": "8926c036624d4d07ccf674f0fbc2b14b",
     "packages": [
         {
             "name": "algo26-matthias/idna-convert",
@@ -1586,16 +1586,16 @@
         },
         {
             "name": "joomla/di",
-            "version": "3.0.1",
+            "version": "dev-3.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/joomla-framework/di.git",
-                "reference": "33d6b586663906567316b402cf6b44fe3b79cb2d"
+                "reference": "cef2a97b10223912fefb8bddd97509f022579e86"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/joomla-framework/di/zipball/33d6b586663906567316b402cf6b44fe3b79cb2d",
-                "reference": "33d6b586663906567316b402cf6b44fe3b79cb2d",
+                "url": "https://api.github.com/repos/joomla-framework/di/zipball/cef2a97b10223912fefb8bddd97509f022579e86",
+                "reference": "cef2a97b10223912fefb8bddd97509f022579e86",
                 "shasum": ""
             },
             "require": {
@@ -1609,10 +1609,12 @@
             "require-dev": {
                 "joomla/test": "^3.0",
                 "phan/phan": "^5.4.2",
-                "phpstan/phpstan": "^1.10.7",
+                "phpstan/phpstan": "^2.0",
+                "phpstan/phpstan-deprecation-rules": "^2.0",
                 "phpunit/phpunit": "^9.5.28",
                 "squizlabs/php_codesniffer": "~3.7.2"
             },
+            "default-branch": true,
             "type": "joomla-package",
             "extra": {
                 "branch-alias": {
@@ -1641,7 +1643,7 @@
             ],
             "support": {
                 "issues": "https://github.com/joomla-framework/di/issues",
-                "source": "https://github.com/joomla-framework/di/tree/3.0.1"
+                "source": "https://github.com/joomla-framework/di/tree/3.x-dev"
             },
             "funding": [
                 {
@@ -1653,7 +1655,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-08-15T20:00:49+00:00"
+            "time": "2025-05-09T06:58:54+00:00"
         },
         {
             "name": "joomla/event",
@@ -9867,6 +9869,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
+        "joomla/di": 20,
         "tobscure/json-api": 20
     },
     "prefer-stable": false,

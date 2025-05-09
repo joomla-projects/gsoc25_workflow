@@ -11,8 +11,8 @@ namespace Joomla\CMS\Plugin;
 
 use Joomla\CMS\Cache\Exception\CacheExceptionInterface;
 use Joomla\CMS\Factory;
-use Joomla\Event\DispatcherAwareInterface;
 use Joomla\Event\DispatcherInterface;
+use Joomla\Event\SubscriberInterface;
 
 // phpcs:disable PSR1.Files.SideEffects
 \defined('_JEXEC') or die;
@@ -231,11 +231,12 @@ abstract class PluginHelper
 
         $plugin = Factory::getApplication()->bootPlugin($plugin->name, $plugin->type);
 
-        if ($dispatcher && $plugin instanceof DispatcherAwareInterface) {
-            $plugin->setDispatcher($dispatcher);
+        if (!$autocreate) {
+            return;
         }
 
-        if (!$autocreate) {
+        if ($plugin instanceof SubscriberInterface) {
+            $dispatcher->addSubscriber($plugin);
             return;
         }
 

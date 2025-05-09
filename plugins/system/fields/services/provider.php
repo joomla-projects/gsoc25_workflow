@@ -10,7 +10,6 @@
 
 \defined('_JEXEC') or die;
 
-use Joomla\CMS\Extension\PluginInterface;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Plugin\PluginHelper;
 use Joomla\CMS\User\UserFactoryInterface;
@@ -32,17 +31,20 @@ return new class () implements ServiceProviderInterface {
     public function register(Container $container): void
     {
         $container->set(
-            PluginInterface::class,
-            function (Container $container) {
-                $plugin     = new Fields(
-                    $container->get(DispatcherInterface::class),
-                    (array) PluginHelper::getPlugin('system', 'fields')
-                );
-                $plugin->setApplication(Factory::getApplication());
-                $plugin->setUserFactory($container->get(UserFactoryInterface::class));
+            Fields::class,
+            $container->lazy(
+                Fields::class,
+                function (Container $container) {
+                    $plugin     = new Fields(
+                        $container->get(DispatcherInterface::class),
+                        (array) PluginHelper::getPlugin('system', 'fields')
+                    );
+                    $plugin->setApplication(Factory::getApplication());
+                    $plugin->setUserFactory($container->get(UserFactoryInterface::class));
 
-                return $plugin;
-            }
+                    return $plugin;
+                }
+            )
         );
     }
 };
