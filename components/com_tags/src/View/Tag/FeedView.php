@@ -84,8 +84,14 @@ class FeedView extends BaseHtmlView
                 $title = $this->escape($item->core_title);
                 $title = html_entity_decode($title, ENT_COMPAT, 'UTF-8');
 
-                // Strip HTML from feed item description text
-                $description = $item->core_body;
+                // Build HTML feed item description (image + body)
+                $description = '';
+                $obj         = json_decode($item->core_images);
+
+                if (!empty($obj->image_intro)) {
+                    $description = '<p>' . HTMLHelper::_('image', $obj->image_intro, $obj->image_intro_alt) . '</p>';
+                }
+                $description .= $item->core_body;
                 $author      = $item->core_created_by_alias ?: $item->author;
                 $date        = ($item->displayDate ? date('r', strtotime($item->displayDate)) : '');
 
