@@ -24,7 +24,6 @@
 			<filename>config.xml</filename>
 			<filename>menus.xml</filename>
 			<folder>forms</folder>
-			<folder>helpers</folder>
 			<folder>layouts</folder>
 			<folder>presets</folder>
 			<folder>services</folder>

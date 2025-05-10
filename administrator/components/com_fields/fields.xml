@@ -22,7 +22,6 @@
 		<files folder="admin">
 			<filename>fields.xml</filename>
 			<folder>forms</folder>
-			<folder>helpers</folder>
 			<folder>services</folder>
 			<folder>src</folder>
 			<folder>tmpl</folder>
@@ -33,5 +32,3 @@
 		</languages>
 	</administration>
 </extension>
-
-

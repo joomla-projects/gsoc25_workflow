@@ -12,7 +12,6 @@
 	<namespace path="src">Joomla\Component\Content</namespace>
 	<files folder="site">
 		<folder>forms</folder>
-		<folder>helpers</folder>
 		<folder>src</folder>
 		<folder>tmpl</folder>
 	</files>
@@ -28,7 +27,6 @@
 			<filename>config.xml</filename>
 			<filename>content.xml</filename>
 			<folder>forms</folder>
-			<folder>helpers</folder>
 			<folder>services</folder>
 			<folder>src</folder>
 			<folder>tmpl</folder>

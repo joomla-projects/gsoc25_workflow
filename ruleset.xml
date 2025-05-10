@@ -130,8 +130,6 @@
         <exclude-pattern type="relative">administrator/components/com_installer/src/Model/DiscoverModel\.php</exclude-pattern>
         <exclude-pattern type="relative">administrator/components/com_installer/src/Model/WarningsModel\.php</exclude-pattern>
         <exclude-pattern type="relative">administrator/components/com_users/src/Service/HTML/Users\.php</exclude-pattern>
-        <exclude-pattern type="relative">components/com_content/helpers/icon\.php</exclude-pattern>
-        <exclude-pattern type="relative">components/com_content/helpers/icon\.php</exclude-pattern>
         <exclude-pattern type="relative">libraries/src/Installer/Adapter/ComponentAdapter\.php</exclude-pattern>
         <exclude-pattern type="relative">libraries/src/Installer/Adapter/LanguageAdapter\.php</exclude-pattern>
         <exclude-pattern type="relative">libraries/src/Installer/Adapter/ModuleAdapter\.php</exclude-pattern>

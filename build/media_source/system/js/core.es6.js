@@ -426,7 +426,6 @@ Joomla.checkAll = (checkbox, stub) => {
  * USED IN: administrator/components/com_cache/views/cache/tmpl/default.php
  * administrator/components/com_installer/views/discover/tmpl/default_item.php
  * administrator/components/com_installer/views/update/tmpl/default_item.php
- * administrator/components/com_languages/helpers/html/languages.php
  * libraries/joomla/html/html/grid.php
  *
  * @param  {boolean}  isitchecked  Flag for checked

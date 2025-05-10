@@ -22,7 +22,6 @@
 	</uninstall>
 	<files folder="site">
 		<folder>forms</folder>
-		<folder>helpers</folder>
 		<folder>layouts</folder>
 		<folder>src</folder>
 		<folder>tmpl</folder>
@@ -50,7 +49,6 @@
 			<filename>config.xml</filename>
 			<filename>contact.xml</filename>
 			<folder>forms</folder>
-			<folder>helpers</folder>
 			<folder>layouts</folder>
 			<folder>services</folder>
 			<folder>sql</folder>
@@ -63,4 +61,3 @@
 		</languages>
 	</administration>
 </extension>
-

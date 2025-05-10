@@ -19,7 +19,6 @@
 	<administration>
 		<files folder="admin">
 			<filename>contenthistory.xml</filename>
-			<folder>helpers</folder>
 			<folder>services</folder>
 			<folder>src</folder>
 			<folder>tmpl</folder>
@@ -30,4 +29,3 @@
 		</languages>
 	</administration>
 </extension>
-

@@ -21,7 +21,6 @@
 		</sql>
 	</uninstall>
 	<files folder="site">
-		<folder>helpers</folder>
 		<folder>src</folder>
 		<folder>tmpl</folder>
 	</files>
@@ -48,7 +47,6 @@
 			<filename>config.xml</filename>
 			<filename>newsfeeds.xml</filename>
 			<folder>forms</folder>
-			<folder>helpers</folder>
 			<folder>layouts</folder>
 			<folder>services</folder>
 			<folder>sql</folder>

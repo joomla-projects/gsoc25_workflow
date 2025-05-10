@@ -23,7 +23,6 @@
 			<filename>config.xml</filename>
 			<filename>modules.xml</filename>
 			<folder>forms</folder>
-			<folder>helpers</folder>
 			<folder>layouts</folder>
 			<folder>services</folder>
 			<folder>src</folder>

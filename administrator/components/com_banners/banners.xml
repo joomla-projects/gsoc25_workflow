@@ -72,7 +72,6 @@
 			<filename>banners.xml</filename>
 			<filename>config.xml</filename>
 			<folder>forms</folder>
-			<folder>helpers</folder>
 			<folder>services</folder>
 			<folder>sql</folder>
 			<folder>src</folder>
