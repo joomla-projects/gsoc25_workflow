@@ -1,5 +1,6 @@
 import { createApp } from 'vue';
 import App from './components/app.vue';
+import Event from './app/Event.es6';
 import translate from './plugins/translate.es6.js';
 
 // Register WorkflowGraph namespace

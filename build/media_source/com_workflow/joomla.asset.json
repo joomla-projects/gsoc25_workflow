@@ -15,6 +15,17 @@
       "attributes": {
         "type": "module"
       }
+    },
+    {
+      "name": "com_workflow.workflowgraph",
+      "type": "script",
+      "uri": "com_workflow/workflow-graph.min.js",
+      "dependencies": [
+        "core"
+      ],
+      "attributes": {
+        "type": "module"
+      }
     }
   ]
 }
