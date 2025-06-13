@@ -1,14 +1,21 @@
 <template>
-  <div class="row gx-3 gy-2 align-items-center flex-wrap">
+  <div class="workflow-graph-toolbar row gx-3 gy-2 align-items-center flex-wrap" role="toolbar">
+    <!-- Left section -->
     <div class="col-md-6 d-flex flex-column">
-      <h1 class="h4 mb-2">General Publishing Workflow</h1>
+      <h1 class="h2 mb-2">{{ title }}</h1>
       <div class="d-flex align-items-center flex-wrap">
-        <span class="badge bg-warning text-dark me-2 mb-1">Disabled</span>
-        <span v-if="workflowStore.lastSaved" class="text-muted small mb-1">
-          Last saved: {{ formatDate(workflowStore.lastSaved) }}
+        <span
+          class="badge me-2 mb-1"
+          :class="status ? 'bg-success text-white' : 'bg-warning text-dark'"
+        >
+          {{ status ? 'Enabled' : 'Disabled' }}
         </span>
+        <span class="me-2 mb-1">{{ stagesCount }} stages</span>
+        <span class="me-2 mb-1">{{ transitionsCount }} transitions</span>
       </div>
     </div>
+
+    <!-- Right section -->
     <div class="col-md-6 d-flex justify-content-md-end justify-content-start align-items-center gap-2 flex-wrap">
       <button class="btn btn-outline-secondary" @click="undoAction">
         <span aria-hidden="true" class="icon-undo"></span> Undo
@@ -25,7 +32,7 @@
       <button class="btn btn-outline-secondary">
         <span aria-hidden="true" class="icon-eye"></span> Preview
       </button>
-      <button class="btn btn-primary" @click="saveWorkflow" :disabled="!workflowStore.canSave">
+      <button class="btn btn-primary" @click="saveWorkflow" :disabled="!canSave">
         <span aria-hidden="true" class="icon-save"></span> Save Workflow
       </button>
     </div>
@@ -35,38 +42,39 @@
 <script>
 export default {
   name: 'WorkflowToolbar',
-  methods: {
-    formatDate(date) {
-      return new Date(date).toLocaleString();
+  computed: {
+    // Computed properties mapping state
+    title() {
+      return this.$store.state.workflow.title;
     },
+    status() {
+      return this.$store.state.workflow.status;
+    },
+    stagesCount() {
+      return this.$store.state.workflow.stages.length;
+    },
+    transitionsCount() {
+      return this.$store.state.workflow.transitions.length;
+    },
+    canSave() {
+      return !!this.title && this.stagesCount > 0;
+    }
+  },
+  methods: {
     undoAction() {
-      // implement undo logic
       console.log('Undo action triggered');
     },
     redoAction() {
-      // implement redo logic
       console.log('Redo action triggered');
     },
     openStages() {
-      // open stages panel/modal
       console.log('Open stages clicked');
     },
     showShortcuts() {
-      // display keyboard shortcuts modal
       console.log('Show shortcuts clicked');
     },
     saveWorkflow() {
-      // implement save logic
       console.log('Save workflow clicked');
-    }
-  },
-  computed: {
-    workflowStore() {
-      // Have to replace this mock with actual Pinia store if
-      return {
-        lastSaved: Date.now(),
-        canSave: true
-      };
     }
   }
 };

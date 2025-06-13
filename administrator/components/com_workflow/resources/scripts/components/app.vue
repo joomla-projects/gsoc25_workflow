@@ -4,13 +4,18 @@
       <WorkflowToolbar />
     </div>
     <div class="workflow-graph-inner-container row flex-grow-1">
-      <!-- Workflow graph canvas goes here -->
+      <div id="canvas-pane" class="col-12 col-md-9 p-0 overflow-hidden">
+        <!--        canvas comes here         -->
+      </div>
+      <div id="info-pane" class="col-12 col-md-3 border-start p-3 d-flex flex-column">
+        <!--        Info pane comes here      -->
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import WorkflowToolbar from './toolbar/toolbar.vue'
+import WorkflowToolbar from './toolbar/toolbar.vue';
 
 export default {
   name: 'WorkflowGraphApp',

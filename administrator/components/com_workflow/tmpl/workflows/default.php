@@ -113,7 +113,7 @@ $userId = $user->id;
                             $states = Route::_('index.php?option=com_workflow&view=stages&workflow_id=' . $item->id . '&extension=' . $extension);
                             $transitions = Route::_('index.php?option=com_workflow&view=transitions&workflow_id=' . $item->id . '&extension=' . $extension);
                             $edit = Route::_('index.php?option=com_workflow&task=workflow.edit&id=' . $item->id . '&extension=' . $extension);
-                            $graph = Route::_('index.php?option=com_workflow&view=graph&workflow_id=' . $item->id . '&extension=' . $extension);
+                            $graph = Route::_('index.php?option=com_workflow&view=graph&id=' . $item->id . '&extension=' . $extension);
 
                             $canEdit    = $user->authorise('core.edit', $extension . '.workflow.' . $item->id);
                             $canCheckin = $user->authorise('core.admin', 'com_workflow') || $item->checked_out == $userId || is_null($item->checked_out);

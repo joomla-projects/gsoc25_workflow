@@ -12,22 +12,71 @@ namespace Joomla\Component\Workflow\Administrator\View\Graph;
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
+use Joomla\CMS\MVC\View\GenericDataException;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use Joomla\CMS\Toolbar\ToolbarHelper;
-use Joomla\Component\Workflow\Administrator\Model\GraphModel;
 use Joomla\Component\Workflow\Administrator\Helper\GraphHelper;
+use Joomla\Component\Workflow\Administrator\Model\GraphModel;
 
 // phpcs:disable PSR1.Files.SideEffects
 \defined('_JEXEC') or die;
 // phpcs:enable PSR1.Files.SideEffects
 
 /**
- * Basic view class to display the entire workflow graph
+ * View class to display the entire workflow graph
  *
  * @since  DEPLOY_VERSION
  */
 class HtmlView extends BaseHtmlView
 {
+    /**
+     * The model state
+     *
+     * @var    object
+     * @since  DEPLOY_VERSION
+     */
+    protected $state;
+
+    /**
+     * The ID of current workflow
+     *
+     * @var    integer
+     * @since  DEPLOY_VERSION
+     */
+    protected $workflow;
+
+    /**
+     * The list of current stages
+     *
+     * @var    object
+     * @since  DEPLOY_VERSION
+     */
+    protected $stages = [];
+
+    /**
+     * The list of current transitions
+     *
+     * @var    object
+     * @since  DEPLOY_VERSION
+     */
+    protected $transitions = [];
+
+    /**
+     * The name of current extension
+     *
+     * @var    string
+     * @since  DEPLOY_VERSION
+     */
+    protected $extension;
+
+    /**
+     * The section of the current extension
+     *
+     * @var    string
+     * @since  DEPLOY_VERSION
+     */
+    protected $section;
+
     /**
      * Display the view
      *
@@ -35,53 +84,71 @@ class HtmlView extends BaseHtmlView
      *
      * @return  void
      *
-     * @since  4.0.0
+     * @since  DEPLOY_VERSION
      */
-
-    protected $state;
-    protected $stages = [];
-    protected $transitions = [];
-    protected $workflow;
-
     public function display($tpl = null)
     {
         /** @var GraphModel $model */
         $model = $this->getModel();
 
-        $workflowId = Factory::getApplication()->input->getInt('workflow_id');
-        // $this->stages = $model->getStages($workflowId);
-        // $this->transitions = $model->getTransitions($workflowId);
-        // $this->workflow = $model->getTable()->load($workflowId);
+        $this->state = $model->getState();
+        $this->item  = $model->getItem();
 
-        // Error handling
-        if ($errors = $model->getErrors()) {
-            throw new \Exception(implode("\n", $errors), 500);
+        // Prepare workflow data for frontend
+        $workflowData = $this->item;
+        // Check for errors.
+        if (\count($errors = $model->getErrors())) {
+            throw new GenericDataException(implode("\n", $errors), 500);
         }
 
+        $extension = $this->state->get('filter.extension');
+
+        $parts = explode('.', $extension);
+
+        $this->extension = array_shift($parts);
+
+        if (!empty($parts)) {
+            $this->section = array_shift($parts);
+        }
+
+        // Set the toolbar
         $this->addToolbar();
+
+        // Inject workflow data as JS options for frontend
+        $this->getDocument()->addScriptOptions('com_workflow', $workflowData);
+
+        // Display the template
         parent::display($tpl);
     }
 
-
+    /**
+     * Add the page title and toolbar.
+     *
+     * @return  void
+     *
+     * @since  DEPLOY_VERSION
+     */
     protected function addToolbar()
     {
-        ToolbarHelper::title(Text::_('COM_WORKFLOW_WORKFLOWS_EDIT'), 'diagram');
-//        ToolbarHelper::save('workflow.save');
-//        ToolbarHelper::cancel('workflow.cancel', 'JTOOLBAR_CLOSE');
-    }
+        Factory::getApplication()->getInput()->set('hidemainmenu', true);
 
-    public function getStages()
-    {
-        return $this->stages;
-    }
+        $user     = $this->getCurrentUser();
+        $userId   = $user->id;
+        $toolbar  = $this->getDocument()->getToolbar();
+        $canDo      = GraphHelper::getActions($this->extension, 'workflow', $this->item->id);
 
-    public function getTransitions()
-    {
-        return $this->transitions;
-    }
+        ToolbarHelper::title(Text::_('COM_WORKFLOW_WORKFLOWS_EDIT'), 'file-alt contact');
 
-    public function getWorkflow()
-    {
-        return $this->workflow;
+        // Since it's an existing record, check the edit permission, or fall back to edit own if the owner.
+        $itemEditable = $canDo->get('core.edit') || ($canDo->get('core.edit.own') && $this->item->created_by == $userId);
+
+        if ($itemEditable){
+            if ($user->authorise('core.admin', 'com_content') || $user->authorise('core.options', 'com_content'))
+            {
+                $toolbar->preferences('com_content');
+            }
+
+            $toolbar->help('Workflow');
+        }
     }
 }
