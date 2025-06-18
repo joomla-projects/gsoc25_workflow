@@ -1,62 +1,102 @@
 <template>
-  <div class="container-fluid h-100" role="region" aria-label="Workflow Canvas">
-    <div class="row h-100">
-      <div class="col-12">
-        <!-- Replace VueFlow with a Bootstrap card list for stages and transitions -->
-        <div class="card mb-3">
-          <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-            <span>Workflow Stages</span>
-            <button class="btn btn-success btn-sm" @click="addStage">Add Stage</button>
-          </div>
-          <ul class="list-group list-group-flush">
-            <li v-for="stage in stages" :key="stage.id" class="list-group-item d-flex justify-content-between align-items-center">
-              <span>{{ stage.title }}</span>
-              <button class="btn btn-danger btn-sm" @click="removeStage(stage.id)">Remove</button>
-            </li>
-          </ul>
-        </div>
-        <div class="card">
-          <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
-            <span>Workflow Transitions</span>
-            <button class="btn btn-success btn-sm" @click="addTransition">Add Transition</button>
-          </div>
-          <ul class="list-group list-group-flush">
-            <li v-for="transition in transitions" :key="transition.id" class="list-group-item d-flex justify-content-between align-items-center">
-              <span>{{ transition.title }}</span>
-              <button class="btn btn-danger btn-sm" @click="removeTransition(transition.id)">Remove</button>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </div>
+  <div class="w-full h-100" role="region" aria-label="Workflow Canvas">
+    <VueFlow
+      :nodes="nodes"
+      :edges="edges"
+      :node-types="nodeTypes"
+      @pane-click="onPaneClick"
+      @edge-click="onEdgeClick"
+      :connection-mode="isTransitionMode ? 'loose' : 'strict'"
+      :snap-to-grid="true"
+      :snap-grid="[20, 20]"
+      class="workflow-canvas"
+      :default-viewport="{ zoom: 1, x: 0, y: 0 }"
+    >
+      <Background
+        pattern-color="#dee2e6"
+        :gap="20"
+        variant="dots"
+      />
+
+      <Controls
+        position="bottom-right"
+        :show-zoom="true"
+        :show-fit-view="true"
+        :show-interactive="true"
+        @zoom-in="handleZoomIn"
+        @zoom-out="handleZoomOut"
+        @fit-view="handleFitView"
+      />
+
+      <MiniMap
+        position="bottom-left"
+        :node-color="(node) => node.data?.stage?.color || '#0d6efd'"
+        :mask-color="'rgba(255, 255, 255, 0.8)'"
+        pannable
+        zoomable
+        aria-label="Workflow minimap"
+      />
+    </VueFlow>
   </div>
 </template>
 
 <script>
+import { VueFlow } from '@vue-flow/core'
+import { Background } from '@vue-flow/background'
+import { Controls } from '@vue-flow/controls'
+import { MiniMap } from '@vue-flow/minimap'
+
 export default {
   name: 'WorkflowCanvas',
+  components: {
+    VueFlow,
+    Background,
+    Controls,
+    MiniMap
+  },
+  data() {
+    return {
+      nodeTypes: {}, // dummy nodeTypes object
+    };
+  },
   computed: {
-    stages() {
-      return this.$store.state.workflow.stages || [];
+    nodes() {
+      return this.$store?.state?.workflow?.stages || [];
     },
-    transitions() {
-      return this.$store.state.workflow.transitions || [];
+    edges() {
+      return this.$store?.state?.workflow?.transitions || [];
+    },
+    isTransitionMode(){
+      return this.$store?.state?.workflow?.isTransitionMode || false;
     }
   },
   methods: {
+    onPaneClick() {}, // dummy handler
+    onEdgeClick() {}, // dummy handler
+    handleZoomIn() {}, // dummy handler
+    handleZoomOut() {}, // dummy handler
+    handleFitView() {}, // dummy handler
     addStage() {
       // Placeholder: implement add stage logic
-      this.$store.commit('addStage', { id: Date.now(), title: 'New Stage' });
+      if (this.$store && this.$store.commit) {
+        this.$store.commit('addStage', { id: Date.now(), title: 'New Stage' });
+      }
     },
     removeStage(id) {
-      this.$store.commit('removeStage', id);
+      if (this.$store && this.$store.commit) {
+        this.$store.commit('removeStage', id);
+      }
     },
     addTransition() {
       // Placeholder: implement add transition logic
-      this.$store.commit('addTransition', { id: Date.now(), title: 'New Transition' });
+      if (this.$store && this.$store.commit) {
+        this.$store.commit('addTransition', { id: Date.now(), title: 'New Transition' });
+      }
     },
     removeTransition(id) {
-      this.$store.commit('removeTransition', id);
+      if (this.$store && this.$store.commit) {
+        this.$store.commit('removeTransition', id);
+      }
     }
   }
 }

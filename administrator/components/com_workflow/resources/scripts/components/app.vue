@@ -4,45 +4,8 @@
       <div class="workflow-graph-title-bar border-bottom shadow-sm py-3 px-4">
         <WorkflowTitlebar />
       </div>
-      <div id="canvas-pane" class="flex-grow-1 p-0 overflow-hidden">
-        <div id="workflow-graph" class="h-100 w-100 position-relative">
-          <div class="flex flex-1 overflow-hidden">
-            <!-- Canvas Area -->
-            <main
-              class="flex-1 relative"
-              id="main-canvas"
-              role="main"
-              aria-label="Workflow Canvas"
-            >
-              <WorkflowCanvas />
-            </main>
-
-<!--            &lt;!&ndash; Right Sidebar &ndash;&gt;-->
-<!--            <Transition name="slide">-->
-<!--              <aside-->
-<!--                v-if="showEditPanel"-->
-<!--                class="w-96 border-l border-gray-200 bg-white"-->
-<!--                role="complementary"-->
-<!--                aria-label="Edit Panel"-->
-<!--              >-->
-<!--                <WorkflowEditPanel v-if="$store.state.workflow.isEditingWorkflow" />-->
-<!--                <StageEditPanel v-if="$store.state.workflow.isEditingStage" />-->
-<!--                <TransitionEditPanel v-if="$store.state.workflow.isEditingTransition" />-->
-<!--              </aside>-->
-<!--            </Transition>-->
-
-<!--            <Transition name="slide">-->
-<!--              <aside-->
-<!--                v-if="$store.state.workflow.showOverview"-->
-<!--                class="w-80 border-l border-gray-200 bg-white"-->
-<!--                role="complementary"-->
-<!--                aria-label="Workflow Overview"-->
-<!--              >-->
-<!--                <WorkflowOverview />-->
-<!--              </aside>-->
-<!--            </Transition>-->
-          </div>
-        </div>
+      <div id="canvas-pane" class="flex-grow-1 p-0 vh-100">
+          <WorkflowCanvas />
       </div>
     </div>
   </div>
