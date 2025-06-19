@@ -1,25 +1,16 @@
 <template>
-  <div class="workflow-graph-container container-fluid vh-100 d-flex flex-row">
-    <div class="col-12 p-0">
-      <div class="workflow-graph-title-bar border-bottom shadow-sm py-3 px-4">
-        <WorkflowTitlebar />
-      </div>
-      <div id="canvas-pane" class="flex-grow-1 p-0 vh-100">
-          <WorkflowCanvas />
-      </div>
-    </div>
+  <div class="d-flex flex-column flex-grow-1">
+    <WorkflowBuilder />
   </div>
 </template>
 
 <script>
-import WorkflowTitlebar from './titlebar/titlebar.vue';
-import WorkflowCanvas from './canvas/WorkflowCanvas.vue';
+import WorkflowBuilder from './builder/WorkflowBuilder.vue';
 
 export default {
   name: 'WorkflowGraphApp',
   components: {
-    WorkflowTitlebar,
-    WorkflowCanvas,
+    WorkflowBuilder,
   },
   data() {
     return {

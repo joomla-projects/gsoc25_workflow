@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full h-100" role="region" aria-label="Workflow Canvas">
+  <div class="w-100 h-100 position-relative" role="region" aria-label="Workflow Canvas">
     <VueFlow
       :nodes="nodes"
       :edges="edges"
