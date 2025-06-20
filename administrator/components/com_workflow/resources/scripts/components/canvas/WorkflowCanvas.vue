@@ -45,7 +45,7 @@ import { VueFlow } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
 import { Controls } from '@vue-flow/controls'
 import { MiniMap } from '@vue-flow/minimap'
-import StageNode from '../nodes/StageNode.vue'
+import stageNode from "../nodes/StageNode.vue";
 
 export default {
   name: 'WorkflowCanvas',
@@ -55,12 +55,10 @@ export default {
     Controls,
     MiniMap
   },
-  data() {
-    return {
-      nodeTypes: {
-        stage: StageNode
-      },
-    };
+  props: {
+    nodeTypes: {
+      stage: stageNode
+    },
   },
   computed: {
     nodes() {

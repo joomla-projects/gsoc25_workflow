@@ -19,7 +19,7 @@ Factory::getDocument()->getWebAssetManager()
 $title = Text::_('COM_WORKFLOW_PREVIEW');
 ?>
 <joomla-toolbar-button>
-    <button class="btn btn-info" onclick="">
+    <button class="btn btn-info" onclick="WorkflowGraph.Event.fire('onClickPreviewWorkflow')">
         <span class="icon-eye icon-fw" aria-hidden="true"></span>
         <?php echo $title; ?>
     </button>

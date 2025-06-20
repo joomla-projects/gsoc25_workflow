@@ -19,7 +19,7 @@ Factory::getDocument()->getWebAssetManager()
 $title = Text::_('COM_WORKFLOW_UNDO');
 ?>
 <joomla-toolbar-button>
-    <button class="btn btn-info" onclick="">
+    <button class="btn btn-info" onclick="WorkflowGraph.Event.fire('onClickUndoWorkflow')">
         <span class="icon-undo-2 icon-fw" aria-hidden="true"></span>
         <?php echo $title; ?>
     </button>
