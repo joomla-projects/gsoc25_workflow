@@ -12,5 +12,6 @@ export default {
 	  selectedStage: null
   },
 	isTransitionMode: false,
-
+	selectedStage: null,
+	selectedTransition: null,
 };

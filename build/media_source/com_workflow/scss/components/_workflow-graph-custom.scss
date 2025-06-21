@@ -141,9 +141,49 @@ body {
   z-index: 10;
 }
 
+.stage-node {
+  position: relative;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.vue-flow__handle {
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.stage-node .edge-handler{
+  width: 12px!important;
+  height: 12px!important;
+  background: var(--text-color);
+}
+
+.stage-card-actions button{
+  --btn-padding-x: 2px !important;
+  --btn-padding-y: 0px !important;
+}
+.stage-node:hover .vue-flow__handle {
+  opacity: 1;
+}
+
+.vue-flow__node-stage{
+  max-width: 300px!important;
+}
+
 /* Accessibility improvements */
 .vue-flow__controls button:focus,
 .vue-flow__minimap:focus {
   outline: 2px solid #3B82F6;
   outline-offset: 2px;
+}
+
+@media screen and (max-device-width: 769px) {
+  .vue-flow__node-stage{
+    max-width: 250px!important;
+  }
 }
