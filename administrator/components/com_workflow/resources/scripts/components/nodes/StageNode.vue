@@ -6,16 +6,16 @@
     @click="data.onSelect"
   >
     <!-- VueFlow Handles -->
-    <Handle type="target" :position="Position.Top" class="edge-handler bg-primary position-absolute top-0 start-50 translate-middle-x" />
-    <Handle type="source" :position="Position.Bottom" class="edge-handler bg-primary position-absolute bottom-0 start-50 translate-middle-x" />
-    <Handle type="target" :position="Position.Left" class="edge-handler bg-primary position-absolute top-50 start-0 translate-middle-y" />
-    <Handle type="source" :position="Position.Right" class="edge-handler bg-primary position-absolute top-50 end-0 translate-middle-y" />
+    <Handle type="target" :position="Position.Top" class="edge-handler bg-primary position-absolute top-0 start-50 translate-middle-x rounded-circle" />
+    <Handle type="source" :position="Position.Bottom" class="edge-handler bg-primary position-absolute bottom-0 start-50 translate-middle-x rounded-circle" />
+    <Handle type="target" :position="Position.Left" class="edge-handler bg-primary position-absolute top-50 start-0 translate-middle-y rounded-circle" />
+    <Handle type="source" :position="Position.Right" class="edge-handler bg-primary position-absolute top-50 end-0 translate-middle-y rounded-circle" />
 
     <!-- Stage Header -->
     <div class="card-header d-flex justify-content-between align-items-start p-1">
       <div class="flex-fill w-75">
         <h3 class="card-title mb-1 fw-semibold">{{ stage.title }}</h3>
-        <p class="card-text text-muted small mb-0 text-truncate-2">{{ stage.description }}</p>
+        <p class="card-text text-muted mb-0 text-truncate fw-light">{{ stage.description }}</p>
       </div>
 
       <!-- Actions -->
@@ -38,21 +38,21 @@
     </div>
 
     <!-- Stage Body -->
-    <div class="card-body p-3 pt-0">
+    <div class="card-body p-1 pt-0">
       <!-- Status -->
       <div class="d-flex justify-content-between align-items-center mb-2">
         <span
-          :class="statusClass"
-          class="badge rounded-pill"
+          :class="stage.published ? 'bg-success' : 'bg-danger'"
+          class="badge rounded-pill p-1"
         >
-          {{ stage.published || 'unpublished' }}
+          {{ stage.published ? 'Enabled' : 'Disabled' }}
         </span>
 
         <!-- Stage Type Badges -->
         <div class="d-flex gap-1">
           <span
             v-if="stage.default"
-            class="badge bg-success bg-opacity-10 text-success rounded-pill"
+            class="badge bg-warning bg-opacity-10 rounded-pill p-1"
           >
             Default
           </span>
@@ -118,13 +118,13 @@ export default {
     },
     stageStyle() {
       return {
-        borderColor: '#6366F1',
-        borderWidth: this.isSelected ? '3px' : '2px'
+        borderColor: this.data.stage.color + '!important',
+        borderWidth: this.isSelected ? '3px !important' : '2px !important'
       };
     },
     badgeStyle() {
       return {
-        backgroundColor: '#6366F1'
+        backgroundColor: this.data.stage.color,
       };
     }
   }

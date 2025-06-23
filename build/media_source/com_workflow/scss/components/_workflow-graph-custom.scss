@@ -1,29 +1,7 @@
-:root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-  color: var(--text-color);
-  background-color: var(--bg-color);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
 .workflow-canvas {
   background-image:
-    linear-gradient(rgba(156, 163, 175, 0.4) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(156, 163, 175, 0.4) 1px, transparent 1px);
+    linear-gradient(var(--primary-border-subtle) 1px, transparent 1px),
+    linear-gradient(90deg, var(--primary-border-subtle) 1px, transparent 1px);
   background-size: 20px 20px;
 }
 
@@ -96,7 +74,7 @@ body {
 }
 
 .workflow-canvas {
-  background-color: #f9fafb;
+  background-color: var(--primary-rgb);
 }
 
 .vue-flow__edge-path {
@@ -172,7 +150,7 @@ body {
 }
 
 .vue-flow__node-stage{
-  max-width: 300px!important;
+  max-width: 250px!important;
 }
 
 /* Accessibility improvements */
@@ -180,10 +158,4 @@ body {
 .vue-flow__minimap:focus {
   outline: 2px solid #3B82F6;
   outline-offset: 2px;
-}
-
-@media screen and (max-device-width: 769px) {
-  .vue-flow__node-stage{
-    max-width: 250px!important;
-  }
 }
