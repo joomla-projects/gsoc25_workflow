@@ -13,8 +13,11 @@ namespace Joomla\Component\Workflow\Administrator\View\Graph;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Layout\FileLayout;
+use Joomla\CMS\MVC\View\FormView;
 use Joomla\CMS\MVC\View\GenericDataException;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
+use Joomla\CMS\Router\Route;
+use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Toolbar\ToolbarHelper;
 use Joomla\Component\Workflow\Administrator\Helper\GraphHelper;
 use Joomla\Component\Workflow\Administrator\Model\GraphModel;
@@ -45,6 +48,16 @@ class HtmlView extends BaseHtmlView
      * @since  DEPLOY_VERSION
      */
     protected $workflow;
+
+
+    /**
+     * From object to generate fields
+     *
+     * @var    \Joomla\CMS\Form\Form
+     *
+     * @since  DEPLOY_VERSION
+     */
+    protected $form;
 
     /**
      * The list of current stages
@@ -143,6 +156,14 @@ class HtmlView extends BaseHtmlView
 
         // Since it's an existing record, check the edit permission, or fall back to edit own if the owner.
         $itemEditable = $canDo->get('core.edit') || ($canDo->get('core.edit.own') && $this->item->created_by == $userId);
+        $arrow  = $this->getLanguage()->isRtl() ? 'arrow-right' : 'arrow-left';
+
+        $toolbar->link(
+            'JTOOLBAR_BACK',
+            Route::_('index.php?option=com_workflow&view=workflows&extension=' . $this->escape($this->item->extension))
+        )
+            ->icon('icon-' . $arrow);
+
 
         if ($itemEditable){
             $layout = new FileLayout('toolbar.undo', JPATH_ADMINISTRATOR . '/components/com_workflow/layouts');
@@ -155,14 +176,10 @@ class HtmlView extends BaseHtmlView
                 ->html($layout->render([]));
             $toolbar->divider();
 
-            $layout = new FileLayout('toolbar.preview', JPATH_ADMINISTRATOR . '/components/com_workflow/layouts');
-            $toolbar->customButton('preview')
-                ->html($layout->render([]));
-            $toolbar->divider();
+            $toolbar->apply('workflow.apply');
+            $toolbar->save('workflow.save');
 
             $toolbar->help('Workflow');
-            $toolbar->apply('workflow.apply');
-            $toolbar->cancel('workflow.cancel', 'JTOOLBAR_CANCEL');
         }
     }
 }

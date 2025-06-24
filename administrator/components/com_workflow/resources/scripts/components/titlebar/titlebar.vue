@@ -9,8 +9,8 @@
         >
           {{ workflow.published ? 'Enabled' : 'Disabled' }}
         </span>
-        <span class="me-2 mb-1">{{ stagesCount }} stages</span>
-        <span class="me-2 mb-1">{{ transitionsCount }} transitions</span>
+        <span class="me-2 mb-1">{{ stagesCount }} {{ stagesCount === 1 ? 'Stage' : 'Stages' }}</span>
+        <span class="me-2 mb-1">{{ transitionsCount }} {{ transitionsCount === 1 ? 'Transition' : 'Transitions' }}</span>
       </div>
     </div>
   </div>

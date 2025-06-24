@@ -20,6 +20,5 @@ $wa->useStyle('com_workflow.workflowgraph');
 // Get the URI for the JavaScript module
 $script = $wa->getAsset('script', name: 'com_workflow.workflowgraph')->getUri(true);
 ?>
-
 <div id="workflow-graph-root"></div>
 <script type="module" src="<?php echo $script ?>"></script>

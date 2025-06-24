@@ -47,5 +47,13 @@ export default {
       state.workflow.transitions.splice(index, 1);
       state.workflow.transitionsCount--;
     }
-  }
+  },
+
+	setTransitionMode(state, isTransitionMode) {
+		state.isTransitionMode = isTransitionMode;
+	},
+
+	setSelectedTransition(state, transition) {
+		state.selectedTransition = transition;
+	}
 };
