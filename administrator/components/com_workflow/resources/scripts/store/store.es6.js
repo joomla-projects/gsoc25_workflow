@@ -1,16 +1,19 @@
 import { createStore } from 'vuex';
-import VuexPersistence from 'vuex-persist';
 import state from './state.es6';
-import * as getters from './getters.es6';
-import * as actions from './actions.es6';
 import mutations from './mutations.es6';
-import persistedStateOptions from './plugins/persisted-state.es6.js';
-// A Vuex instance is created by combining the state, mutations, actions, and getters.
+import actions from './actions.es6';
+import getters from './getters.es6';
+import createPersistedState from './plugins/persisted-state.es6';
+
 export default createStore({
   state,
-  getters,
-  actions,
   mutations,
-  plugins: [new VuexPersistence(persistedStateOptions).plugin],
-  strict: (process.env.NODE_ENV !== 'production'),
+  actions,
+  getters,
+  plugins: [
+    createPersistedState({
+      key: 'workflow-graph-state',
+      paths: ['canvas']
+    })
+  ]
 });

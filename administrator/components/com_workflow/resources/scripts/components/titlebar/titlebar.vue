@@ -21,13 +21,13 @@ export default {
   name: 'WorkflowTitlebar',
   computed: {
     workflow() {
-      return this.$store.state.workflow;
+      return this.$store.getters.workflow || { title: 'Loading...', published: false };
     },
     stagesCount() {
-      return this.$store.state.workflow.stages.length;
+      return this.$store.getters.stages?.length || 0;
     },
     transitionsCount() {
-      return this.$store.state.workflow.transitions.length;
+      return this.$store.getters.transitions?.length || 0;
     },
   }
 };

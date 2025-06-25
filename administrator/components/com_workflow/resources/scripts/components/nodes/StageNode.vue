@@ -3,7 +3,7 @@
     class="stage-node card p-3 border shadow-sm position-relative"
     :class="{ 'shadow': isSelected, 'hover-shadow': !isSelected }"
     :style="stageStyle"
-    @click="data.onSelect"
+    @click="onSelected"
   >
     <!-- VueFlow Handles -->
     <Handle type="target" :position="Position.Top" class="edge-handler bg-primary position-absolute top-0 start-50 translate-middle-x rounded-circle" />
@@ -126,6 +126,9 @@ export default {
       return {
         backgroundColor: this.data.stage.color,
       };
+    },
+    onSelected() {
+      this.data.onSelect()
     }
   }
 }

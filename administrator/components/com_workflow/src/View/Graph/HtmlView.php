@@ -109,7 +109,11 @@ class HtmlView extends BaseHtmlView
         $this->item  = $model->getItem();
 
         // Prepare workflow data for frontend
-        $workflowData = $this->item;
+        $options = [
+            'apiBaseUrl' => Route::_('index.php?option=com_workflow'),
+            'workflowId' => $this->item->id,
+        ];
+
         // Check for errors.
         if (\count($errors = $model->getErrors())) {
             throw new GenericDataException(implode("\n", $errors), 500);
@@ -129,7 +133,7 @@ class HtmlView extends BaseHtmlView
         $this->addToolbar();
 
         // Inject workflow data as JS options for frontend
-        $this->getDocument()->addScriptOptions('com_workflow', $workflowData);
+        $this->getDocument()->addScriptOptions('com_workflow', $options);
 
         // Display the template
         parent::display($tpl);

@@ -1,17 +1,15 @@
-import persistedStateOptions from './plugins/persisted-state.es6';
-
-const workflowData = Joomla.getOptions('com_workflow', {});
-
 export default {
-  workflow: {
-	  id: workflowData?.id || null,
-	  title: workflowData?.title || '',
-	  published: workflowData?.published || 0,
-	  stages: workflowData?.stages || [],
-	  transitions: workflowData?.transitions || [],
-	  selectedStage: null
-  },
-	isTransitionMode: false,
-	selectedStage: null,
-	selectedTransition: null,
+	workflowId: null,
+	workflow: null,
+	stages: [],
+	transitions: [],
+	loading: false,
+	error: null,
+	history: [],
+	historyIndex: -1,
+	canvas: {
+		zoom: 1,
+		panX: 0,
+		panY: 0
+	}
 };
