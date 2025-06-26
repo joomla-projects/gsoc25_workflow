@@ -66,7 +66,6 @@ export default {
     onMounted(() => {
       // Extract workflow ID from the URL or from Joomla options
       const options = Joomla.getOptions('com_workflow', {});
-      console.log(options);
       const workflowId = options.workflowId || parseInt(new URL(window.location.href).searchParams.get('id'), 10);
 
       if (workflowId) {

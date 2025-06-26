@@ -8,171 +8,157 @@ class WorkflowGraphApi {
     }
     this.baseUrl = options.apiBaseUrl;
     this.csrfToken = Joomla.getOptions('csrf.token');
+    if (!this.csrfToken) {
+      console.warn('CSRF token not found');
+    }
   }
 
-  getWorkflow(id) {
+  /**
+   * Generic request method with better error handling
+   */
+  async makeRequest(url, options = {}) {
+    const defaultOptions = {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    };
+
+    // Add CSRF token for POST requests
+    if (options.method === 'POST' && this.csrfToken) {
+      defaultOptions.headers['X-CSRF-Token'] = this.csrfToken;
+    }
+
+    const config = { ...defaultOptions, ...options };
+
     return new Promise((resolve, reject) => {
       Joomla.request({
-        url: `${this.baseUrl}&task=workflow.getItem&id=${id}&format=json`,
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
+        url: `${this.baseUrl}${url}`,
+        ...config,
         onSuccess: (response) => {
-          const data = JSON.parse(response);
-          if (data.success) {
-            resolve(data.data);
-          } else {
-            reject(new Error(data.message || 'Failed to fetch workflow'));
+          try {
+            const data = typeof response === 'string' ? JSON.parse(response) : response;
+
+            if (data.success === false) {
+              reject(new Error(data.message || 'Request failed'));
+              return;
+            }
+
+            resolve(data.data || data);
+          } catch (e) {
+            reject(new Error('Invalid JSON response'));
           }
         },
         onError: (xhr) => {
-          reject(new Error(xhr.statusText));
+          let message = 'Network error';
+          try {
+            const errorData = JSON.parse(xhr.responseText);
+            message = errorData.message || message;
+          } catch (e) {
+            message = xhr.statusText || message;
+          }
+          reject(new Error(message));
         }
       });
     });
   }
 
-  getStages(workflowId) {
-    return new Promise((resolve, reject) => {
-      Joomla.request({
-        url: `${this.baseUrl}&task=stages.getItems&workflow_id=${workflowId}&format=json`,
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-        onSuccess: (response) => {
-          const data = JSON.parse(response);
-          if (data.success) {
-            resolve(data.data);
-          } else {
-            reject(new Error(data.message || 'Failed to fetch stages'));
-          }
-        },
-        onError: (xhr) => {
-          reject(new Error(xhr.statusText));
-        }
-      });
-    });
+  async getWorkflow(id) {
+    try {
+      const data = await this.makeRequest(`&task=graph.getWorkflow&id=${id}&format=json`);
+      WorkflowGraph.Event.fire('onWorkflowLoaded', { workflow: data });
+      return data;
+    } catch (error) {
+      WorkflowGraph.Event.fire('onWorkflowError', { error: error.message });
+      throw error;
+    }
   }
 
-  getTransitions(workflowId) {
-    return new Promise((resolve, reject) => {
-      Joomla.request({
-        url: `${this.baseUrl}&task=transitions.getItems&workflow_id=${workflowId}&format=json`,
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-        onSuccess: (response) => {
-          const data = JSON.parse(response);
-          if (data.success) {
-            resolve(data.data);
-          } else {
-            reject(new Error(data.message || 'Failed to fetch transitions'));
-          }
-        },
-        onError: (xhr) => {
-          reject(new Error(xhr.statusText));
-        }
-      });
-    });
+  async getStages(workflowId) {
+    try {
+      const data = await this.makeRequest(`&task=graph.getStages&workflow_id=${workflowId}&format=json`);
+      WorkflowGraph.Event.fire('onStagesLoaded', { stages: data });
+      return data;
+    } catch (error) {
+      WorkflowGraph.Event.fire('onStagesError', { error: error.message });
+      throw error;
+    }
   }
 
-  saveStage(stage) {
-    return new Promise((resolve, reject) => {
-      Joomla.request({
-        url: `${this.baseUrl}&task=stage.save&format=json`,
+  async getTransitions(workflowId) {
+    try {
+      const data = await this.makeRequest(`&task=graph.getTransitions&workflow_id=${workflowId}&format=json`);
+      WorkflowGraph.Event.fire('onTransitionsLoaded', { transitions: data });
+      return data;
+    } catch (error) {
+      WorkflowGraph.Event.fire('onTransitionsError', { error: error.message });
+      throw error;
+    }
+  }
+
+  async saveStage(stage) {
+    try {
+      const data = await this.makeRequest('&task=stage.saveStage&format=json', {
         method: 'POST',
-        data: JSON.stringify(stage),
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': this.csrfToken
-        },
-        onSuccess: (response) => {
-          const data = JSON.parse(response);
-          if (data.success) {
-            resolve(data.data);
-            Event.fire('onStageChanged', { stage: data.data });
-          } else {
-            reject(new Error(data.message || 'Failed to save stage'));
-          }
-        },
-        onError: (xhr) => {
-          reject(new Error(xhr.statusText));
-        }
+        data: JSON.stringify(stage)
       });
-    });
+      WorkflowGraph.Event.fire('onStageChanged', { stage: data });
+      return data;
+    } catch (error) {
+      WorkflowGraph.Event.fire('onStageError', { error: error.message });
+      throw error;
+    }
   }
 
-  saveTransition(transition) {
-    return new Promise((resolve, reject) => {
-      Joomla.request({
-        url: `${this.baseUrl}&task=transition.save&format=json`,
+  async saveTransition(transition) {
+    try {
+      const data = await this.makeRequest('&task=transition.saveTransition&format=json', {
         method: 'POST',
-        data: JSON.stringify(transition),
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': this.csrfToken
-        },
-        onSuccess: (response) => {
-          const data = JSON.parse(response);
-          if (data.success) {
-            resolve(data.data);
-            Event.fire('onTransitionChanged', { transition: data.data });
-          } else {
-            reject(new Error(data.message || 'Failed to save transition'));
-          }
-        },
-        onError: (xhr) => {
-          reject(new Error(xhr.statusText));
-        }
+        data: JSON.stringify(transition)
       });
-    });
+      WorkflowGraph.Event.fire('onTransitionChanged', { transition: data });
+      return data;
+    } catch (error) {
+      WorkflowGraph.Event.fire('onTransitionError', { error: error.message });
+      throw error;
+    }
   }
 
-  deleteStage(id) {
-    return new Promise((resolve, reject) => {
-      Joomla.request({
-        url: `${this.baseUrl}&task=stage.delete&id=${id}&format=json`,
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': this.csrfToken
-        },
-        onSuccess: (response) => {
-          const data = JSON.parse(response);
-          if (data.success) {
-            resolve(true);
-            Event.fire('onStageDeleted', { id });
-          } else {
-            reject(new Error(data.message || 'Failed to delete stage'));
-          }
-        },
-        onError: (xhr) => {
-          reject(new Error(xhr.statusText));
-        }
+  async deleteStage(id) {
+    try {
+      await this.makeRequest(`&task=stage.deleteStage&id=${id}&format=json`, {
+        method: 'POST'
       });
-    });
+      WorkflowGraph.Event.fire('onStageDeleted', { id });
+      return true;
+    } catch (error) {
+      WorkflowGraph.Event.fire('onStageError', { error: error.message });
+      throw error;
+    }
   }
 
-  deleteTransition(id) {
-    return new Promise((resolve, reject) => {
-      Joomla.request({
-        url: `${this.baseUrl}&task=transition.delete&id=${id}&format=json`,
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': this.csrfToken
-        },
-        onSuccess: (response) => {
-          const data = JSON.parse(response);
-          if (data.success) {
-            resolve(true);
-            Event.fire('onTransitionDeleted', { id });
-          } else {
-            reject(new Error(data.message || 'Failed to delete transition'));
-          }
-        },
-        onError: (xhr) => {
-          reject(new Error(xhr.statusText));
-        }
+  async deleteTransition(id) {
+    try {
+      await this.makeRequest(`&task=transition.deleteTransition&id=${id}&format=json`, {
+        method: 'POST'
       });
-    });
+      WorkflowGraph.Event.fire('onTransitionDeleted', { id });
+      return true;
+    } catch (error) {
+      WorkflowGraph.Event.fire('onTransitionError', { error: error.message });
+      throw error;
+    }
+  }
+
+  async updateStagePosition(stageId, position) {
+    try {
+      const stage = { id: stageId, position: position };
+      return await this.saveStage(stage);
+    } catch (error) {
+      WorkflowGraph.WorkflowGraph.Event.fire('onStageError', { error: error.message });
+      throw error;
+    }
   }
 }
 

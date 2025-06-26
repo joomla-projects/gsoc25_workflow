@@ -29,7 +29,7 @@ use Joomla\Component\Workflow\Administrator\Model\GraphModel;
 /**
  * View class to display the entire workflow graph
  *
- * @since  DEPLOY_VERSION
+ * @since  _DEPLOY_VERSION_
  */
 class HtmlView extends BaseHtmlView
 {
@@ -37,7 +37,7 @@ class HtmlView extends BaseHtmlView
      * The model state
      *
      * @var    object
-     * @since  DEPLOY_VERSION
+     * @since  _DEPLOY_VERSION_
      */
     protected $state;
 
@@ -45,7 +45,7 @@ class HtmlView extends BaseHtmlView
      * The ID of current workflow
      *
      * @var    integer
-     * @since  DEPLOY_VERSION
+     * @since  _DEPLOY_VERSION_
      */
     protected $workflow;
 
@@ -55,7 +55,7 @@ class HtmlView extends BaseHtmlView
      *
      * @var    \Joomla\CMS\Form\Form
      *
-     * @since  DEPLOY_VERSION
+     * @since  _DEPLOY_VERSION_
      */
     protected $form;
 
@@ -63,7 +63,7 @@ class HtmlView extends BaseHtmlView
      * The list of current stages
      *
      * @var    object
-     * @since  DEPLOY_VERSION
+     * @since  _DEPLOY_VERSION_
      */
     protected $stages = [];
 
@@ -71,7 +71,7 @@ class HtmlView extends BaseHtmlView
      * The list of current transitions
      *
      * @var    object
-     * @since  DEPLOY_VERSION
+     * @since  _DEPLOY_VERSION_
      */
     protected $transitions = [];
 
@@ -79,7 +79,7 @@ class HtmlView extends BaseHtmlView
      * The name of current extension
      *
      * @var    string
-     * @since  DEPLOY_VERSION
+     * @since  _DEPLOY_VERSION_
      */
     protected $extension;
 
@@ -87,7 +87,7 @@ class HtmlView extends BaseHtmlView
      * The section of the current extension
      *
      * @var    string
-     * @since  DEPLOY_VERSION
+     * @since  _DEPLOY_VERSION_
      */
     protected $section;
 
@@ -98,7 +98,7 @@ class HtmlView extends BaseHtmlView
      *
      * @return  void
      *
-     * @since  DEPLOY_VERSION
+     * @since  _DEPLOY_VERSION_
      */
     public function display($tpl = null)
     {
@@ -144,7 +144,7 @@ class HtmlView extends BaseHtmlView
      *
      * @return  void
      *
-     * @since  DEPLOY_VERSION
+     * @since  _DEPLOY_VERSION_
      */
     protected function addToolbar()
     {

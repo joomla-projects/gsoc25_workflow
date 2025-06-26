@@ -179,8 +179,8 @@ $userId = $user->id;
                                     </div>
                                 </td>
                                 <td class="text-center btns d-none d-md-table-cell">
-                                    <a class="btn btn-secondary" href="<?php echo $graph; ?>" aria-describedby="tip-graph<?php echo $i; ?>">
-                                        <?php echo Text::_('COM_WORKFLOW_GRAPH'); ?>
+                                    <a class="btn btn-secondary px-1 py-0" href="<?php echo $graph; ?>" aria-describedby="tip-graph<?php echo $i; ?>">
+                                        <span class="icon-move" aria-hidden="true"></span>
                                     </a>
                                     <div role="tooltip" id="tip-graph<?php echo $i; ?>">
                                         <?php echo Text::_('COM_WORKFLOW_GRAPH'); ?>

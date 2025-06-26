@@ -21,7 +21,7 @@ use Joomla\CMS\Helper\ContentHelper;
  * package as declared at the start of file but
  * this example has a defined subpackage
  *
- * @since  DEPLOY_VERSION
+ * @since  _DEPLOY_VERSION_
  */
 class GraphHelper extends ContentHelper
 {

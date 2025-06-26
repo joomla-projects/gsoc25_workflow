@@ -6,15 +6,13 @@
  *
  * @copyright   (C) 2025 Open Source Matters, Inc. <https://www.joomla.org>
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
- * @since       DEPLOY_VERSION
+ * @since       _DEPLOY_VERSION_
  */
 
 namespace Joomla\Component\Workflow\Administrator\Model;
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\AdminModel;
-use Joomla\Database\ParameterType;
-use Joomla\Database\QueryInterface;
 use Joomla\Registry\Registry;
 use Joomla\Utilities\ArrayHelper;
 
@@ -25,7 +23,7 @@ use Joomla\Utilities\ArrayHelper;
 /**
  * Model class for Graphical View of the workflow
  *
- * @since  DEPLOY_VERSION
+ * @since  _DEPLOY_VERSION_
  */
 class GraphModel extends AdminModel
 {
@@ -63,7 +61,7 @@ class GraphModel extends AdminModel
      *
      * @return  Form|boolean A Form object on success, false on failure
      *
-     * @since   DEPLOY_VERSION
+     * @since   _DEPLOY_VERSION_
      */
     public function getForm($data = [], $loadData = true)
     {

@@ -45,6 +45,7 @@ export default {
 	REMOVE_TRANSITION(state, id) {
 		state.transitions = state.transitions.filter(t => t.id !== id);
 	},
+	// TODO: Implement a more robust way to handle stage positions
 	UPDATE_STAGE_POSITION(state, { id, x, y }) {
 		const stage = state.stages.find(s => s.id === id);
 		if (stage) {

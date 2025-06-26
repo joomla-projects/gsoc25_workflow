@@ -104,10 +104,6 @@ export default {
       type: Object,
       required: true
     },
-    isSelected: {
-      type: Boolean,
-      default: false
-    }
   },
   computed: {
     Position() {
@@ -116,10 +112,14 @@ export default {
     stage() {
       return this.data.stage;
     },
+    isSelected() {
+      return this.data.isSelected;
+    },
     stageStyle() {
       return {
         borderColor: this.data.stage.color + '!important',
-        borderWidth: this.isSelected ? '3px !important' : '2px !important'
+        borderWidth: this.data.isSelected ? '4px !important' : '2px !important'
+
       };
     },
     badgeStyle() {

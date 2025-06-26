@@ -1,5 +1,6 @@
 <?php
 
+
 /**
  * @package     Joomla.Administrator
  * @subpackage  com_workflow
@@ -10,28 +11,27 @@
 
 namespace Joomla\Component\Workflow\Administrator\Controller;
 
-use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\Controller\AdminController;
-use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
-use Joomla\Input\Input;
+use Joomla\CMS\Response\JsonResponse;
 
 // phpcs:disable PSR1.Files.SideEffects
 \defined('_JEXEC') or die;
 // phpcs:enable PSR1.Files.SideEffects
 
+
 /**
- * The workflow Graphical View controller
+ * The workflow Graphical View and Api controller
  *
- * @since DEPLOY_VERSION
+ * @since _DEPLOY_VERSION_
  */
 class GraphController extends AdminController
 {
     /**
-     * The workflow in where the stage belongs to
+     * Present workflow id
      *
      * @var    integer
-     * @since  DEPLOY_VERSION
+     * @since  _DEPLOY_VERSION_
      */
     protected $workflowId;
 
@@ -39,7 +39,7 @@ class GraphController extends AdminController
      * The extension
      *
      * @var    string
-     * @since  DEPLOY_VERSION
+     * @since  _DEPLOY_VERSION_
      */
     protected $extension;
 
@@ -47,7 +47,7 @@ class GraphController extends AdminController
      * The section of the current extension
      *
      * @var    string
-     * @since  DEPLOY_VERSION
+     * @since  _DEPLOY_VERSION_
      */
     protected $section;
 
@@ -55,88 +55,148 @@ class GraphController extends AdminController
      * The prefix to use with controller messages.
      *
      * @var    string
-     * @since  DEPLOY_VERSION
+     * @since  _DEPLOY_VERSION_
      */
     protected $text_prefix = 'COM_WORKFLOW_GRAPH';
 
     /**
-     * Constructor.
+     * Retrieves workflow data for graphical display in the workflow graph view.
      *
-     * @param   array                 $config   An optional associative array of configuration settings.
-     * @param   ?MVCFactoryInterface  $factory  The factory.
-     * @param   ?CMSApplication       $app      The Application for the dispatcher
-     * @param   ?Input                $input    Input
+     * This method fetches the workflow details by ID, checks user permissions,
+     * and returns the workflow information as a JSON response for use in the
+     * graphical workflow editor or API consumers.
      *
-     * @since   DEPLOY_VERSION
-     * @throws  \InvalidArgumentException when no extension or workflow id is set
+     * @return  void  Outputs a JSON response with workflow data or error message.
+     *
+     * @since   _DEPLOY_VERSION_
      */
-    public function __construct(array $config = [], ?MVCFactoryInterface $factory = null, $app = null, $input = null)
+    public function getWorkflow(): void
     {
-        parent::__construct($config, $factory, $app, $input);
+        try {
+            $id = $this->input->getInt('id');
+            $model = $this->getModel('Workflow');
 
-        // If workflow id is not set try to get it from input or throw an exception
-        if (empty($this->workflowId)) {
-            $this->workflowId = $this->input->getInt('workflow_id');
-
-            if (empty($this->workflowId)) {
-                throw new \InvalidArgumentException(Text::_('COM_WORKFLOW_ERROR_WORKFLOW_ID_NOT_SET'));
+            if (!$id) {
+                throw new \InvalidArgumentException(Text::_('COM_WORKFLOW_ERROR_INVALID_ID'));
             }
+
+            $workflow = $model->getItem($id);
+
+            if (!$workflow->id) {
+                throw new \RuntimeException(Text::_('COM_WORKFLOW_ERROR_WORKFLOW_NOT_FOUND'));
+            }
+
+            // Check permissions
+            if (!$this->app->getIdentity()->authorise('core.edit', $this->extension . '.workflow.' . $id)) {
+                throw new \RuntimeException(Text::_('JERROR_ALERTNOAUTHOR'));
+            }
+
+            $response = [
+                'id' => $workflow->id,
+                'title' => $workflow->title,
+                'description' => $workflow->description,
+                'published' => (bool)$workflow->published,
+                'default' => (bool)$workflow->default,
+                'extension' => $workflow->extension
+            ];
+
+            echo new JsonResponse($response);
+        } catch (\Exception $e) {
+            echo new JsonResponse($e->getMessage(), 'error', true);
         }
 
-        // If extension is not set try to get it from input or throw an exception
-        if (empty($this->extension)) {
-            $extension = $this->input->getCmd('extension');
-
-            $parts = explode('.', $extension);
-
-            $this->extension = array_shift($parts);
-
-            if (!empty($parts)) {
-                $this->section = array_shift($parts);
-            }
-
-            if (empty($this->extension)) {
-                throw new \InvalidArgumentException(Text::_('COM_WORKFLOW_ERROR_EXTENSION_NOT_SET'));
-            }
-        }
+        $this->app->close();
     }
 
     /**
-     * Proxy for getModel
+     * Retrieves all stages for the specified workflow to be used in the workflow graph view.
      *
-     * @param   string  $name    The model name. Optional.
-     * @param   string  $prefix  The class prefix. Optional.
-     * @param   array   $config  The array of possible config values. Optional.
+     * Fetches stages by workflow ID, decodes position data if available, and returns
+     * the result as a JSON response for graphical editors or API consumers.
      *
-     * @return  \Joomla\CMS\MVC\Model\BaseDatabaseModel  The model.
+     * @return  void  Outputs a JSON response with stages data or error message.
      *
-     * @since  DEPLOY_VERSION
+     * @since   _DEPLOY_VERSION_
      */
-    public function getModel($name = 'Graph', $prefix = 'Administrator', $config = ['ignore_request' => true])
+    public function getStages()
     {
-        return parent::getModel($name, $prefix, $config);
+        try {
+            $workflowId = $this->input->getInt('workflow_id');
+            $model = $this->getModel('Stages');
+
+            $model->setState('filter.workflow_id', $workflowId);
+            $model->setState('list.limit', 0); // Get all stages
+
+            $stages = $model->getItems();
+            $response = [];
+
+            foreach ($stages as $stage) {
+                $position = null;
+                if (!empty($stage->params)) {
+                    $params = json_decode($stage->params, true);
+                    $position = $params['position'] ?? null;
+                }
+
+                $response[] = [
+                    'id' => (int)$stage->id,
+                    'title' => $stage->title,
+                    'description' => $stage->description,
+                    'published' => (bool)$stage->published,
+                    'default' => (bool)$stage->default,
+                    'ordering' => (int)$stage->ordering,
+                    'position' => $position,
+                    'workflow_id' => (int)$stage->workflow_id
+                ];
+            }
+            echo new JsonResponse($response);
+        } catch (\Exception $e) {
+            echo new JsonResponse($e->getMessage(), 'error', true);
+        }
+
+        $this->app->close();
     }
 
 
     /**
-     * Displays the graphical view of the workflow.
+     * Retrieves all transitions for the specified workflow to be used in the workflow graph view.
      *
-     * This method sets up the view for the workflow graph and assigns the corresponding model to it.
-     * It then delegates the display logic to the parent class's `display` method.
+     * Fetches transitions by workflow ID and returns the result as a JSON response
+     * for graphical editors or API consumers.
      *
-     * @param   boolean  $cachable   If true, the view output will be cached. Default is false.
-     * @param   array    $urlparams  An associative array of safe URL parameters and their variable types.
+     * @return  void  Outputs a JSON response with transitions data or error message.
      *
-     * @return  mixed    The rendered view or parent display output.
-     *
-     * @since   DEPLOY_VERSION
+     * @since   _DEPLOY_VERSION_
      */
-    public function display($cachable = false, $urlparams = array())
+    public function getTransitions()
     {
-        $view = $this->getView('graph', 'html');
-        $view->setModel($this->getModel('Graph'), true);
+        try {
+            $workflowId = $this->input->getInt('workflow_id');
+            $model = $this->getModel('Transitions');
 
-        return parent::display($cachable, $urlparams);
+            $model->setState('filter.workflow_id', $workflowId);
+            $model->setState('list.limit', 0);
+
+            $transitions = $model->getItems();
+            $response = [];
+
+            foreach ($transitions as $transition) {
+                $response[] = [
+                    'id' => (int)$transition->id,
+                    'title' => $transition->title,
+                    'description' => $transition->description,
+                    'published' => (bool)$transition->published,
+                    'from_stage_id' => (int)$transition->from_stage_id,
+                    'to_stage_id' => (int)$transition->to_stage_id,
+                    'ordering' => (int)$transition->ordering,
+                    'workflow_id' => (int)$transition->workflow_id
+                ];
+            }
+
+            echo new JsonResponse($response);
+        } catch (\Exception $e) {
+            echo new JsonResponse($e->getMessage(), 'error', true);
+        }
+
+        $this->app->close();
     }
-
 }
