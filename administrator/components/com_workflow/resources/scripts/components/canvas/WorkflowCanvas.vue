@@ -47,6 +47,38 @@
         </button>
       </Panel>
     </VueFlow>
+
+    <!-- Modal Container -->
+    <joomla-dialog
+      v-if="modalActive"
+      class="joomla-dialog-content-select-field loaded"
+      type="iframe"
+    >
+      <dialog open class="position-absolute top-0">
+        <div class="joomla-dialog-container">
+          <header class="joomla-dialog-header">
+            <h3>{{ translate(modalTitle) }}</h3>
+            <div class="buttons-holder">
+              <button
+                type="button"
+                aria-label="Close"
+                class="button-close btn-close"
+                @click="closeModal"
+              ></button>
+            </div>
+          </header>
+          <section class="joomla-dialog-body">
+            <iframe
+              v-if="modalUrl"
+              :src="modalUrl"
+              class="iframe-content w-100"
+              style="height: 70vh"
+            ></iframe>
+          </section>
+          <footer class="joomla-dialog-footer empty"></footer>
+        </div>
+      </dialog>
+    </joomla-dialog>
   </div>
 </template>
 
@@ -98,6 +130,9 @@ export default {
     const isTransitionMode = ref(false);
     const selectedStage = ref(null);
     const selectedTransition = ref(null);
+    const modalActive = ref(false);
+    const modalTitle = ref('');
+    const modalUrl = ref('');
 
     // Computed properties
     const stages = computed(() => store.getters.stages || []);
@@ -226,7 +261,11 @@ export default {
     }
 
     function editStage(stage) {
-      // TODO: Implement stage editing logic
+      this.openModal('stage', stage.id);
+    }
+
+    function editTransition(transition) {
+      this.openModal('transition', transition.id);
     }
 
     function deleteStage(stageId) {
@@ -257,22 +296,11 @@ export default {
     }
 
     async function addStage() {
-      try {
-        const newStage = {
-          title: `New Stage ${stages.value.length + 1}`,
-          description: '',
-          position: { x: 200, y: 200 },
-          published: 1
-        };
-
-        await store.dispatch('createStage', newStage);
-      } catch (error) {
-        console.error('Error adding stage:', error);
-      }
+      this.openModal('stage');
     }
 
     function addTransition() {
-      toggleTransitionMode();
+      this.openModal('transition');
     }
 
     function onPaneClick() {
@@ -294,6 +322,29 @@ export default {
       }
     }
 
+    function openModal(type, id = null) {
+      const workflowId = store.getters.workflowId;
+      const options = Joomla.getOptions('com_workflow', {});
+      const extension = options.extension || null;
+
+
+      let base = `index.php?option=com_workflow&view=${type}&workflow_id=${workflowId}&extension=${extension}&layout=modal&tmpl=component`;
+      if (id) {
+        base += `&id=${id}`;
+      }
+      modalUrl.value = base;
+      this.modalTitle = id
+        ? `COM_WORKFLOW_EDIT_${type.toUpperCase()}`
+        : `COM_WORKFLOW_ADD_${type.toUpperCase()}`;
+      this.modalActive = true;
+    }
+    function closeModal() {
+      modalActive.value = false;
+      modalUrl.value = '';
+
+      store.dispatch('loadWorkflow', this.$store.getters.workflowId);
+    }
+
 
     function retryLoad() {
       const workflowId = store.getters.workflowId;
@@ -308,9 +359,20 @@ export default {
       isTransitionMode,
       positionedNodes,
       styledEdges,
+      modalActive,
+      modalTitle,
+      modalUrl,
       handleConnect,
       toggleTransitionMode,
       addStage,
+      addTransition,
+      openModal,
+      closeModal,
+      selectStage,
+      selectTransition,
+      editStage,
+      editTransition,
+      deleteStage,
       onPaneClick,
       onEdgeClick,
       onNodeDragStop,

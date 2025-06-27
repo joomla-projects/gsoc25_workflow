@@ -7,5 +7,5 @@ export default {
 	error: state => state.error,
 	canUndo: state => state.historyIndex > 0,
 	canRedo: state => state.historyIndex < state.history.length - 1,
-	canvas: state => state.canvas
+	canvas: state => state.canvas,
 };

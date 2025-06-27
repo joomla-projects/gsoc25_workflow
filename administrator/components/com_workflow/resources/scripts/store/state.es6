@@ -11,5 +11,5 @@ export default {
 		zoom: 1,
 		panX: 0,
 		panY: 0
-	}
+	},
 };
