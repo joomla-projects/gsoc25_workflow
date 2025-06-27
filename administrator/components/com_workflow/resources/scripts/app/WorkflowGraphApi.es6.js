@@ -7,6 +7,11 @@ class WorkflowGraphApi {
       throw new TypeError('Workflow API baseUrl is not defined');
     }
     this.baseUrl = options.apiBaseUrl;
+
+    if (!options.extension) {
+      throw new TypeError('Workflow API extension is not defined');
+    }
+    this.extension = options.extension;
     this.csrfToken = Joomla.getOptions('csrf.token');
     if (!this.csrfToken) {
       console.warn('CSRF token not found');
@@ -34,7 +39,7 @@ class WorkflowGraphApi {
 
     return new Promise((resolve, reject) => {
       Joomla.request({
-        url: `${this.baseUrl}${url}`,
+        url: `${this.baseUrl}${url}&extension=${this.extension}`,
         ...config,
         onSuccess: (response) => {
           try {

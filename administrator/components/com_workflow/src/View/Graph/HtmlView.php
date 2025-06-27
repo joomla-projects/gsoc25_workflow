@@ -104,12 +104,6 @@ class HtmlView extends BaseHtmlView
         $this->state = $model->getState();
         $this->item  = $model->getItem();
 
-        // Prepare workflow data for frontend
-        $options = [
-            'apiBaseUrl' => Route::_('index.php?option=com_workflow'),
-            'workflowId' => $this->item->id,
-        ];
-
         // Check for errors.
         if (\count($errors = $model->getErrors())) {
             throw new GenericDataException(implode("\n", $errors), 500);
@@ -124,6 +118,14 @@ class HtmlView extends BaseHtmlView
         if (!empty($parts)) {
             $this->section = array_shift($parts);
         }
+
+        // Prepare workflow data for frontend
+        $options = [
+            'apiBaseUrl' => Route::_('index.php?option=com_workflow'),
+            'extension' => $this->escape($this->extension),
+            'workflowId' => $this->item->id,
+        ];
+
 
         // Set the toolbar
         $this->addToolbar();

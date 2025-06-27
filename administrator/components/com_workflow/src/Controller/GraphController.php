@@ -145,7 +145,7 @@ class GraphController extends AdminController
                     'default' => (bool)$stage->default,
                     'ordering' => (int)$stage->ordering,
                     'position' => $position,
-                    'workflow_id' => (int)$stage->workflow_id
+                    'workflow_id' => $stage->workflow_id,
                 ];
             }
             echo new JsonResponse($response);

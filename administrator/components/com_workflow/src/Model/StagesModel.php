@@ -140,6 +140,7 @@ class StagesModel extends ListModel
                     $db->quoteName('s.ordering'),
                     $db->quoteName('s.default'),
                     $db->quoteName('s.published'),
+                    $db->quoteName('s.workflow_id'),
                     $db->quoteName('s.checked_out'),
                     $db->quoteName('s.checked_out_time'),
                     $db->quoteName('s.description'),
