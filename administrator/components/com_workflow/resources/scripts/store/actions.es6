@@ -138,6 +138,14 @@ export default {
 		commit('SET_ERROR', null);
 
 		try {
+			const transitions = state.transitions.filter(t =>
+				t.from_stage_id === id || t.to_stage_id === id
+			);
+
+			if (transitions.length > 0) {
+				throw new Error('COM_WORKFLOW_ERROR_STAGE_HAS_TRANSITIONS');
+			}
+
 			await workflowGraphApi.deleteStage(id);
 			commit('REMOVE_STAGE', id);
 			dispatch('saveToHistory');

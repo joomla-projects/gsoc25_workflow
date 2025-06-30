@@ -58,24 +58,6 @@
           </span>
         </div>
       </div>
-
-      <!-- Roles -->
-<!--      <div v-if="stage.allowedRoles.length > 0" class="d-flex align-items-center">-->
-<!--        <i class="bi bi-people text-muted me-2" style="font-size: 0.875rem;"></i>-->
-<!--        <div class="d-flex flex-wrap gap-1">-->
-<!--          <span-->
-<!--            v-for="role in stage.allowedRoles.slice(0, 2)"-->
-<!--            :key="role"-->
-<!--            class="badge bg-light text-dark"-->
-<!--            style="font-size: 0.75rem;"-->
-<!--          >-->
-<!--            {{ role }}-->
-<!--          </span>-->
-<!--          <span v-if="stage.allowedRoles.length > 2" class="badge bg-light text-muted" style="font-size: 0.75rem;">-->
-<!--            +{{ stage.allowedRoles.length - 2 }} more-->
-<!--          </span>-->
-<!--        </div>-->
-<!--      </div>-->
     </div>
 
     <!-- Color Indicator -->
