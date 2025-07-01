@@ -102,34 +102,6 @@ class WorkflowGraphApi {
     }
   }
 
-  async saveStage(stage) {
-    try {
-      const data = await this.makeRequest('&task=stage.saveStage&format=json', {
-        method: 'POST',
-        data: JSON.stringify(stage)
-      });
-      WorkflowGraph.Event.fire('onStageChanged', { stage: data });
-      return data;
-    } catch (error) {
-      WorkflowGraph.Event.fire('onStageError', { error: error.message });
-      throw error;
-    }
-  }
-
-  async saveTransition(transition) {
-    try {
-      const data = await this.makeRequest('&task=transition.saveTransition&format=json', {
-        method: 'POST',
-        data: JSON.stringify(transition)
-      });
-      WorkflowGraph.Event.fire('onTransitionChanged', { transition: data });
-      return data;
-    } catch (error) {
-      WorkflowGraph.Event.fire('onTransitionError', { error: error.message });
-      throw error;
-    }
-  }
-
   async deleteStage(id) {
     try {
       await this.makeRequest(`&task=stage.deleteStage&id=${id}&format=json`, {
@@ -156,15 +128,15 @@ class WorkflowGraphApi {
     }
   }
 
-  async updateStagePosition(stageId, position) {
-    try {
-      const stage = { id: stageId, position: position };
-      return await this.saveStage(stage);
-    } catch (error) {
-      WorkflowGraph.WorkflowGraph.Event.fire('onStageError', { error: error.message });
-      throw error;
-    }
-  }
+  // async updateStagePosition(stageId, position) {
+  //   try {
+  //     const stage = { id: stageId, position: position };
+  //     return await this.saveStage(stage);
+  //   } catch (error) {
+  //     WorkflowGraph.WorkflowGraph.Event.fire('onStageError', { error: error.message });
+  //     throw error;
+  //   }
+  // }
 }
 
 export default new WorkflowGraphApi();

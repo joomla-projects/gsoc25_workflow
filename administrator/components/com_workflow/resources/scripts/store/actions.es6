@@ -25,89 +25,10 @@ export default {
 			commit('SET_STAGES', stages);
 			commit('SET_TRANSITIONS', transitions);
 
-			// Save initial state to history
 			dispatch('saveToHistory');
 			return { workflow, stages, transitions };
 		} catch (error) {
 			const errorMessage = error.message || 'Failed to load workflow';
-			commit('SET_ERROR', errorMessage);
-
-			if (window.Joomla && window.Joomla.renderMessages) {
-				window.Joomla.renderMessages({
-					error: [errorMessage]
-				});
-			}
-
-			throw error;
-		} finally {
-			commit('SET_LOADING', false);
-		}
-	},
-
-	/**
-	 * Create a new stage in the workflow.
-	 * @param commit
-	 * @param state
-	 * @param dispatch
-	 * @param stageData
-	 * @returns {Promise<Object>} The created stage object.
-	 */
-	async createStage({ commit, state, dispatch }, stageData) {
-		commit('SET_LOADING', true);
-		commit('SET_ERROR', null);
-
-		try {
-			const newStage = await workflowGraphApi.saveStage({
-				...stageData,
-				workflow_id: state.workflowId
-			});
-
-			commit('ADD_STAGE', newStage);
-			dispatch('saveToHistory');
-
-			// Show success message
-			if (window.Joomla && window.Joomla.renderMessages) {
-				window.Joomla.renderMessages({
-					success: ['Stage created successfully']
-				});
-			}
-
-			return newStage;
-		} catch (error) {
-			const errorMessage = error.message || 'Failed to create stage';
-			commit('SET_ERROR', errorMessage);
-
-			if (window.Joomla && window.Joomla.renderMessages) {
-				window.Joomla.renderMessages({
-					error: [errorMessage]
-				});
-			}
-
-			throw error;
-		} finally {
-			commit('SET_LOADING', false);
-		}
-	},
-
-	/**
-	 * Update an existing stage in the workflow.
-	 * @param commit
-	 * @param dispatch
-	 * @param stage
-	 * @returns {Promise<Object>} The updated stage object.
-	 */
-	async updateStage({ commit, dispatch }, stage) {
-		commit('SET_LOADING', true);
-		commit('SET_ERROR', null);
-
-		try {
-			const updatedStage = await workflowGraphApi.saveStage(stage);
-			commit('UPDATE_STAGE', updatedStage);
-			dispatch('saveToHistory');
-
-			return updatedStage;
-		} catch (error) {
-			const errorMessage = error.message || 'Failed to update stage';
 			commit('SET_ERROR', errorMessage);
 
 			if (window.Joomla && window.Joomla.renderMessages) {
@@ -148,7 +69,6 @@ export default {
 
 			await workflowGraphApi.deleteStage(id);
 			commit('REMOVE_STAGE', id);
-			dispatch('saveToHistory');
 
 			if (window.Joomla && window.Joomla.renderMessages) {
 				window.Joomla.renderMessages({
@@ -172,33 +92,6 @@ export default {
 	},
 
 	/**
-	 * Create a new transition between stages in the workflow.
-	 * @param commit
-	 * @param state
-	 * @param dispatch
-	 * @param transition
-	 * @returns {Promise<Object>} The created transition object.
-	 */
-	async createTransition({ commit, state, dispatch }, transition) {
-		commit('SET_LOADING', true);
-		commit('SET_ERROR', null);
-		try {
-			const newTransition = await workflowGraphApi.saveTransition({
-				...transition,
-				workflow_id: state.workflowId
-			});
-			commit('ADD_TRANSITION', newTransition);
-			dispatch('saveToHistory');
-			return newTransition;
-		} catch (error) {
-			commit('SET_ERROR', error.message);
-			throw error;
-		} finally {
-			commit('SET_LOADING', false);
-		}
-	},
-
-	/**
 	 * Update an existing transition in the workflow.
 	 * @param commit
 	 * @param dispatch
@@ -211,7 +104,6 @@ export default {
 		try {
 			const updatedTransition = await workflowGraphApi.saveTransition(transition);
 			commit('UPDATE_TRANSITION', updatedTransition);
-			dispatch('saveToHistory');
 			return updatedTransition;
 		} catch (error) {
 			commit('SET_ERROR', error.message);
@@ -234,7 +126,6 @@ export default {
 		try {
 			await workflowGraphApi.deleteTransition(id);
 			commit('REMOVE_TRANSITION', id);
-			dispatch('saveToHistory');
 		} catch (error) {
 			commit('SET_ERROR', error.message);
 			throw error;
@@ -243,20 +134,12 @@ export default {
 		}
 	},
 
-	// TODO: hold this action until we have a proper way to handle stage positions
 	updateStagePosition({ commit, dispatch }, { id, x, y }) {
+		console.log(`Updating position of stage ${id} to (${x}, ${y})`);
+		console.log()
 		commit('UPDATE_STAGE_POSITION', { id, x, y });
 		dispatch('saveToHistory');
-	},
 
-	/**
-	 * Update the canvas state (zoom, pan, etc.).
-	 * @param commit
-	 * @param canvasData
-	 * @returns {Promise<void>}
-	 */
-	updateCanvas({ commit }, canvasData) {
-		commit('UPDATE_CANVAS', canvasData);
 	},
 
 	/**

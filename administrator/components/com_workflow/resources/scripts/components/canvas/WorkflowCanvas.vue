@@ -116,7 +116,7 @@ export default {
     'edit-transition',
     'delete-transition'
   ],
-  setup(props, { emit }) {
+  setup() {
     const store = useStore()
     const { fitView } = useVueFlow()
 
@@ -172,10 +172,6 @@ export default {
 
         const specialNodes = [
           createSpecialNode('from_any', { x: 600, y: -200 }, '#EF4444', 'From Any'),
-          createSpecialNode('to_any', {
-            x: 600,
-            y: Math.ceil(stages.value.length / columns) * gapY
-          }, '#8B5CF6', 'To Any')
         ]
 
         return [...regularNodes, ...specialNodes]
@@ -189,7 +185,7 @@ export default {
       try {
         return transitions.value.map(transition => {
           const sourceId = transition.from_stage_id === -1 ? 'from_any' : transition.from_stage_id.toString()
-          const targetId = transition.to_stage_id === -1 ? 'to_any' : transition.to_stage_id.toString()
+          const targetId = transition.to_stage_id.toString()
 
           const isSelected = selectedTransition.value === transition.id
           const edgeColor = getEdgeColor(transition, isSelected)
@@ -249,7 +245,6 @@ export default {
         ? '#F97316' : '#10B981'
     }
 
-    // --- Interactions ---
     function selectStage(stageId) {
       selectedStage.value = stageId
       selectedTransition.value = null
@@ -259,7 +254,7 @@ export default {
       selectedTransition.value = transitionId
       selectedStage.value = null
       if(isTransitionMode.value) {
-        openModal('transition', transitionId)
+        editTransition(selectedTransition.value)
       }
     }
 
@@ -271,11 +266,11 @@ export default {
       openModal('transition', transition.id)
     }
 
-    function deleteStage(stageId) {
+    function deleteStage() {
       // Implement deletion logic
     }
 
-    async function handleConnect(connection) {
+    async function handleConnect() {
       if (!isTransitionMode.value) return
       try {
         openModal('transition', null)
@@ -305,8 +300,14 @@ export default {
       selectTransition(parseInt(edge.id))
     }
 
-    async function onNodeDragStop(event, node) {
-      // Optional: Save updated position to backend
+    async function onNodeDragStop({ node }) {
+      const position = store.getters.stages.find(s => s.id === parseInt(node.id)).position
+      if (node?.id) {
+          const nodePosition = node.computedPosition || position || { x: 0, y: 0 }
+          const x = nodePosition.x
+          const y = nodePosition.y
+          await store.dispatch('updateStagePosition', { id: node?.id, x, y })
+      }
     }
 
     function handleIframeLoad() {
@@ -320,8 +321,7 @@ export default {
         if (form) {
           form.addEventListener('submit', () => {
             setTimeout(() => {
-              this.closeModal();
-              this.$store.dispatch('loadWorkflow', this.$store.getters.workflowId);
+              closeModal();
             }, 300);
           });
         }
@@ -334,8 +334,7 @@ export default {
 
     function openModal(type, id = null) {
       const workflowId = store.getters.workflowId
-      const options = Joomla.getOptions('com_workflow', {})
-      const extension = options.extension || null
+      const extension = Joomla.getOptions('com_workflow', {})?.extension || null
 
       let base = `index.php?option=com_workflow&view=${type}&workflow_id=${workflowId}&extension=${extension}&layout=modal&tmpl=component`
       if (id) {
@@ -357,7 +356,7 @@ export default {
 
       const workflowId = store.getters.workflowId
       if (workflowId) {
-        store.dispatch('loadWorkflow', workflowId)
+        retryLoad()
       }
     }
 
@@ -368,7 +367,6 @@ export default {
       }
     }
 
-    // --- Auto fit after reload ---
     watch([stages, transitions], ([newStages, newTransitions]) => {
       if (newStages.length > 0 || newTransitions.length > 0) {
         setTimeout(() => fitView(), 100)
