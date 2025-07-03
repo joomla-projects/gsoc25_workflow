@@ -57,20 +57,8 @@ class GraphModel extends AdminModel
         return 'workflow'; // TODO: change it to to handdle dynamically
     }
 
-
-    /**
-     * Abstract method for getting the form from the model.
-     *
-     * @param   array    $data      Data for the form.
-     * @param   boolean  $loadData  True if the form is to load its own data (default case), false if not.
-     *
-     * @return  Form|boolean A Form object on success, false on failure
-     *
-     * @since   _DEPLOY_VERSION_
-     */
     public function getForm($data = [], $loadData = true)
     {
-        // Load the form.
         return false;
     }
 
@@ -87,6 +75,6 @@ class GraphModel extends AdminModel
      */
     public function getTable($name = '', $prefix = '', $options = [])
     {
-        return parent::getTable($name, $prefix, $options); // TODO: Change the logic
+        return parent::getTable($name, $prefix, $options);
     }
 }

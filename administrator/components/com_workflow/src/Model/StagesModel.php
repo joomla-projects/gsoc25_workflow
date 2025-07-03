@@ -144,6 +144,7 @@ class StagesModel extends ListModel
                     $db->quoteName('s.checked_out'),
                     $db->quoteName('s.checked_out_time'),
                     $db->quoteName('s.description'),
+                    $db->quoteName('s.position'),
                     $db->quoteName('uc.name', 'editor'),
                 ]
             )
@@ -200,5 +201,57 @@ class StagesModel extends ListModel
         }
 
         return (object) $table->getProperties();
+    }
+
+    /**
+     * Update positions for multiple workflow stages
+     *
+     * @param   array  $stages  Array of stage data, each with id, x, y values
+     *                          Example: [['id' => 1, 'x' => 100, 'y' => 200], ...]
+     *
+     * @return  boolean  True on success, false on failure
+     *
+     * @since   4.0.0
+     */
+    public function updatePositions($stages)
+    {
+        if (empty($stages)) {
+            return true;
+        }
+
+        $db = $this->getDatabase();
+
+        try {
+            $db->transactionStart();
+
+            foreach ($stages as $stage) {
+                if (!isset($stage['id']) || !isset($stage['x']) || !isset($stage['y'])) {
+                    throw new \InvalidArgumentException('Invalid stage data structure');
+                }
+
+                $id = (int) $stage['id'];
+                $x = (float) $stage['x'];
+                $y = (float) $stage['y'];
+
+                // Format the position as a POINT
+                $point = "POINT($x $y)";
+
+                $query = $db->getQuery(true)
+                    ->update($db->quoteName('#__workflow_stages'))
+                    ->set($db->quoteName('position') . ' = ST_GeomFromText(' . $db->quote($point) . ')')
+                    ->where($db->quoteName('id') . ' = :id')
+                    ->bind(':id', $id, ParameterType::INTEGER);
+
+                $db->setQuery($query);
+                $db->execute();
+            }
+
+            $db->transactionCommit();
+            return true;
+        } catch (\Exception $e) {
+            $db->transactionRollback();
+            $this->setError($e->getMessage());
+            return false;
+        }
     }
 }

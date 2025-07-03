@@ -1203,6 +1203,7 @@ CREATE TABLE IF NOT EXISTS `#__workflow_stages` (
   `default` tinyint NOT NULL DEFAULT 0,
   `checked_out_time` datetime,
   `checked_out` int unsigned,
+  `position` text DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_workflow_id` (`workflow_id`),
   KEY `idx_checked_out` (`checked_out`),

@@ -1,5 +1,10 @@
 <template>
   <a href="#main-canvas" class="visually-hidden focusable">Skip to main content</a>
+  <form id="adminForm" name="adminForm" method="post" style="display:none;">
+    <input type="hidden" name="task" value="" />
+    <input type="hidden" name="jform[positions]" id="workflow_positions" value="" />
+    <input type="hidden" name="<?php echo JSession::getFormToken(); ?>" value="1" />
+  </form>
   <div class="w-100 h-100 position-relative" role="application"  tabindex="0" aria-label="Workflow Canvas"   @keydown="onCanvasKeydown">
     <VueFlow
       v-if="!loading && !error"
@@ -348,6 +353,17 @@ export default {
           const x = nodePosition.x
           const y = nodePosition.y
           await store.dispatch('updateStagePosition', { id: node?.id, x, y })
+          const positions = store.getters.stages.reduce((acc, stage) => {
+            if (!stage.position) {
+              return acc
+            }
+            acc[stage.id] = { x: stage.position.x, y: stage.position.y }
+            return acc
+          }, {})
+          const positionsField = document.getElementById('workflow_positions')
+          if (positionsField) {
+            positionsField.value = JSON.stringify(positions)
+          }
       }
     }
 

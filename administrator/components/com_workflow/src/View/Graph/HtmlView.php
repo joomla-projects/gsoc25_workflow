@@ -178,8 +178,8 @@ class HtmlView extends BaseHtmlView
                 ->html($layout->render([]));
             $toolbar->divider();
 
-            $toolbar->apply('workflow.apply');
-            $toolbar->save('workflow.save');
+            $toolbar->apply('graph.apply');
+            $toolbar->save('graph.save');
 
             $toolbar->help('Workflow');
         }

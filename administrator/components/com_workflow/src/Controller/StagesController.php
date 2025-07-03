@@ -195,4 +195,51 @@ class StagesController extends AdminController
     {
         return '&extension=' . $this->extension . ($this->section ? '.' . $this->section : '') . '&workflow_id=' . $this->workflowId;
     }
+
+    /**
+     * Update positions for multiple workflow stages
+     *
+     * @return  void
+     *
+     * @since   4.0.0
+     */
+    public function updatePositions()
+    {
+        $this->checkToken();
+
+        $app = $this->app;
+        $input = $this->input;
+        $method = $input->getMethod();
+
+        // Set up the response object
+        $response = [
+            'success' => true,
+            'message' => '',
+        ];
+
+        // Get the positions data
+        $stages = $input->get('positions', [], 'array');
+
+        if (empty($stages)) {
+            $response['success'] = false;
+            $response['message'] = Text::_('COM_WORKFLOW_NO_POSITIONS_DATA');
+        } else {
+            // Get the model
+            $model = $this->getModel();
+
+            // Call the model method to update positions
+            if (!$model->updatePositions($stages)) {
+                $response['success'] = false;
+                $response['message'] = $model->getError();
+            } else {
+                $response['message'] = Text::_('COM_WORKFLOW_STAGES_POSITIONS_UPDATED');
+            }
+        }
+
+        // Return JSON response
+        $app->setHeader('Content-Type', 'application/json');
+        $app->sendHeaders();
+        echo json_encode($response);
+        $app->close();
+    }
 }

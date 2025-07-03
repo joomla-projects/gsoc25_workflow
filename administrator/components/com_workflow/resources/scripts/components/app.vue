@@ -41,6 +41,11 @@ export default {
       } else {
         console.error('No workflow ID provided');
       }
+
+      const tokenEl = document.querySelector('input[name="<?php echo JSession::getFormToken(); ?>"]')
+      if (tokenEl) {
+        tokenEl.name = Joomla.getOptions('csrf.token', '')
+      }
     });
   }
 };

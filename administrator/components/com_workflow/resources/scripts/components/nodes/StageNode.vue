@@ -116,13 +116,13 @@ export default {
     onSelected() {
       this.data.onSelect()
     },
-    announce(message) {
-      if (this.$refs.liveRegion) {
-        this.$refs.liveRegion.textContent = message;
-      }
-}
   },
   methods: {
+    announce(message) {
+       if (this.$refs.liveRegion) {
+         this.$refs.liveRegion.textContent = message;
+       }
+    },
     onNodeKeydown(e) {
       if (e.key === 'Enter' || e.key === ' ') {
         this.data.onSelect();
@@ -142,7 +142,7 @@ export default {
       }
     },
     onNodeFocus() {
-      this.announce(`Stage ${this.stage.title} focused.`);
+      this.announce(`Stage ${this.data.stage.title} focused.`);
     },
     onNodeBlur() {
       // Remove focus style if needed

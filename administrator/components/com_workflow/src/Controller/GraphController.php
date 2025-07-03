@@ -133,12 +133,6 @@ class GraphController extends AdminController
             $response = [];
 
             foreach ($stages as $stage) {
-                $position = null;
-                if (!empty($stage->params)) {
-                    $params = json_decode($stage->params, true);
-                    $position = $params['position'] ?? null;
-                }
-
                 $response[] = [
                     'id'          => (int) $stage->id,
                     'title'       => $stage->title,
@@ -146,7 +140,7 @@ class GraphController extends AdminController
                     'published'   => (bool) $stage->published,
                     'default'     => (bool) $stage->default,
                     'ordering'    => (int) $stage->ordering,
-                    'position'    => $position,
+                    'position'    => $stage->position ? json_decode($stage->position, true) : null,
                     'workflow_id' => $stage->workflow_id,
                 ];
             }
