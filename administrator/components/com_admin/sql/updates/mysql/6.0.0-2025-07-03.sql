@@ -1,1 +1,1 @@
-ALTER TABLE `#__workflow_stages` ADD COLUMN `position` text NULL;
+ALTER TABLE `#__workflow_stages` ADD COLUMN `position` text DEFAULT NULL  AFTER `default`;

@@ -65,7 +65,7 @@ export default {
 		state.historyIndex = state.history.length - 1;
 
 		// Limit history size
-		if (state.history.length > 30) {
+		if (state.history.length > 100) {
 			state.history.shift();
 			state.historyIndex--;
 		}

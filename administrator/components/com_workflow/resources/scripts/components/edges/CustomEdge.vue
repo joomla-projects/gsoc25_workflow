@@ -9,16 +9,16 @@
       :marker-end="markerEnd"
     />
 
-    <foreignObject :x="labelX - 70" :y="labelY - 20" width="150" height="40" class="edge-label">
-      <div
-        class="d-flex align-items-center border text-bg-info rounded shadow-sm px-2 py-1 gap-1"
-        tabindex="0"
-        role="button"
-        :aria-label="`Transition: ${data?.title}`"
-        @keydown="onEdgeKeydown"
-        @focus="onEdgeFocus"
-        @blur="onEdgeBlur"
-      >
+    <foreignObject
+      :x="labelX - 70"
+      :y="labelY - 20"
+      width="150"
+      height="40"
+      class="edge-label"
+      tabindex="0"
+      :data-edge-id="data?.id"
+    >
+      <div class="d-flex align-items-center border text-bg-info rounded shadow-sm px-2 py-1 gap-1">
         <span
           class="text-truncate text-center flex-grow-1 fw-semibold"
           :style="{ maxWidth: data?.isTransitionMode ? '80px' : '100%' }"
@@ -29,18 +29,20 @@
         <button
           @click.stop="data?.onEdit?.()"
           class="btn btn-lg btn-secondary py-0 px-1"
-          title="Edit Transition"
           :class="data?.isTransitionMode ? 'd-block' : 'd-none'"
+          :aria-label="translate('WORKFLOW_GRAPH_EDIT_TRANSITION')"
+          :title="translate('WORKFLOW_GRAPH_EDIT_TRANSITION')"
         >
-          <i class="icon icon-edit"></i>
+          <i class="icon icon-edit" aria-hidden="true"></i>
         </button>
         <button
           @click.stop="data?.onDelete?.()"
           class="btn btn-lg btn-danger py-0 px-1"
-          title="Delete Transition"
           :class="data?.isTransitionMode ? 'd-block' : 'd-none'"
+          :aria-label="translate('WORKFLOW_GRAPH_DELETE_TRANSITION')"
+          :title="translate('WORKFLOW_GRAPH_DELETE_TRANSITION')"
         >
-          <i class="icon icon-delete"></i>
+          <i class="icon icon-delete" aria-hidden="true"></i>
         </button>
       </div>
     </foreignObject>
@@ -76,15 +78,9 @@ export default {
         borderRadius: 10,
       })
     },
-    edgePath() {
-      return this.edgeData[0]
-    },
-    labelX() {
-      return this.edgeData[1]
-    },
-    labelY() {
-      return this.edgeData[2] + (this.data?.offsetIndex || 0) * 18
-    }
+    edgePath() { return this.edgeData[0] },
+    labelX() { return this.edgeData[1] },
+    labelY() { return this.edgeData[2] + (this.data?.offsetIndex || 0) * 18 }
   },
   methods: {
     onEdgeKeydown(e) {
@@ -96,7 +92,9 @@ export default {
         this.data.onDelete?.();
         e.preventDefault();
       }
-    }
+    },
+    onEdgeFocus() {},
+    onEdgeBlur() {}
   }
 
 }

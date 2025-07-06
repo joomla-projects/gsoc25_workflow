@@ -207,19 +207,16 @@ class StagesModel extends ListModel
      * Update positions for multiple workflow stages
      *
      * @param   array  $stages  Array of stage data, each with id, x, y values
-     *                          Example: [['id' => 1, 'x' => 100, 'y' => 200], ...]
+     *
      *
      * @return  boolean  True on success, false on failure
      *
-     * @since   4.0.0
+     * @since   __DEPLOY_VERSION__
      */
-    public function updatePositions($stagePositions)
+    public function updatePositions($stagePositions, $workflowId)
     {
-//        stage positions format is Array ( [4] => Array ( [x] => 880 [y] => -180 ) [5] => Array ( [x] => 1340 [y] => -160 ) [8] => Array ( [x] => 1220 [y] => 460 ) [9] => Array ( [x] => 1320 [y] => 120 ) )
-
         if (empty($stagePositions) || !is_array($stagePositions)) {
-            $this->setError('Invalid stage positions data');
-            return false;
+            throw new \InvalidArgumentException('Invalid stage positions data provided');
         }
 
         // Convert the stage positions to the expected format
@@ -232,8 +229,7 @@ class StagesModel extends ListModel
                     'y'  => (float) $position['y'],
                 ];
             } else {
-                $this->setError('Invalid position data for stage ID: ' . $id);
-                return false;
+                throw new \InvalidArgumentException('Invalid position data for stage ID: ' . $id);
             }
         }
 
@@ -265,11 +261,11 @@ class StagesModel extends ListModel
             }
 
             $db->transactionCommit();
-            return true;
         } catch (\Exception $e) {
             $db->transactionRollback();
-            $this->setError($e->getMessage());
-            return false;
+            throw new \RuntimeException('Failed to update stage positions: ' . $e->getMessage());
         }
+
+        return true;
     }
 }

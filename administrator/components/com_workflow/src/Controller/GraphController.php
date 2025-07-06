@@ -11,14 +11,11 @@
 
 namespace Joomla\Component\Workflow\Administrator\Controller;
 
-use Joomla\CMS\Application\CMSWebApplicationInterface;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\Controller\AdminController;
-use Joomla\CMS\MVC\Controller\FormController;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use Joomla\CMS\Response\JsonResponse;
 use Joomla\CMS\Router\Route;
-use Joomla\Utilities\ArrayHelper;
 
 // phpcs:disable PSR1.Files.SideEffects
 \defined('_JEXEC') or die;
@@ -60,7 +57,7 @@ class GraphController extends AdminController
      * The prefix to use with controller messages.
      *
      * @var    string
-     * @since  _DEPLOY_VERSION_
+     * @since  __DEPLOY_VERSION__
      */
     protected $text_prefix = 'COM_WORKFLOW_GRAPH';
 
@@ -109,21 +106,21 @@ class GraphController extends AdminController
      *
      * @return  void  Outputs a JSON response with workflow data or error message.
      *
-     * @since   _DEPLOY_VERSION_
+     * @since   __DEPLOY_VERSION__
      */
     public function getWorkflow(): void
     {
         try {
-            $id = $this->input->getInt('id');
+            $id = $this->input->getInt('workflow_id');
             $model = $this->getModel('Workflow');
 
-            if (!$id) {
+            if (empty($id)) {
                 throw new \InvalidArgumentException(Text::_('COM_WORKFLOW_ERROR_INVALID_ID'));
             }
 
             $workflow = $model->getItem($id);
 
-            if (!$workflow->id) {
+            if (empty($workflow->id)) {
                 throw new \RuntimeException(Text::_('COM_WORKFLOW_ERROR_WORKFLOW_NOT_FOUND'));
             }
 
@@ -157,7 +154,7 @@ class GraphController extends AdminController
      *
      * @return  void  Outputs a JSON response with stages data or error message.
      *
-     * @since   _DEPLOY_VERSION_
+     * @since   __DEPLOY_VERSION__
      */
     public function getStages()
     {
@@ -200,7 +197,7 @@ class GraphController extends AdminController
      *
      * @return  void  Outputs a JSON response with transitions data or error message.
      *
-     * @since   _DEPLOY_VERSION_
+     * @since   __DEPLOY_VERSION__
      */
     public function getTransitions()
     {
@@ -233,75 +230,5 @@ class GraphController extends AdminController
         }
 
         $this->app->close();
-    }
-
-    /**
-     * Method to save stage positions
-     *
-     * @return  boolean  True if successful, false otherwise.
-     *
-     * @since   __DEPLOY_VERSION__
-     */
-    public function save()
-    {
-        // Check for request forgeries
-        $this->checkToken();
-
-        $app = $this->app;
-        $input = $app->input;
-        $workflowId = $input->getInt('id');
-        $extension = $this->input->getCmd('extension');
-        $options = $input->getCmd('option');
-
-        $task = $this->getTask();
-
-        $positionsJson = $input->getString('positions', '');
-        $positions = [];
-
-        if (!empty($positionsJson)) {
-            try {
-                $positions = json_decode($positionsJson, true);
-            } catch (\Exception $e) {
-                $app->enqueueMessage($e->getMessage(), 'error');
-            }
-        }
-
-        // Update positions if we have data
-        if (!empty($positions)) {
-            $model = $this->getModel('Stages');
-            $model->updatePositions($positions);
-            $app->enqueueMessage(Text::_('COM_WORKFLOW_POSITIONS_SAVED'));
-        }
-
-        // Redirect based on task
-        switch ($task) {
-            case 'apply':
-                $this->setRedirect(
-                    Route::_('index.php?option=' . $options . '&view=graph&id=' . $workflowId . '&extension=' . $extension, false)
-                );
-                break;
-
-            default:
-                $this->setRedirect(
-                    Route::_('index.php?option=' . $options . '&view=workflows&extension=' . $extension, false)
-                );
-                break;
-        }
-
-        return true;
-    }
-
-    /**
-     * Function to apply changes to the workflow graph
-     *
-     * @return  boolean  True if successful
-     *
-     * @since   __DEPLOY_VERSION__
-     */
-    public function apply()
-    {
-        $this->save();
-
-        return true;
     }
 }

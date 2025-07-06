@@ -61,21 +61,4 @@ class GraphModel extends AdminModel
     {
         return false;
     }
-
-    /**
-     * Method to get a table object, load it if necessary.
-     *
-     * @param   string  $name    The table name. Optional.
-     * @param   string  $prefix  A prefix for the table class name. Optional.
-     * @param   array   $options An optional associative array of configuration settings.
-     *
-     * @return  \Joomla\CMS\Table\Table|boolean  A Table object or false on failure
-     *
-     * @since   _DEPLOY_VERSION_
-     */
-    public function getTable($name = '', $prefix = '', $options = [])
-    {
-        return parent::getTable($name, $prefix, $options);
-    }
-
 }

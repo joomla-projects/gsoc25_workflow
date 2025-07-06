@@ -11,13 +11,12 @@
 namespace Joomla\Component\Workflow\Administrator\View\Graph;
 
 use Joomla\CMS\Factory;
+use Joomla\CMS\Helper\ContentHelper;
 use Joomla\CMS\Language\Text;
-use Joomla\CMS\Layout\FileLayout;
 use Joomla\CMS\MVC\View\GenericDataException;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Toolbar\ToolbarHelper;
-use Joomla\Component\Workflow\Administrator\Helper\GraphHelper;
 
 // phpcs:disable PSR1.Files.SideEffects
 \defined('_JEXEC') or die;
@@ -151,7 +150,7 @@ class HtmlView extends BaseHtmlView
         $toolbar  = $this->getDocument()->getToolbar();
         $user     = $this->getCurrentUser();
         $userId   = $user->id;
-        $canDo     = GraphHelper::getActions($this->extension, 'workflow', $this->item->id);
+        $canDo     = ContentHelper::getActions($this->extension, 'workflow', $this->item->id);
 
         // Set the title
         ToolbarHelper::title(Text::_('COM_WORKFLOW_WORKFLOWS_EDIT'), 'file-alt contact');
@@ -168,18 +167,17 @@ class HtmlView extends BaseHtmlView
 
 
         if ($itemEditable){
-            $layout = new FileLayout('toolbar.undo', JPATH_ADMINISTRATOR . '/components/com_workflow/layouts');
             $toolbar->customButton('undo')
-                ->html($layout->render([]));
-            $toolbar->divider();
+                ->html('<joomla-toolbar-button><button onclick="WorkflowGraph.Event.fire(\'onClickUndoWorkflow\')" '
+            . 'class="btn btn-info"><span class="icon-undo-2 icon-fw" aria-hidden="true"></span>'
+            . Text::_('COM_WORKFLOW_UNDO') . '</button></joomla-toolbar-button>');
 
-            $layout = new FileLayout('toolbar.redo', JPATH_ADMINISTRATOR . '/components/com_workflow/layouts');
             $toolbar->customButton('redo')
-                ->html($layout->render([]));
-            $toolbar->divider();
+                ->html('<joomla-toolbar-button><button onclick="WorkflowGraph.Event.fire(\'onClickRedoWorkflow\')" '
+                    . 'class="btn btn-info"><span class="icon-redo icon-fw" aria-hidden="true"></span>'
+                    . Text::_('COM_WORKFLOW_REDO') . '</button></joomla-toolbar-button>');
 
-            $toolbar->apply('graph.apply');
-            $toolbar->save('graph.save');
+
 
             $toolbar->help('Workflow');
         }

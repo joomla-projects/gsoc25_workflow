@@ -4,8 +4,9 @@
     :class="{ 'shadow': isSelected, 'hover-shadow': !isSelected }"
     :style="stageStyle"
     tabindex="0"
+    :data-stage-id="stage?.id"
     role="button"
-    :aria-label="`Stage: ${stage?.title}. ${stage?.published ? 'Enabled' : 'Disabled'}`"
+    :aria-label="`${translate('WORKFLOW_GRAPH_STAGE')}: ${stage?.title}. ${stage?.published ? translate('WORKFLOW_GRAPH_ENABLED') : translate('WORKFLOW_GRAPH_DISABLED')}`"
     @keydown="onNodeKeydown"
     @focus="onNodeFocus"
     @blur="onNodeBlur"
@@ -29,17 +30,18 @@
         <button
           @click.stop="data.onEdit"
           class="btn btn-lg btn-secondary py-0 px-1 mr-2"
-          title="Edit Stage"
-
+          :aria-label="translate('WORKFLOW_GRAPH_EDIT_STAGE')"
+          :title="translate('WORKFLOW_GRAPH_EDIT_STAGE')"
         >
-          <i class="icon icon-pencil"></i>
+          <i class="icon icon-pencil" aria-hidden="true"></i>
         </button>
         <button
           @click.stop="data.onDelete"
           class="btn btn-lg btn-danger py-0 px-1 mx-2"
-          title="Trash Stage"
+          :aria-label="translate('WORKFLOW_GRAPH_DELETE_STAGE')"
+          :title="translate('WORKFLOW_GRAPH_DELETE_STAGE')"
         >
-          <i class="icon icon-trash"></i>
+          <i class="icon icon-trash" aria-hidden="true"></i>
         </button>
       </div>
     </div>
@@ -50,7 +52,7 @@
           :class="stage.published ? 'bg-success' : 'bg-danger'"
           class="badge rounded-pill p-1"
         >
-          {{ stage.published ? 'Enabled' : 'Disabled' }}
+          {{ stage.published ? translate('WORKFLOW_GRAPH_ENABLED') : translate('WORKFLOW_GRAPH_DISABLED') }}
         </span>
 
         <div class="d-flex gap-1">
@@ -58,7 +60,7 @@
             v-if="stage.default"
             class="badge bg-warning bg-opacity-10 rounded-pill p-1"
           >
-            Default
+            {{ translate('WORKFLOW_GRAPH_DEFAULT') }}
           </span>
         </div>
       </div>
@@ -66,8 +68,7 @@
 
     <!-- Color Indicator -->
     <span
-      class="position-absolute top-0 end-0 mt-2 me-2 rounded-circle d-block"
-      style="width: 10px; height: 10px;"
+      class="position-absolute top-0 end-0 mt-2 me-2 rounded-circle d-block w-10 h-10"
       :style="badgeStyle"
     ></span>
   </div>
@@ -78,44 +79,27 @@ import { Handle, Position } from '@vue-flow/core'
 
 export default {
   name: 'StageNode',
-  components: {
-    Handle,
-  },
+  components: { Handle },
   props: {
-    stage: {
-      type: Object,
-      required: true
-    },
     data: {
       type: Object,
       required: true
     },
   },
   computed: {
-    Position() {
-      return Position;
-    },
-    stage() {
-      return this.data.stage;
-    },
-    isSelected() {
-      return this.data.isSelected;
-    },
+    Position() { return Position; },
+    stage() { return this.data.stage; },
+    isSelected() { return this.data.isSelected; },
     stageStyle() {
       return {
         borderColor: this.data.stage.color + '!important',
         borderWidth: this.data.isSelected ? '4px !important' : '2px !important'
-
       };
     },
     badgeStyle() {
-      return {
-        backgroundColor: this.data.stage.color,
-      };
+      return { backgroundColor: this.data.stage.color };
     },
-    onSelected() {
-      this.data.onSelect()
-    },
+    onSelected() { this.data.onSelect() },
   },
   methods: {
     announce(message) {
@@ -141,12 +125,8 @@ export default {
         e.preventDefault();
       }
     },
-    onNodeFocus() {
-      this.announce(`Stage ${this.data.stage.title} focused.`);
-    },
-    onNodeBlur() {
-      // Remove focus style if needed
-    }
+    onNodeFocus() {},
+    onNodeBlur() {}
   }
 }
 </script>

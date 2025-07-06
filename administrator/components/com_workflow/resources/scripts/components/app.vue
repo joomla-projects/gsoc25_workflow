@@ -1,15 +1,18 @@
 <template>
-    <div class="d-flex flex-column flex-grow-1" style="min-height: 75vh" role="application" aria-label="Workflow Builder Application">
-      <div class="d-flex flex-column flex-grow-0">
+    <div class="d-flex flex-column flex-grow-1 min-vh-80" role="application" aria-label="Workflow Builder">
+      <div class="d-flex flex-column flex-shrink-0" role="banner">
         <WorkflowTitlebar />
       </div>
       <div class="d-flex flex-grow-1 overflow-hidden">
         <main
           class="flex-grow-1 position-relative"
-          id="main-canvas"
           role="main"
-          aria-label="Workflow Canvas"
+          aria-labelledby="workflow-heading"
+          tabindex="-1"
         >
+          <h1 id="workflow-heading" class="visually-hidden">
+            Workflow canvas
+          </h1>
           <WorkflowCanvas />
         </main>
       </div>
@@ -32,19 +35,25 @@ export default {
     const store = useStore();
 
     onMounted(() => {
-      // Extract workflow ID from the URL or from Joomla options
-      const options = Joomla.getOptions('com_workflow', {});
-      const workflowId = options.workflowId || parseInt(new URL(window.location.href).searchParams.get('id'), 10);
+      const { workflowId: idFromOpts = null } = Joomla.getOptions('com_workflow', {});
+      const idFromURL = parseInt(new URL(window.location.href).searchParams.get('id'), 10);
+      const workflowId = idFromOpts || idFromURL;
 
-      if (workflowId) {
+
+      if (workflowId !== null && !isNaN(workflowId)) {
         store.dispatch('loadWorkflow', workflowId);
       } else {
-        console.error('No workflow ID provided');
+        throw new Error('Workflow ID is required to load the workflow.');
       }
 
       const tokenEl = document.querySelector('input[name="<?php echo JSession::getFormToken(); ?>"]')
       if (tokenEl) {
         tokenEl.name = Joomla.getOptions('csrf.token', '')
+      }
+
+      const mainEl = document.getElementById('main-canvas');
+      if (mainEl) {
+        mainEl.focus()
       }
     });
   }

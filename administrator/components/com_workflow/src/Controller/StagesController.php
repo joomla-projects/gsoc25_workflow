@@ -14,6 +14,7 @@ use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\Controller\AdminController;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
+use Joomla\CMS\Response\JsonResponse;
 use Joomla\CMS\Router\Route;
 use Joomla\Input\Input;
 use Joomla\Utilities\ArrayHelper;
@@ -197,49 +198,36 @@ class StagesController extends AdminController
     }
 
     /**
-     * Update positions for multiple workflow stages
+     * Method to save stage positions
      *
-     * @return  void
+     * @return  boolean  True if successful, false otherwise.
      *
-     * @since   4.0.0
+     * @since   __DEPLOY_VERSION__
      */
-    public function updatePositions()
+    public function updateStagesPosition()
     {
+        // Check for request forgeries
         $this->checkToken();
 
         $app = $this->app;
-        $input = $this->input;
-        $method = $input->getMethod();
+        $input = $app->input;
+        $workflowId = $input->getInt('id');
 
-        // Set up the response object
-        $response = [
-            'success' => true,
-            'message' => '',
-        ];
+        $positions = $input->get('positions', [], 'array');
+        $model = $this->getModel('Stages', 'Administrator');
 
-        // Get the positions data
-        $stages = $input->get('positions', [], 'array');
+        $response = [];
+        try {
+            $success = $model->updatePositions($positions, $workflowId);
 
-        if (empty($stages)) {
-            $response['success'] = false;
-            $response['message'] = Text::_('COM_WORKFLOW_NO_POSITIONS_DATA');
-        } else {
-            // Get the model
-            $model = $this->getModel();
-
-            // Call the model method to update positions
-            if (!$model->updatePositions($stages)) {
-                $response['success'] = false;
-                $response['message'] = $model->getError();
-            } else {
-                $response['message'] = Text::_('COM_WORKFLOW_STAGES_POSITIONS_UPDATED');
-            }
+            $response = [
+                'success' => true,
+                'message' => Text::_('COM_WORKFLOW_POSITIONS_SAVED')
+            ];
+            echo new JsonResponse($response);
+        } catch (\Exception $e) {
+            echo new JsonResponse($e->getMessage(), 'error', true);
         }
-
-        // Return JSON response
-        $app->setHeader('Content-Type', 'application/json');
-        $app->sendHeaders();
-        echo json_encode($response);
-        $app->close();
+        $this->app->close();
     }
 }

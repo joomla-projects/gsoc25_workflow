@@ -101,6 +101,10 @@ export default {
 	 * @returns {Promise<void>}
 	 */
 	async deleteTransition({ commit, dispatch }, { id, workflowId }) {
+		if (!confirm('Are you sure you want to delete this transition? This action cannot be undone.')) {
+			return;
+		}
+
 		commit('SET_LOADING', true);
 		commit('SET_ERROR', null);
 		try {
@@ -114,9 +118,36 @@ export default {
 		}
 	},
 
+	/**
+	 * Update the position of a stage in the workflow locally.
+	 * @param commit
+	 * @param dispatch
+	 * @param id
+	 * @param x
+	 * @param y
+	 */
 	updateStagePosition({ commit, dispatch }, { id, x, y }) {
 		commit('UPDATE_STAGE_POSITION', { id, x, y });
 		dispatch('saveToHistory');
+	},
+
+	updateStagePositionAjax({ commit, state }) {
+		const response = workflowGraphApi.updateStagePosition(state.workflowId, state.stages.reduce((acc, stage) => {
+			if (stage.position) {
+				acc[stage.id] = {
+					x: stage.position.x,
+					y: stage.position.y
+				};
+			}
+			return acc;
+		}, {}));
+		if (response) {
+			commit('SET_ERROR', null);
+			return true;
+		}
+
+		commit('SET_ERROR', 'Failed to update stage positions');
+		return false;
 	},
 
 	/**
