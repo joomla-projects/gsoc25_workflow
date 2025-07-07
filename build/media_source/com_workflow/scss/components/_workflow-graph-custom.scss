@@ -206,3 +206,75 @@ button:focus {
   padding: 0.5rem;
   z-index: 1000;
 }
+
+
+.z-index-1050{
+  z-index: 1050 !important;
+}
+
+.custom-controls {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  z-index: 5;
+  padding: 2px;
+  background-color: rgba(255, 255, 255, 0.8);
+  color: var(--black);
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.custom-controls:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.custom-controls-button {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background-color: var(--white);
+  color: var(--primary);
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.custom-controls-button:hover {
+  background-color: #f5f5f5;
+}
+
+.custom-controls-button.active {
+  background-color: var(--primary);
+  color: white;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+.modal-content {
+  background: white;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  width: 400px;
+  max-width: 90%;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+}
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+}

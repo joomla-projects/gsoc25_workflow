@@ -175,4 +175,43 @@ class TransitionController extends FormController
 
         return $append;
     }
+
+    public function save($key = null, $urlVar = null)
+    {
+        $result = parent::save($key, $urlVar);
+        $input = $this->input;
+        $isModal = $input->get('layout') === 'modal' || $input->get('tmpl') === 'component';
+
+        if ($isModal && $result) {
+            $id = $this->input->getInt('id', 0);
+            $this->setRedirect(
+                \Joomla\CMS\Router\Route::_(
+                    'index.php?option=com_workflow&view=transition&layout=modalreturn&tmpl=component&id=2&extension=com_content.article',
+                    false
+                )
+            );
+            return true;
+        }
+        return $result;
+    }
+
+    public function cancel($key = null)
+    {
+        $result = parent::cancel($key);
+        $input = $this->input;
+        $isModal = $input->get('layout') === 'modal' || $input->get('tmpl') === 'component';
+
+        if ($isModal) {
+            $id = $this->input->getInt('id', 0);
+            $this->setRedirect(
+                \Joomla\CMS\Router\Route::_(
+                    'index.php?option=com_workflow&view=transition&layout=modalreturn&tmpl=component&id=2&extension=com_content.article',
+                    false
+                )
+            );
+            return true;
+        }
+        return $result;
+    }
+
 }

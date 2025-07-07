@@ -14,6 +14,7 @@ use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\Controller\FormController;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
+use Joomla\CMS\Router\Route;
 use Joomla\Input\Input;
 
 // phpcs:disable PSR1.Files.SideEffects
@@ -173,5 +174,49 @@ class StageController extends FormController
         $append .= '&workflow_id=' . $this->workflowId . '&extension=' . $this->extension . ($this->section ? '.' . $this->section : '');
 
         return $append;
+    }
+
+    public function save($key = null, $urlVar = null)
+    {
+        $result = parent::save($key, $urlVar);
+        $input = $this->input;
+        $isModal = $input->get('layout') === 'modal' || $input->get('tmpl') === 'component';
+
+        if ($isModal && $result) {
+            $id = $this->input->getInt('id', 0);
+            $this->setRedirect(
+                \Joomla\CMS\Router\Route::_(
+                    'index.php?option=com_workflow&view=STAGE&layout=modalreturn&tmpl=component&id=2&extension=com_content.article',
+                    false
+                )
+            );
+            return true;
+        }
+        return $result;
+    }
+
+    /**
+     * Method to cancel an edit.
+     *
+     * @param   string  $key  The name of the primary key of the URL variable.
+     *
+     * @return  boolean  True if access level checks pass, false otherwise.
+     *
+     * @since   5.0.0
+     */
+    public function cancel($key = null)
+    {
+        $result = parent::cancel($key);
+
+        // When editing in modal then redirect to modalreturn layout
+        if ($result && $this->input->get('layout') === 'modal') {
+            $id     = $this->input->get('id');
+            $return = 'index.php?option=' . $this->option . '&view=' . $this->view_item . $this->getRedirectToItemAppend($id)
+                . '&layout=modalreturn&from-task=cancel';
+
+            $this->setRedirect(Route::_($return, false));
+        }
+
+        return $result;
     }
 }

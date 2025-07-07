@@ -21,6 +21,7 @@ use Joomla\CMS\Router\Route;
 $wa = $this->getDocument()->getWebAssetManager();
 $wa->useScript('keepalive');
 $wa->useScript('form.validate');
+$wa->useScript('joomla.dialog-autocreate');
 $wa->useStyle('com_workflow.workflowgraph');
 
 // Populate the language
@@ -32,10 +33,6 @@ $input = $app->getInput();
 // Get the URI for the JavaScript module
 $script = $wa->getAsset('script', name: 'com_workflow.workflowgraph')->getUri(true);
 ?>
+
 <div id="workflow-graph-root"></div>
-<form action="#" id="adminForm" name="adminForm" method="post" class="form-validate d-none">
-    <input type="hidden" name="task" value="" />
-    <input type="hidden" name="positions" id="workflow_positions" value="" />
-    <input type="hidden" name="<?php echo JSession::getFormToken(); ?>" value="1" />
-</form>
 <script type="module" src="<?php echo $script ?>"></script>

@@ -17,6 +17,9 @@
       class="edge-label"
       tabindex="0"
       :data-edge-id="data?.id"
+      @keydown="onEdgeKeydown"
+      @focus="onEdgeFocus"
+      @blur="onEdgeBlur"
     >
       <div class="d-flex align-items-center border text-bg-info rounded shadow-sm px-2 py-1 gap-1">
         <span

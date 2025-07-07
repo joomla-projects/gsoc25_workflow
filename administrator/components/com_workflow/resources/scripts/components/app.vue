@@ -9,7 +9,9 @@
           role="main"
           aria-labelledby="workflow-heading"
           tabindex="-1"
+          id="main-canvas"
         >
+          <a href="#main-canvas" class="visually-hidden-focusable skip-link">Skip to Graph</a>
           <h1 id="workflow-heading" class="visually-hidden">
             Workflow canvas
           </h1>
@@ -43,10 +45,10 @@ export default {
       if (workflowId !== null && !isNaN(workflowId)) {
         store.dispatch('loadWorkflow', workflowId);
       } else {
-        throw new Error('Workflow ID is required to load the workflow.');
+        throw new Error('WORKFLOW_GRAPH_INVALID_WORKFLOW_ID');
       }
 
-      const tokenEl = document.querySelector('input[name="<?php echo JSession::getFormToken(); ?>"]')
+      const tokenEl = document.querySelector('input[name="' + Joomla.getOptions('csrf.token', '') + '"]')
       if (tokenEl) {
         tokenEl.name = Joomla.getOptions('csrf.token', '')
       }

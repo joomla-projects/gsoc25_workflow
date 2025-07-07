@@ -24,14 +24,13 @@
       :snap-to-grid="true"
       :snap-grid="[20, 20]"
       @connect="handleConnect"
-      @pane-click="onPaneClick"
-      @edge-click="onEdgeClick"
-      @node-drag-stop="onNodeDragStop"
+      @pane-click="clearSelection"
+      @edge-click="selectEdge"
+      @node-drag-stop="handleNodeDragStop"
     >
       <Background pattern-color="var(--body-color)" variant="dots" :gap="12" />
-      <Controls
-        position="bottom-right"
-        :aria-label="translate('WORKFLOW_GRAPH_CONTROLS')"
+      <CustomControls
+        aria-label="Graph controls"
       />
       <MiniMap
         position="bottom-left"
@@ -73,41 +72,28 @@
       </Panel>
     </VueFlow>
 
-    <div
-      class="modal-backdrop position-fixed top-0 start-0 w-100 h-100"
-      style="z-index: 1040; background-color: rgba(0,0,0,0.5);"
-    ></div>
-    <!-- Modal Dialog -->
-    <joomla-dialog v-if="modalActive" class="loaded" type="iframe" style="z-index: 1050;">
-      <dialog open class="position-absolute top-0" aria-modal="true"  aria-labelledby="modal-title" role="dialog">
-        <div class="joomla-dialog-container">
-          <header class="joomla-dialog-header">
-            <span class="header-icon" :class="modalIconClass" aria-hidden="true"></span>
-            <h3 id="modal-title">{{ translate(modalTitle) }}</h3>
-            <div class="buttons-holder">
-              <button
-                type="button"
-                class="button-close btn-close"
-                @click="closeModal"
-                :aria-label="translate('WORKFLOW_GRAPH_CLOSE_MODAL')"
-              ></button>
-            </div>
-          </header>
-          <section class="joomla-dialog-body">
-            <iframe
-              v-if="modalUrl"
-              :src="modalUrl"
-              class="iframe-content w-100 h-vh-70"
-              @load="handleIframeLoad"
-              :title="translate(modalTitle)"
-              :aria-label="translate('WORKFLOW_GRAPH_MODAL_IFRAME', { title: modalTitle })"
-            ></iframe>
-          </section>
-        </div>
-      </dialog>
-    </joomla-dialog>
+    <button
+      ref="ModalDialog"
+      class="d-none"
+      data-joomla-dialog=""
+      data-checkin-url=""
+      data-close-on-message=""
+      data-reload-on-close=""
+      aria-hidden="true"
+    >
+    </button>
+
     <div ref="liveRegion" aria-live="polite" role="status" class="visually-hidden"></div>
   </div>
+  <ConfirmModal
+    :visible="deleteModal.visible"
+    :title="deleteModal.title"
+    :message="deleteModal.message"
+    :confirmText="translate('DELETE')"
+    :cancelText="translate('CANCEL')"
+    @confirm="handleDeleteConfirm"
+    @cancel="handleDeleteCancel"
+  />
 </template>
 
 <script>
@@ -116,10 +102,11 @@ import { ref, computed, onMounted, onUnmounted,
 import { useStore } from 'vuex'
 import { VueFlow, Panel, useVueFlow } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
-import { Controls } from '@vue-flow/controls'
 import { MiniMap } from '@vue-flow/minimap'
 import stageNode from '../nodes/StageNode.vue'
 import customEdge from '../edges/CustomEdge.vue'
+import CustomControls from './CustomControls.vue'
+import ConfirmModal from "../modals/ConfirmModal.vue";
 import {
   createSpecialNode,
   getColorForStage,
@@ -133,7 +120,7 @@ const translate = instance?.proxy?.$translate || ((x) => x);
 
 export default {
   name: 'WorkflowCanvas',
-  components: { VueFlow, Background, Controls, MiniMap, Panel },
+  components: { VueFlow, Background, CustomControls, MiniMap, Panel, ConfirmModal },
   props: {
     nodeTypes: {
       type: Object,
@@ -161,22 +148,21 @@ export default {
     const isTransitionMode = ref(false)
     const selectedStage = ref(null)
     const selectedTransition = ref(null)
-    const modalActive = ref(false)
-    const modalTitle = ref('')
-    const modalUrl = ref('')
     const liveRegion = ref(null)
     const canvas = ref(null)
     const tabIndexOrder = ref([])
     const saveStatus = ref('upToDate');
     const previouslyFocusedElement = ref(null);
-    const modalDialog = ref(null);
 
+    const ModalDialog = ref(null)
+    const deleteModal = ref({
+      visible: false,
+      type: '', // 'stage' or 'transition'
+      id: null,
+      title: '',
+      message: ''
+    });
 
-    const modalIconClass = computed(() =>
-      modalTitle?.value?.startsWith('COM_WORKFLOW_EDIT_')
-        ? 'icon icon-edit'
-        : 'icon icon-add'
-    )
 
     const stages = computed(() => store?.getters?.stages || [])
     const transitions = computed(() => store?.getters?.transitions || [])
@@ -211,7 +197,7 @@ export default {
               isSelected: selectedStage?.value === stage?.id,
               onSelect: () => selectStage(stage?.id),
               onEdit: () => editStage(stage?.id),
-              onDelete: () => deleteStage(stage?.id)
+              onDelete: () => showDeleteModal('stage', stage?.id)
             },
             draggable: !isTransitionMode?.value
           }
@@ -242,7 +228,6 @@ export default {
           const isSelected = selectedTransition?.value === transition?.id
           const edgeColor = getEdgeColor(transition, isSelected)
 
-
           return {
             id: transition?.id?.toString(),
             source: sourceId,
@@ -262,7 +247,7 @@ export default {
               isSelected,
               isBiDirectional,
               offsetIndex,
-              onDelete: () => deleteTransition(transition.id),
+              onDelete: () => showDeleteModal('transition', transition.id),
               onEdit: () => editTransition(transition.id)
             },
             draggable: !isTransitionMode.value
@@ -301,6 +286,35 @@ export default {
       openModal('transition', transitionId)
     }
 
+    function showDeleteModal(type, id) {
+      deleteModal.value = {
+        visible: true,
+        type,
+        id,
+        title: type === 'stage'
+          ? translate('DELETE_STAGE_TITLE')
+          : translate('DELETE_TRANSITION_TITLE'),
+        message: type === 'stage'
+          ? translate('DELETE_STAGE_CONFIRM')
+          : translate('DELETE_TRANSITION_CONFIRM')
+      };
+    }
+
+    function handleDeleteConfirm() {
+      if (deleteModal.value.type === 'stage') {
+        deleteStage(deleteModal.value.id);
+      } else if (deleteModal.value.type === 'transition') {
+        deleteTransition(deleteModal.value.id);
+      }
+      deleteModal.value.visible = false;
+    }
+
+    function handleDeleteCancel() {
+      deleteModal.value.visible = false;
+    }
+
+
+
     function deleteStage(id) {
       store.dispatch('deleteStage', { id, workflowId: workflowId.value })
       selectedStage.value = null
@@ -337,28 +351,28 @@ export default {
       announce(liveRegion.value, translate('WORKFLOW_GRAPH_ADD_TRANSITION_DIALOG_OPENED'))
     }
 
-    function onPaneClick() {
+    function clearSelection() {
       selectedStage.value = null
       selectedTransition.value = null
       announce(liveRegion.value, translate('WORKFLOW_GRAPH_SELECTION_CLEARED'))
     }
 
-    function onEdgeClick({ edge }) {
+    function selectEdge({ edge }) {
       selectTransition(parseInt(edge.id))
     }
 
-    async function onNodeDragStop({ node }) {
+    async function handleNodeDragStop({ node }) {
       if(!node || !node.id || node.id === 'from_any') return
       const position = store.getters.stages.find(s => s.id === parseInt(node.id)).position
       if (node?.id) {
-          const nodePosition = node.computedPosition || position || { x: 0, y: 0 }
-          const x = nodePosition.x
-          const y = nodePosition.y
-          saveStatus.value = 'unsaved';
-          updateSaveMessage();
+        const nodePosition = node.computedPosition || position || { x: 0, y: 0 }
+        const x = nodePosition.x
+        const y = nodePosition.y
+        saveStatus.value = 'unsaved';
+        updateSaveMessage();
 
-          await store.dispatch('updateStagePosition', { id: node?.id, x, y })
-          saveNodePosition(node.id)
+        await store.dispatch('updateStagePosition', { id: node?.id, x, y })
+        saveNodePosition(node.id)
       }
     }
 
@@ -375,150 +389,101 @@ export default {
       }
     }, 3000);
 
-
     function openModal(type, id = null) {
       previouslyFocusedElement.value = document.activeElement;
-      const extension = Joomla.getOptions('com_workflow', {})?.extension || null
+      const extension = Joomla.getOptions('com_workflow', {})?.extension || '';
+      const baseUrl = `index.php?option=com_workflow&view=${type}&workflow_id=${workflowId.value}&extension=${extension}&layout=modal&tmpl=component`;
 
-      let base = `index.php?option=com_workflow&view=${type}&workflow_id=${workflowId.value}&extension=${extension}&layout=modal&tmpl=component`
-      if (id) {
-        base += `&id=${id}`
-      }
+      const src = id ? `${baseUrl}&id=${id}` : baseUrl;
+      const textHeader = id
+        ? translate(`COM_WORKFLOW_EDIT_${type.toUpperCase()}`)
+        : translate(`COM_WORKFLOW_ADD_${type.toUpperCase()}`);
 
-      modalUrl.value = base
-      modalTitle.value = id
-        ? `COM_WORKFLOW_EDIT_${type.toUpperCase()}`
-        : `COM_WORKFLOW_ADD_${type.toUpperCase()}`
-      modalActive.value = true
-      nextTick(() => {
-        setupFocusTrap();
-        setOtherElementsFocusable(false);
-      });
+      const popupOptions = {
+        popupType: 'iframe',
+        textHeader: textHeader,
+        src: src
+      };
+
+      let dialogRef = ModalDialog?.value;
+      dialogRef.setAttribute('data-joomla-dialog', JSON.stringify(popupOptions));
+      dialogRef.setAttribute('data-checkin-url', '');
+      dialogRef.setAttribute('data-close-on-message', '');
+      dialogRef.setAttribute('data-reload-on-close', '');
+
+      // Setup dialog event listeners for focus management
+      setupDialogFocusHandlers();
+
+      // Trigger the dialog
+      dialogRef.click();
+
     }
 
-    function closeModal() {
-      removeFocusTrap();
-      setOtherElementsFocusable(true);
+    function setupDialogFocusHandlers() {
+      // Wait for dialog to be created in DOM
+      setTimeout(() => {
+        const dialog = document.querySelector('joomla-dialog dialog[open]');
+        if (dialog) {
+          // Focus the dialog itself first
+          dialog.focus();
 
-      modalActive.value = false
-      modalUrl.value = ''
-      selectedStage.value = null
-      selectedTransition.value = null
+          // Then try to focus the iframe content
+          const iframe = dialog.querySelector('iframe');
+          if (iframe) {
+            iframe.addEventListener('load', () => {
+              handleDialogIframeLoad(iframe);
+            });
+          }
 
+          // Add dialog close event listener
+          dialog.addEventListener('close', handleDialogClose);
+
+          // Add keyboard event listener for dialog
+          dialog.addEventListener('keydown', handleDialogKeydown);
+        }
+      }, 100);
+    }
+
+    function handleDialogIframeLoad(iframe) {
+      try {
+        // Focus the iframe
+        iframe.focus();
+
+        // Try to focus elements inside the iframe
+        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+        if (iframeDoc) {
+          // Focus first input, select, or textarea
+          const firstInput = iframeDoc.querySelector('input:not([type="hidden"]), select, textarea');
+          if (firstInput) {
+            firstInput.focus();
+          } else {
+            // If no form elements, focus the body
+            iframeDoc.body.focus();
+          }
+        }
+      } catch (error) {
+        // Cross-origin restrictions - just focus the iframe
+        iframe.focus();
+      }
+    }
+
+    function handleDialogClose() {
+      // Restore focus to previously focused element
       if (previouslyFocusedElement.value) {
         nextTick(() => {
           previouslyFocusedElement.value.focus();
           previouslyFocusedElement.value = null;
         });
       }
-      retryLoad()
     }
 
-    // Add these new functions
-    function setupFocusTrap() {
-      document.addEventListener('keydown', handleModalKeydown);
-    }
-
-    function removeFocusTrap() {
-      document.removeEventListener('keydown', handleModalKeydown);
-    }
-
-    function handleModalKeydown(e) {
-      // Only process if modal is active
-      if (!modalActive.value) return;
-
-      // Handle escape key
+    function handleDialogKeydown(e) {
       if (e.key === 'Escape') {
         e.preventDefault();
-        closeModal();
-        return;
-      }
-
-      // Block Tab key navigation outside modal
-      if (e.key === 'Tab') {
-        // Let the iframe handle its own tabbing
-        const iframe = document.querySelector('.joomla-dialog-body iframe');
-        if (iframe && document.activeElement === iframe) {
-          return;
+        const dialog = e.currentTarget;
+        if (dialog && dialog.close) {
+          dialog.close();
         }
-
-        // Otherwise, keep focus within dialog controls
-        const dialog = document.querySelector('dialog[open]');
-        if (!dialog) return;
-
-        const focusableElements = Array.from(dialog.querySelectorAll(
-          'button, [href], input, select, textarea, iframe, [tabindex]:not([tabindex="-1"])'
-        ));
-
-        if (focusableElements.length === 0) return;
-
-        const firstElement = focusableElements[0];
-        const lastElement = focusableElements[focusableElements.length - 1];
-
-        // If shift+tab on first element, move to last element
-        if (e.shiftKey && document.activeElement === firstElement) {
-          e.preventDefault();
-          lastElement.focus();
-        }
-        // If tab on last element, move to first element
-        else if (!e.shiftKey && document.activeElement === lastElement) {
-          e.preventDefault();
-          firstElement.focus();
-        }
-      }
-    }
-
-    function setOtherElementsFocusable(focusable) {
-      // Store and update tabindex for all focusable elements outside the modal
-      const selector = '.workflow-canvas [tabindex], .workflow-canvas button, .workflow-canvas a, #main-canvas';
-      const elements = document.querySelectorAll(selector);
-
-      elements.forEach(el => {
-        if (focusable) {
-          // Restore original tabindex
-          if (el.dataset.originalTabindex) {
-            el.setAttribute('tabindex', el.dataset.originalTabindex);
-            delete el.dataset.originalTabindex;
-          }
-        } else {
-          // Store original tabindex and make unfocusable
-          el.dataset.originalTabindex = el.getAttribute('tabindex') || '0';
-          el.setAttribute('tabindex', '-1');
-        }
-      });
-    }
-
-// Update handleIframeLoad to set focus in the iframe
-    function handleIframeLoad() {
-      const iframe = document.querySelector('.joomla-dialog-body iframe');
-      if (!iframe) return;
-
-      try {
-        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-        const form = iframeDoc.querySelector('form');
-
-        if (form) {
-          form.addEventListener('submit', () => {
-            setTimeout(() => {
-              closeModal();
-            }, 300);
-          });
-
-          // Focus the first input or the form itself
-          const firstInput = iframeDoc.querySelector('input, select, textarea');
-          if (firstInput) {
-            firstInput.focus();
-          } else {
-            form.focus();
-          }
-        }
-
-        // Focus the iframe itself if we can't access the content
-        iframe.focus();
-      } catch (error) {
-        console.error('Error handling iframe load:', error);
-        // If we can't access iframe content due to same-origin policy, focus the iframe itself
-        iframe.focus();
       }
     }
 
@@ -526,14 +491,6 @@ export default {
       if (workflowId.value) {
         store.dispatch('loadWorkflow', workflowId.value)
       }
-    }
-
-    function setupFocusTrap() {
-      document.addEventListener('keydown', handleModalKeydown);
-    }
-
-    function removeFocusTrap() {
-      document.removeEventListener('keydown', handleModalKeydown);
     }
 
     function handleTabNavigation(e) {
@@ -584,7 +541,6 @@ export default {
       }
     }
 
-
     watch([stages, transitions], ([newStages, newTransitions]) => {
       if (newStages.length > 0 || newTransitions.length > 0) {
         setTimeout(() => fitView(), 200)
@@ -593,6 +549,9 @@ export default {
 
     onMounted(() => {
       const handleKeydown = (e) => {
+        // Don't handle keyboard shortcuts when dialog is open
+        if (document.querySelector('joomla-dialog dialog[open]')) return;
+
         if (e.altKey && (e.key === 'N' || e.key === 'n')) {
           e.preventDefault();
           addStage();
@@ -612,6 +571,22 @@ export default {
           }
         }
 
+        if (e.altKey && e.shiftKey && (e.key === 'D' || e.key === 'd')) {
+          e.preventDefault();
+          if (selectedStage.value) {
+            showDeleteModal('stage', selectedStage.value);
+          } else if (selectedTransition.value) {
+            showDeleteModal('transitition', selectedTransition.value);
+          }
+        }
+
+        if (e.altKey && (e.key === 'C' || e.key === 'c')) {
+          e.preventDefault();
+          toggleTransitionMode()
+          announce(liveRegion.value, isTransitionMode.value
+            ? translate('WORKFLOW_GRAPH_TRANSITION_MODE_ON') : translate('WORKFLOW_GRAPH_TRANSITION_MODE_OFF'));
+        }
+
         if (e.ctrlKey && (e.key === 'z' || e.key === 'Z')) {
           e.preventDefault();
           store.dispatch('undo');
@@ -628,10 +603,40 @@ export default {
           e.preventDefault();
           selectedStage.value = null;
           selectedTransition.value = null;
-          if (modalActive.value) {
-            closeModal();
-          }
           announce(liveRegion.value, translate('WORKFLOW_GRAPH_SELECTION_CLEARED'));
+        }
+
+        // Zoom controls
+        if (e.key === '+' || e.key === '=') {
+          e.preventDefault();
+          const {zoomIn} = useVueFlow();
+          zoomIn();
+        } else if (e.key === '-' || e.key === '_') {
+          e.preventDefault();
+          const {zoomOut} = useVueFlow();
+          zoomOut();
+        }
+
+        // Pan with Shift + Arrow keys
+        if (e.shiftKey && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key) && !selectedStage.value) {
+          e.preventDefault();
+          const {viewport} = useVueFlow();
+          const panStep = 20;
+
+          switch (e.key) {
+            case 'ArrowUp':
+              viewport.value.y += panStep;
+              break;
+            case 'ArrowDown':
+              viewport.value.y -= panStep;
+              break;
+            case 'ArrowLeft':
+              viewport.value.x += panStep;
+              break;
+            case 'ArrowRight':
+              viewport.value.x -= panStep;
+              break;
+          }
         }
 
         if (e.key === 'Tab') {
@@ -695,24 +700,23 @@ export default {
       isTransitionMode,
       positionedNodes,
       styledEdges,
-      modalActive,
-      modalTitle,
-      modalUrl,
-      modalIconClass,
       liveRegion,
       canvas,
+      ModalDialog,
+      deleteModal,
       handleConnect,
       toggleTransitionMode,
       addStage,
       addTransition,
-      closeModal,
-      handleIframeLoad,
       deleteStage,
-      onPaneClick,
-      onEdgeClick,
-      onNodeDragStop,
+      deleteTransition,
+      clearSelection,
+      selectEdge,
+      handleNodeDragStop,
       onCanvasFocus,
       onCanvasBlur,
+      handleDeleteConfirm,
+      handleDeleteCancel
     }
   }
 }

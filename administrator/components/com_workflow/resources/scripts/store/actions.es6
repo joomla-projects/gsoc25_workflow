@@ -53,10 +53,6 @@ export default {
 	 * @returns {Promise<void>}
 	 */
 	async deleteStage({ commit, dispatch, state }, { id, workflowId }) {
-		if (!confirm('Are you sure you want to delete this stage? This action cannot be undone.')) {
-			return;
-		}
-
 		commit('SET_LOADING', true);
 		commit('SET_ERROR', null);
 
@@ -69,7 +65,7 @@ export default {
 				throw new Error('COM_WORKFLOW_ERROR_STAGE_HAS_TRANSITIONS');
 			}
 
-			await workflowGraphApi.deleteStage(id, workflowId);
+			const response = await workflowGraphApi.deleteStage(id, workflowId);
 			commit('REMOVE_STAGE', id);
 
 			if (window.Joomla && window.Joomla.renderMessages) {
@@ -101,10 +97,6 @@ export default {
 	 * @returns {Promise<void>}
 	 */
 	async deleteTransition({ commit, dispatch }, { id, workflowId }) {
-		if (!confirm('Are you sure you want to delete this transition? This action cannot be undone.')) {
-			return;
-		}
-
 		commit('SET_LOADING', true);
 		commit('SET_ERROR', null);
 		try {

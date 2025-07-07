@@ -125,6 +125,12 @@ class HtmlView extends BaseHtmlView
         $this->form       = $model->getForm();
         $this->item       = $model->getItem();
 
+        if ($this->getLayout() === 'modalreturn') {
+            parent::display($tpl);
+
+            return;
+        }
+
         // Check for errors.
         if (\count($errors = $model->getErrors())) {
             throw new GenericDataException(implode("\n", $errors), 500);
