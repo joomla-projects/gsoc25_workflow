@@ -1,50 +1,29 @@
-export default function createPersistedState(options = {}) {
-  const config = {
-    storage: window.sessionStorage,
-    key: options.key || 'joomla.workflow',
-    paths: options.paths || [],
-    ...options
-  };
-
+/**
+ * Vuex plugin for persisting selected store data to localStorage
+ * Typically used for preserving UI state across reloads
+ */
+export default function createPersistedState({ key = 'vuex', paths = [] } = {}) {
   return (store) => {
-    // Load saved state from storage when initializing
     try {
-      const savedState = config.storage.getItem(config.key);
-      if (savedState) {
-        const data = JSON.parse(savedState);
-        store.replaceState({
-          ...store.state,
-          ...data
+      const stored = localStorage.getItem(key);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        paths.forEach(path => {
+          if (parsed[path] !== undefined) {
+            store.state[path] = parsed[path];
+          }
         });
       }
+
+      store.subscribe((mutation, state) => {
+        const partial = {};
+        paths.forEach(path => {
+          partial[path] = state[path];
+        });
+        localStorage.setItem(key, JSON.stringify(partial));
+      });
     } catch (err) {
-      console.warn('Error loading persisted state:', err);
+      console.warn('[persist.js] Failed to load or save state:', err);
     }
-
-    // Save state changes to storage
-    store.subscribe((mutation, state) => {
-      try {
-        // Filter state if paths are specified or use a reducer
-        let persistedState = state;
-
-        if (typeof config.reducer === 'function') {
-          persistedState = config.reducer(state);
-        } else if (config.paths && config.paths.length) {
-          persistedState = config.paths.reduce((result, path) => {
-            if (state[path]) {
-              result[path] = state[path];
-            }
-            return result;
-          }, {});
-        }
-
-        config.storage.setItem(
-          config.key,
-          JSON.stringify(persistedState)
-        );
-      } catch (err) {
-        console.warn('Error saving state:', err);
-      }
-    });
   };
 }

@@ -186,7 +186,7 @@ class StageController extends FormController
             $id = $this->input->getInt('id', 0);
             $this->setRedirect(
                 \Joomla\CMS\Router\Route::_(
-                    'index.php?option=com_workflow&view=STAGE&layout=modalreturn&tmpl=component&id=2&extension=com_content.article',
+                    'index.php?option=com_workflow&view=stage&layout=modalreturn&tmpl=component&id=2&extension=com_content.article',
                     false
                 )
             );
@@ -208,15 +208,19 @@ class StageController extends FormController
     {
         $result = parent::cancel($key);
 
-        // When editing in modal then redirect to modalreturn layout
-        if ($result && $this->input->get('layout') === 'modal') {
-            $id     = $this->input->get('id');
-            $return = 'index.php?option=' . $this->option . '&view=' . $this->view_item . $this->getRedirectToItemAppend($id)
-                . '&layout=modalreturn&from-task=cancel';
+        $input = $this->input;
+        $isModal = $input->get('layout') === 'modal' || $input->get('tmpl') === 'component';
 
-            $this->setRedirect(Route::_($return, false));
+        if ($isModal && $result) {
+            $id = $this->input->getInt('id', 0);
+            $this->setRedirect(
+                Route::_(
+                    'index.php?option=com_workflow&view=stage&layout=modalreturn&tmpl=component&id=2&extension=com_content.article',
+                    false
+                )
+            );
+            return true;
         }
-
         return $result;
     }
 }

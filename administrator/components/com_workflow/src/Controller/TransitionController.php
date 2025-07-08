@@ -181,12 +181,13 @@ class TransitionController extends FormController
         $result = parent::save($key, $urlVar);
         $input = $this->input;
         $isModal = $input->get('layout') === 'modal' || $input->get('tmpl') === 'component';
+        $task    = $this->getTask();
 
-        if ($isModal && $result) {
+        if ($isModal && $result && $task === 'save') {
             $id = $this->input->getInt('id', 0);
             $this->setRedirect(
                 \Joomla\CMS\Router\Route::_(
-                    'index.php?option=com_workflow&view=transition&layout=modalreturn&tmpl=component&id=2&extension=com_content.article',
+                    'index.php?option=com_workflow&view=transition&layout=modalreturn&tmpl=component&workflow_id=' . $id. '&extension=' . $this->extension,
                     false
                 )
             );
@@ -195,6 +196,14 @@ class TransitionController extends FormController
         return $result;
     }
 
+    /**
+     *
+     * @param $key
+     *
+     * @return bool
+     *
+     * @since __DEPLOY_VERSION__
+     */
     public function cancel($key = null)
     {
         $result = parent::cancel($key);
@@ -205,7 +214,7 @@ class TransitionController extends FormController
             $id = $this->input->getInt('id', 0);
             $this->setRedirect(
                 \Joomla\CMS\Router\Route::_(
-                    'index.php?option=com_workflow&view=transition&layout=modalreturn&tmpl=component&id=2&extension=com_content.article',
+                    'index.php?option=com_workflow&view=transition&layout=modalreturn&tmpl=component&workflow_id=' . $id . '&extension='  . $this->extension,
                     false
                 )
             );

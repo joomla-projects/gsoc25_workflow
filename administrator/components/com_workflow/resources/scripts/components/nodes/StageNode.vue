@@ -21,8 +21,8 @@
     <!-- Stage Header -->
     <div class="card-header d-flex justify-content-between align-items-start p-1">
       <div class="flex-fill w-75">
-        <h3 class="card-title mb-1 fw-semibold" :title=stage?.title>{{ stage.title }}</h3>
-        <p class="card-text text-muted mb-0 text-truncate" :title=stage?.description>{{ stage.description }}</p>
+        <h3 class="card-title mb-1 fw-semibold" :title="stage?.title">{{ stage.title }}</h3>
+        <p class="card-text text-muted mb-0 text-truncate" :title="stage?.description">{{ stage.description }}</p>
       </div>
 
       <!-- Actions -->
@@ -75,7 +75,8 @@
 </template>
 
 <script>
-import { Handle, Position } from '@vue-flow/core'
+import { Handle, Position } from '@vue-flow/core';
+import {focusNode} from "../utils/focus-utils";
 
 export default {
   name: 'StageNode',
@@ -84,12 +85,18 @@ export default {
     data: {
       type: Object,
       required: true
-    },
+    }
   },
   computed: {
-    Position() { return Position; },
-    stage() { return this.data.stage; },
-    isSelected() { return this.data.isSelected; },
+    Position() {
+      return Position;
+    },
+    stage() {
+      return this.data.stage;
+    },
+    isSelected() {
+      return this.data.isSelected;
+    },
     stageStyle() {
       return {
         borderColor: this.data.stage.color + '!important',
@@ -99,14 +106,11 @@ export default {
     badgeStyle() {
       return { backgroundColor: this.data.stage.color };
     },
-    onSelected() { this.data.onSelect() },
+    onSelected() {
+      return this.data.onSelect;
+    }
   },
   methods: {
-    announce(message) {
-       if (this.$refs.liveRegion) {
-         this.$refs.liveRegion.textContent = message;
-       }
-    },
     onNodeKeydown(e) {
       if (e.key === 'Enter' || e.key === ' ') {
         this.data.onSelect();
@@ -120,13 +124,15 @@ export default {
         this.data.onDelete();
         e.preventDefault();
       }
-      if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
+      if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key)) {
         this.$emit('navigate', e.key);
         e.preventDefault();
       }
     },
-    onNodeFocus() {},
+    onNodeFocus(node) {
+      focusNode(node?.id);
+    },
     onNodeBlur() {}
   }
-}
+};
 </script>

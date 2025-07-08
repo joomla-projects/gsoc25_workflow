@@ -1,5 +1,8 @@
 import workflowGraphApi from '../app/WorkflowGraphApi.es6.js';
-
+/**
+ * Vuex Actions for asynchronous operations and workflows
+ * Handles logic and commits to mutations
+ */
 export default {
 	/**
 	 * Load a workflow by its ID, including stages and transitions.
@@ -61,13 +64,15 @@ export default {
 				t.from_stage_id === id || t.to_stage_id === id
 			);
 
+			if(state.stages.length <= 1){
+				throw new Error('COM_WORKFLOW_ERROR_STAGE_CANT_DELETED')
+			}
+
 			if (transitions.length > 0) {
 				throw new Error('COM_WORKFLOW_ERROR_STAGE_HAS_TRANSITIONS');
 			}
 
 			const response = await workflowGraphApi.deleteStage(id, workflowId);
-			commit('REMOVE_STAGE', id);
-
 			if (window.Joomla && window.Joomla.renderMessages) {
 				window.Joomla.renderMessages({
 					success: ['Stage deleted successfully']
@@ -101,7 +106,6 @@ export default {
 		commit('SET_ERROR', null);
 		try {
 			await workflowGraphApi.deleteTransition(id, workflowId);
-			commit('REMOVE_TRANSITION', id);
 		} catch (error) {
 			commit('SET_ERROR', error.message);
 			throw error;
@@ -138,7 +142,7 @@ export default {
 			return true;
 		}
 
-		commit('SET_ERROR', 'Failed to update stage positions');
+		commit('SET_ERROR', 'WORKFLOW_GRAPH_UPDATE_STAGE_POSITION_FAILED');
 		return false;
 	},
 
@@ -169,7 +173,6 @@ export default {
 		commit('SET_ERROR', null);
 		commit('UNDO_REDO', -1);
 		commit('SET_LOADING', false);
-
 	},
 
 	/**

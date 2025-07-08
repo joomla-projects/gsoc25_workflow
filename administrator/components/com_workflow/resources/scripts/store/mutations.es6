@@ -1,3 +1,6 @@
+/**
+ * Vuex Mutations for synchronously modifying workflow state
+ */
 export default {
 	SET_WORKFLOW_ID(state, id) {
 		state.workflowId = id;
@@ -6,15 +9,7 @@ export default {
 		state.workflow = workflow;
 	},
 	SET_STAGES(state, stages) {
-		state.stages = stages.map(stage => {
-			const newStage = JSON.parse(JSON.stringify(stage));
-			const existingStage = state.stages.find(s => s.id === stage.id);
-
-			if (existingStage && existingStage.position) {
-				newStage.position = JSON.parse(JSON.stringify(existingStage.position));
-			}
-			return newStage;
-		});
+		state.stages = stages;
 	},
 	SET_TRANSITIONS(state, transitions) {
 		state.transitions = transitions;
@@ -24,22 +19,6 @@ export default {
 	},
 	SET_ERROR(state, error) {
 		state.error = error;
-	},
-	REMOVE_STAGE(state, id) {
-		state.stages = state.stages.filter(s => s.id !== id);
-		// Also remove transitions connected to this stage
-		state.transitions = state.transitions.filter(
-			t => t.from_stage_id !== id && t.to_stage_id !== id
-		);
-	},
-	UPDATE_TRANSITION(state, updatedTransition) {
-		const index = state.transitions.findIndex(t => t.id === updatedTransition.id);
-		if (index !== -1) {
-			state.transitions.splice(index, 1, updatedTransition);
-		}
-	},
-	REMOVE_TRANSITION(state, id) {
-		state.transitions = state.transitions.filter(t => t.id !== id);
 	},
 	UPDATE_STAGE_POSITION(state, { id, x, y }) {
 		state.stages= state.stages.map(stage => {

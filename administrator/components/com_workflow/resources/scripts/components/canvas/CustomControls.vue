@@ -1,5 +1,5 @@
 <template>
-  <div class="custom-controls" tabindex="0" @keydown="handleKeydown" ref="controlsContainer">
+  <div class="custom-controls" tabindex="0" ref="controlsContainer">
     <button
       class="custom-controls-button"
       @click="zoomIn"
@@ -37,53 +37,10 @@ export default {
     const { zoomIn, zoomOut, fitView, viewport } = useVueFlow();
     const controlsContainer = ref(null);
 
-    const handleKeydown = (e) => {
-      if (e.key === '+' || e.key === '=') {
-        e.preventDefault();
-        zoomIn();
-      } else if (e.key === '-' || e.key === '_') {
-        e.preventDefault();
-        zoomOut();
-      } else if (e.key === 'f' || e.key === 'F') {
-        e.preventDefault();
-        fitView();
-      }
-    };
-
-    const globalKeydown = (e) => {
-      if (e.shiftKey && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
-        e.preventDefault();
-        const panStep = 20;
-        switch (e.key) {
-          case 'ArrowUp':
-            viewport.value.y += panStep;
-            break;
-          case 'ArrowDown':
-            viewport.value.y -= panStep;
-            break;
-          case 'ArrowLeft':
-            viewport.value.x += panStep;
-            break;
-          case 'ArrowRight':
-            viewport.value.x -= panStep;
-            break;
-        }
-      }
-    };
-
-    onMounted(() => {
-      document.addEventListener('keydown', globalKeydown);
-    });
-
-    onUnmounted(() => {
-      document.removeEventListener('keydown', globalKeydown);
-    });
-
     return {
       zoomIn,
       zoomOut,
       fitView,
-      handleKeydown,
       controlsContainer
     };
   }

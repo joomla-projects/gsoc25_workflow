@@ -29,13 +29,32 @@
         </div>
       </dl>
     </div>
-    <div id="save-message" aria-live="polite" role="status" class="mb-2 text-success bold">{{ translate('WORKFLOW_GRAPH_UP_TO_DATE') }}</div>
+    <div
+      id="save-message"
+      :class="{
+      'text-warning': saveStatus.value === 'unsaved',
+      'text-muted': saveStatus.value !== 'unsaved'
+      }"
+      class="mb-2 text-success fw-bold"
+    >
+      {{
+        saveStatus.value === 'unsaved'
+          ? translate('WORKFLOW_GRAPH_UNSAVED_CHANGES')
+          : translate('WORKFLOW_GRAPH_UP_TO_DATE')
+      }}
+    </div>
   </section>
 </template>
 
 <script>
 export default {
   name: 'WorkflowTitlebar',
+  props: {
+    saveStatus: {
+      type: String,
+      default: 'upToDate'
+    }
+  },
   computed: {
     workflow() {
       return this.$store.getters.workflow || { title: 'WORKFLOW_GRAPH_LOADING', published: false };

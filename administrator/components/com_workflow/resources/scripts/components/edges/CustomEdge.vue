@@ -53,7 +53,7 @@
 </template>
 
 <script>
-import { getSmoothStepPath } from '@vue-flow/core'
+import { getSmoothStepPath } from '@vue-flow/core';
 
 export default {
   name: 'customEdge',
@@ -67,7 +67,7 @@ export default {
     targetPosition: String,
     style: Object,
     markerEnd: Object,
-    data: Object,
+    data: Object
   },
   computed: {
     edgeData() {
@@ -78,12 +78,18 @@ export default {
         targetX: this.targetX,
         targetY: this.targetY,
         targetPosition: this.targetPosition,
-        borderRadius: 10,
-      })
+        borderRadius: 10
+      });
     },
-    edgePath() { return this.edgeData[0] },
-    labelX() { return this.edgeData[1] },
-    labelY() { return this.edgeData[2] + (this.data?.offsetIndex || 0) * 18 }
+    edgePath() {
+      return this.edgeData[0];
+    },
+    labelX() {
+      return this.edgeData[1];
+    },
+    labelY() {
+      return this.edgeData[2] + (this.data?.offsetIndex || 0) * 18;
+    }
   },
   methods: {
     onEdgeKeydown(e) {
@@ -99,6 +105,5 @@ export default {
     onEdgeFocus() {},
     onEdgeBlur() {}
   }
-
-}
+};
 </script>

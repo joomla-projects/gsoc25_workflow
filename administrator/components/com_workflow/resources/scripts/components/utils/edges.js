@@ -1,0 +1,61 @@
+import { getEdgeColor} from "./utils.es6";
+
+/**
+ * Generate styled edges based on transition data.
+ * @param {Array<Object>} transitions - List of transitions.
+ * @param {Object} options - Optional configuration.
+ * @param {Boolean} options.transitionMode - Whether transition mode is enabled.
+ * @param {Number|String|null} options.selectedId - Currently selected transition id.
+ * @returns {Array<Object>} Styled edge definitions.
+ */
+export function generateStyledEdges(transitions, options = {}) {
+  const {
+    transitionMode = false,
+    selectedId = null
+  } = options;
+
+  return transitions.map(transition => {
+    const sourceId = transition.from_stage_id === -1 ? 'from_any' : String(transition.from_stage_id);
+    const targetId = String(transition.to_stage_id);
+
+    const isSelected = transition.id === selectedId;
+    const isBiDirectional = transitions.some(t =>
+      t.from_stage_id === transition.to_stage_id && t.to_stage_id === transition.from_stage_id
+    );
+
+    const edgeColor = getEdgeColor(transition, isSelected)
+    const strokeWidth = isSelected ? 10 : 5;
+
+    return {
+      id: String(transition.id),
+      source: sourceId,
+      target: targetId,
+      type: 'custom',
+      animated: isSelected,
+      style: {
+        stroke: edgeColor,
+        strokeWidth,
+        strokeDasharray: transition.published ? undefined : '5,5',
+        zIndex: isSelected ? 1000 : 1
+      },
+      markerEnd: {
+        type: 'arrow',
+        width: 20,
+        height: 20,
+        color: edgeColor
+      },
+      data: {
+        ...transition,
+        isTransitionMode: transitionMode,
+        isSelected,
+        isBiDirectional,
+        offsetIndex: isBiDirectional
+          ? transition.from_stage_id > transition.to_stage_id ? 1 : -1
+          : 0,
+        onEdit: () => {},
+        onDelete: () => {}
+      },
+      draggable: !transitionMode
+    };
+  });
+}

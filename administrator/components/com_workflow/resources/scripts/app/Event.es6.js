@@ -1,32 +1,45 @@
 /**
- * Workflow Graph Event bus - used for communication between joomla and vue
+ * Simple Event Bus for cross-module communication
+ * Used to communicate between Joomla buttons and Vue app
  */
-export default class Event {
+export default new class EventBus {
   /**
-     * Workflow Event constructor
-     */
+   * Internal registry of events
+   * @type {Object<string, Function[]>}
+   */
   constructor() {
     this.events = {};
   }
 
   /**
-     * Fire an event
-     * @param event
-     * @param data
-     */
+   * Trigger a custom event with optional payload
+   * @param {string} event - Event name
+   * @param {*} [data=null] - Optional payload
+   */
   fire(event, data = null) {
-    if (this.events[event]) {
-      this.events[event].forEach((fn) => fn(data));
-    }
+    (this.events[event] || []).forEach(fn => fn(data));
   }
 
   /**
-     * Listen to events
-     * @param event
-     * @param callback
-     */
+   * Register a callback for an event
+   * @param {string} event - Event name
+   * @param {Function} callback - Function to invoke on event
+   */
   listen(event, callback) {
-    this.events[event] = this.events[event] || [];
+    if (!this.events[event]) {
+      this.events[event] = [];
+    }
     this.events[event].push(callback);
   }
-}
+
+  /**
+   * Remove a listener from an event
+   * @param {string} event - Event name
+   * @param {Function} callback - Function to remove
+   */
+  off(event, callback) {
+    if (this.events[event]) {
+      this.events[event] = this.events[event].filter(fn => fn !== callback);
+    }
+  }
+}();

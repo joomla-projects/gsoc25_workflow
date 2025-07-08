@@ -1,14 +1,26 @@
 /**
- * Translate plugin
+ * Joomla Translation Plugin Wrapper
+ * Provides global `translate` and `sprintf` methods to all Vue components
  */
-
 const Translate = {
-  // Translate from Joomla text
+  /**
+   * Translate a Joomla key
+   * Falls back to key if translation is missing
+   * @param {string} key
+   * @returns {string}
+   */
   translate: (key) => Joomla.Text._(key, key),
+
+  /**
+   * Format string using Joomla `sprintf`
+   * @param {string} string
+   * @param {...*} args
+   * @returns {string}
+   */
   sprintf: (string, ...args) => {
-    const newString = Translate.translate(string);
+    const base = Translate.translate(string);
     let i = 0;
-    return newString.replace(/%((%)|s|d)/g, (m) => {
+    return base.replace(/%((%)|s|d)/g, (m) => {
       let val = args[i];
 
       if (m === '%d') {
@@ -21,6 +33,12 @@ const Translate = {
       return val;
     });
   },
+
+  /**
+   * Vue plugin install method
+   * Adds $translate and $sprintf globally
+   * @param {App} Vue
+   */
   install: (Vue) => Vue.mixin({
     methods: {
       translate(key) {
