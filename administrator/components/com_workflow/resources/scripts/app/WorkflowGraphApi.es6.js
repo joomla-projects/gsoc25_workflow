@@ -39,6 +39,10 @@ class WorkflowGraphApi {
    * @returns {Promise<any>} The parsed response or error.
    */
   async makeRequest(url, options = {}) {
+    const headers = options.headers || {};
+    headers['X-Requested-With'] = 'XMLHttpRequest';
+    options[this.csrfToken] = 1;
+
     return new Promise((resolve, reject) => {
       Joomla.request({
         url: `${this.baseUrl}${url}&extension=${this.extension}`,
@@ -47,6 +51,10 @@ class WorkflowGraphApi {
           resolve(responseText);
         },
         onError: (xhr) => {
+          if (xhr.status === 303 || xhr.status === 302) {
+            resolve({ success: true, message: 'Operation completed (redirected).' });
+            return;
+          }
           let message = 'Network error';
           try {
             const errorData = JSON.parse(xhr.responseText);
@@ -134,22 +142,28 @@ class WorkflowGraphApi {
    *
    * @param {number} id - Stage ID.
    * @param {number} workflowId - Workflow ID.
+   * @param {number} [stageDelete=0] - Optional flag to indicate if the stage should be deleted or just trashed.
+   *
    * @returns {Promise<boolean>}
    */
-  async deleteStage(id, workflowId) {
+  async deleteStage(id, workflowId, stageDelete = 0) {
     try {
       const formData = new FormData();
       formData.append('cid[]', id);
       formData.append('workflow_id', workflowId);
       formData.append(this.csrfToken, '1');
+      if(stageDelete){
+        formData.append('task', 'stages.delete');
+      } else {
+        formData.append('task', 'stages.trash');
+      }
 
-      const response = await this.makeRequest(`&task=stages.trash&format=raw`, {
+      const response = await this.makeRequest(`&view=stages&workflow_id=${workflowId}&format=raw`, {
         method: 'POST',
         data: formData,
       });
 
       const data = typeof response === 'string' ? JSON.parse(response) : response;
-
       if (data.success === false) {
         WorkflowGraph.Event.fire('onStageError', { error: data.message || 'Failed to delete stage' });
         return false;
@@ -175,10 +189,11 @@ class WorkflowGraphApi {
       formData.append('cid[]', id);
       formData.append('workflow_id', workflowId);
       formData.append(this.csrfToken, '1');
+      formData.append('task', 'transitions.trash');
 
-      const response = await this.makeRequest(`&task=transitions.trash&format=raw`, {
+      const response = await this.makeRequest(`&view=transitions&workflow_id=${workflowId}&format=raw`, {
         method: 'POST',
-        data: formData
+        data: formData,
       });
 
       const data = typeof response === 'string' ? JSON.parse(response) : response;

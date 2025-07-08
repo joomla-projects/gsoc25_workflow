@@ -61,18 +61,31 @@ export default {
 
 		try {
 			const transitions = state.transitions.filter(t =>
-				t.from_stage_id === id || t.to_stage_id === id
+				t.from_stage_id.toString() === id || t.to_stage_id.toString() === id
 			);
 
-			if(state.stages.length <= 1){
-				throw new Error('COM_WORKFLOW_ERROR_STAGE_CANT_DELETED')
+			if (state.stages.length <= 1 || state.stages.find(s => s.id.toString() === id).default) {
+				// Instead of throw, just handle the error
+				const errorMessage = 'COM_WORKFLOW_ERROR_STAGE_CANT_DELETED';
+				commit('SET_ERROR', errorMessage);
+				if (window.Joomla && window.Joomla.renderMessages) {
+					window.Joomla.renderMessages({ error: [errorMessage] });
+				}
+				return;
 			}
 
 			if (transitions.length > 0) {
-				throw new Error('COM_WORKFLOW_ERROR_STAGE_HAS_TRANSITIONS');
+				const errorMessage = 'COM_WORKFLOW_ERROR_STAGE_HAS_TRANSITIONS';
+				commit('SET_ERROR', errorMessage);
+				if (window.Joomla && window.Joomla.renderMessages) {
+					window.Joomla.renderMessages({ error: [errorMessage] });
+				}
+				return;
 			}
 
-			const response = await workflowGraphApi.deleteStage(id, workflowId);
+			const stageDelete = state.stages.find(s => s.id.toString() === id).published === -1 ? 1 : 0;
+
+			await workflowGraphApi.deleteStage(id, workflowId, stageDelete);
 			if (window.Joomla && window.Joomla.renderMessages) {
 				window.Joomla.renderMessages({
 					success: ['Stage deleted successfully']

@@ -14,6 +14,7 @@ use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\Controller\FormController;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
+use Joomla\CMS\Router\Route;
 use Joomla\Input\Input;
 
 // phpcs:disable PSR1.Files.SideEffects
@@ -176,6 +177,16 @@ class TransitionController extends FormController
         return $append;
     }
 
+    /**
+     * Method to save a request.
+     *
+     * @param   string  $key  The name of the primary key of the URL variable.
+     * @param   string  $urlVar  The name of the URL variable if different from the primary key (sometimes required to avoid router collisions).
+     *
+     * @return  boolean  True if access level checks pass, false otherwise.
+     *
+     * @since   __DEPLOY_VERSION__
+     */
     public function save($key = null, $urlVar = null)
     {
         $result = parent::save($key, $urlVar);
@@ -186,7 +197,7 @@ class TransitionController extends FormController
         if ($isModal && $result && $task === 'save') {
             $id = $this->input->getInt('id', 0);
             $this->setRedirect(
-                \Joomla\CMS\Router\Route::_(
+                Route::_(
                     'index.php?option=com_workflow&view=transition&layout=modalreturn&tmpl=component&workflow_id=' . $id. '&extension=' . $this->extension,
                     false
                 )
@@ -197,12 +208,13 @@ class TransitionController extends FormController
     }
 
     /**
+     * Method to cancel an edit.
      *
-     * @param $key
+     * @param   string  $key  The name of the primary key of the URL variable.
      *
-     * @return bool
+     * @return  boolean  True if access level checks pass, false otherwise.
      *
-     * @since __DEPLOY_VERSION__
+     * @since   __DEPLOY_VERSION__
      */
     public function cancel($key = null)
     {
@@ -213,7 +225,7 @@ class TransitionController extends FormController
         if ($isModal) {
             $id = $this->input->getInt('id', 0);
             $this->setRedirect(
-                \Joomla\CMS\Router\Route::_(
+                Route::_(
                     'index.php?option=com_workflow&view=transition&layout=modalreturn&tmpl=component&workflow_id=' . $id . '&extension='  . $this->extension,
                     false
                 )
@@ -222,5 +234,4 @@ class TransitionController extends FormController
         }
         return $result;
     }
-
 }

@@ -176,17 +176,28 @@ class StageController extends FormController
         return $append;
     }
 
+    /**
+     * Method to save a request.
+     *
+     * @param   string  $key  The name of the primary key of the URL variable.
+     * @param   string  $urlVar  The name of the URL variable if different from the primary key (sometimes required to avoid router collisions).
+     *
+     * @return  boolean  True if access level checks pass, false otherwise.
+     *
+     * @since   __DEPLOY_VERSION__
+     */
     public function save($key = null, $urlVar = null)
     {
         $result = parent::save($key, $urlVar);
         $input = $this->input;
         $isModal = $input->get('layout') === 'modal' || $input->get('tmpl') === 'component';
+        $task    = $this->getTask();
 
-        if ($isModal && $result) {
+        if ($isModal && $result && $task === 'save') {
             $id = $this->input->getInt('id', 0);
             $this->setRedirect(
-                \Joomla\CMS\Router\Route::_(
-                    'index.php?option=com_workflow&view=stage&layout=modalreturn&tmpl=component&id=2&extension=com_content.article',
+                Route::_(
+                    'index.php?option=com_workflow&view=stage&layout=modalreturn&tmpl=component&workflow_id=' . $id. '&extension=' . $this->extension,
                     false
                 )
             );
@@ -202,20 +213,19 @@ class StageController extends FormController
      *
      * @return  boolean  True if access level checks pass, false otherwise.
      *
-     * @since   5.0.0
+     * @since   __DEPLOY_VERSION__
      */
     public function cancel($key = null)
     {
         $result = parent::cancel($key);
-
         $input = $this->input;
         $isModal = $input->get('layout') === 'modal' || $input->get('tmpl') === 'component';
 
-        if ($isModal && $result) {
+        if ($isModal) {
             $id = $this->input->getInt('id', 0);
             $this->setRedirect(
-                Route::_(
-                    'index.php?option=com_workflow&view=stage&layout=modalreturn&tmpl=component&id=2&extension=com_content.article',
+                \Joomla\CMS\Router\Route::_(
+                    'index.php?option=com_workflow&view=stage&layout=modalreturn&tmpl=component&workflow_id=' . $id . '&extension='  . $this->extension,
                     false
                 )
             );

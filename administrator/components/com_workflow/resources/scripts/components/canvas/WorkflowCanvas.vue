@@ -104,10 +104,10 @@ export default {
       type: Object,
       default: () => ({ custom: customEdge })
     },
-    saveStatus: { type: Object, required: true }, // pass the ref, not value
+    saveStatus: { type: Object, required: true },
     setSaveStatus: { type: Function, required: true }
   },
-  setup(props) {
+  setup() {
     const store = useStore();
     const { fitView ,zoomIn, zoomOut, viewport } = useVueFlow();
     const instance = getCurrentInstance();
@@ -197,8 +197,8 @@ export default {
       };
     }
     function handleDeleteConfirm() {
-      if (deleteModal.value.type === 'stage') deleteStage(deleteModal.value.id);
-      else deleteTransition(deleteModal.value.id);
+      if (deleteModal.value.type === 'stage') deleteStage(deleteModal.value.id.toString());
+      else deleteTransition(deleteModal.value.id.toString());
       deleteModal.value.visible = false;
     }
     function handleDeleteCancel() { deleteModal.value.visible = false; }
