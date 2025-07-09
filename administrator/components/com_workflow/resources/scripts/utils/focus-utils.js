@@ -48,6 +48,20 @@ export function cycleFocus(selector, reverse = false) {
 }
 
 /**
+ * Cycle between defined focus modes (e.g., stages → transitions → toolbar → actions).
+ * @param {string[]} focusModes - Array of focus mode strings.
+ * @param {Ref<string>} currentModeRef - Vue ref holding the current mode.
+ * @param {HTMLElement} liveRegionElement - ARIA live region for screen reader feedback.
+ */
+export function cycleMode(focusModes, currentModeRef, liveRegionElement) {
+  const currentIndex = focusModes.indexOf(currentModeRef.value);
+  const nextIndex = (currentIndex + 1) % focusModes.length;
+  currentModeRef.value = focusModes[nextIndex];
+  announce(liveRegionElement, `Focus mode: ${focusModes[nextIndex]}`);
+}
+
+
+/**
  *
  *
  */

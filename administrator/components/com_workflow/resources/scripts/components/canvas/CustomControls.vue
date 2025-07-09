@@ -1,7 +1,8 @@
 <template>
   <div class="custom-controls" tabindex="0" ref="controlsContainer">
     <button
-      class="custom-controls-button"
+      class="toolbar-button custom-controls-button"
+      tabindex="0"
       @click="zoomIn"
       aria-label="Zoom in"
       title="Zoom in (+ key)"
@@ -9,7 +10,8 @@
       <i class="icon icon-plus"></i>
     </button>
     <button
-      class="custom-controls-button"
+      class="toolbar-button custom-controls-button"
+      tabindex="0"
       @click="zoomOut"
       aria-label="Zoom out"
       title="Zoom out (- key)"
@@ -17,7 +19,8 @@
       <i class="icon icon-minus"></i>
     </button>
     <button
-      class="custom-controls-button"
+      class="toolbar-button custom-controls-button"
+      tabindex="0"
       @click="fitView"
       aria-label="Fit view"
       title="Fit view (F key)"

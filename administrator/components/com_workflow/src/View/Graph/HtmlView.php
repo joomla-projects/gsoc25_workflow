@@ -163,20 +163,20 @@ class HtmlView extends BaseHtmlView
         if ($itemEditable){
             $toolbar->customButton('undo')
                 ->html('<joomla-toolbar-button><button onclick="WorkflowGraph.Event.fire(\'onClickUndoWorkflow\')" '
-            . 'class="btn btn-info"><span class="icon-undo-2 icon-fw" aria-hidden="true"></span>'
+            . 'class="btn btn-info action-button" tabindex="0"><span class="icon-undo-2 icon-fw" aria-hidden="true"></span>'
             . Text::_('COM_WORKFLOW_UNDO') . '</button></joomla-toolbar-button>');
 
             $toolbar->customButton('redo')
                 ->html('<joomla-toolbar-button><button onclick="WorkflowGraph.Event.fire(\'onClickRedoWorkflow\')" '
-                    . 'class="btn btn-info"><span class="icon-redo icon-fw" aria-hidden="true"></span>'
+                    . 'class="btn btn-info action-button" tabindex="0"><span class="icon-redo icon-fw" aria-hidden="true"></span>'
                     . Text::_('COM_WORKFLOW_REDO') . '</button></joomla-toolbar-button>');
 
 
 
             $toolbar->help('Workflow');
             $toolbar->customButton('Shortcuts')
-                ->html('<joomla-toolbar-button><button class="btn btn-info" data-joomla-dialog="'
-                    . htmlspecialchars($shortcutsPopupOptions, ENT_QUOTES, 'UTF-8') . '"'
+                ->html('<joomla-toolbar-button><button class="btn btn-info action-button" data-joomla-dialog="'
+                    . htmlspecialchars($shortcutsPopupOptions, ENT_QUOTES, 'UTF-8') . '" tabindex="0"'
                     . 'title="' . Text::_('COM_WORKFLOW_GRAPH_SHORTCUTS') . '"><span class="fa fa-keyboard" aria-hidden="true"></span>'
                     . Text::_('COM_WORKFLOW_GRAPH_SHORTCUTS') . '</button></joomla-toolbar-button>');
         }

@@ -59,11 +59,11 @@ import stageNode from '../nodes/StageNode.vue';
 import customEdge from '../edges/CustomEdge.vue';
 import CustomControls from './CustomControls.vue';
 import ControlsPanel from './ControlsPanel.vue';
-import { announce, setupDialogFocusHandlers } from '../utils/focus-utils.js';
-import { generatePositionedNodes, createSpecialNode } from '../utils/positioning.js';
-import { generateStyledEdges } from '../utils/edges.js';
-import { setupGlobalShortcuts } from '../utils/KeyboardManager.js';
-import { debounce } from '../utils/utils.es6'
+import { announce, setupDialogFocusHandlers } from '../../utils/focus-utils.js';
+import { generatePositionedNodes, createSpecialNode } from '../../utils/positioning.js';
+import { generateStyledEdges } from '../../utils/edges.js';
+import { setupGlobalShortcuts } from '../../utils/KeyboardManager.js';
+import { debounce } from '../../utils/utils.es6'
 
 export default {
   name: 'WorkflowCanvas',
@@ -95,6 +95,7 @@ export default {
     const selectedTransition = ref(null);
     const liveRegion = ref(null);
     const saveStatus = ref('upToDate');
+    const currentFocusMode = ref('stages');
     const previouslyFocusedElement = ref(null);
 
     const stages = computed(() => store.getters.stages || []);
@@ -126,6 +127,7 @@ export default {
       ...edge,
       data: {
         ...edge.data,
+        onSelect: () => selectEdge(edge.id),
         onDelete: () => showDeleteModal('transition', edge.id),
         onEdit: () => editTransition(edge.id)
       }
@@ -189,7 +191,7 @@ export default {
       selectedTransition.value = null;
     }
     function handleConnect() { if (isTransitionMode.value) openModal('transition'); }
-    function selectEdge({ edge }) { selectTransition(edge.id); }
+    function selectEdge(id) { selectTransition(id); }
     function updateSaveMessage() {
       const el = document.getElementById('save-message');
       if (!el) return;
@@ -271,6 +273,7 @@ export default {
           selectedStage,
           selectedTransition,
           isTransitionMode,
+          currentFocusMode,
           liveRegion: liveRegion.value
         },
         setSaveStatus: (val) => saveStatus.value = val,

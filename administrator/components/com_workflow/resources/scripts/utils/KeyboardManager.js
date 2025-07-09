@@ -1,4 +1,4 @@
-import { announce, cycleFocus } from './focus-utils';
+import { announce, cycleFocus, cycleMode } from './focus-utils';
 
 /**
  * Attach global keyboard listeners for workflow canvas.
@@ -10,9 +10,11 @@ import { announce, cycleFocus } from './focus-utils';
  * @param {Function} toggleMode
  * @param {Function} undo
  * @param {Function} redo
+ *
  * @param {Function} clearSelection
  * @param {Function} zoomIn
  * @param {Function} zoomOut
+ *
  * @param {Object} state - { selectedStage, selectedTransition, isTransitionMode, liveRegion }
  */
 export function setupGlobalShortcuts({ addStage, addTransition, editItem, deleteItem,
@@ -94,14 +96,14 @@ export function setupGlobalShortcuts({ addStage, addTransition, editItem, delete
 
       case e.key === 'Tab':
         e.preventDefault();
-        cycleFocus('.stage-node[tabindex="0"], .edge-label[tabindex="0"]', e.shiftKey);
+        cycleMode(['stages', 'transitions', 'toolbar', 'actions', 'links', 'buttons'], state.currentFocusMode, state.liveRegion);
         break;
 
       case ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key):
+        e.preventDefault();
         if (state.selectedStage.value) {
-          e.preventDefault();
           moveNode(state.selectedStage.value.toString(), e.key, e.shiftKey);
-        }else{
+        }else if(e.shiftKey){
           const panStep = 20;
           switch (e.key) {
             case 'ArrowUp': viewport.value.y += panStep; break;
@@ -109,6 +111,20 @@ export function setupGlobalShortcuts({ addStage, addTransition, editItem, delete
             case 'ArrowLeft': viewport.value.x += panStep; break;
             case 'ArrowRight': viewport.value.x -= panStep; break;
           }
+        }else{
+          const reverse = ['ArrowLeft', 'ArrowUp'].includes(e.key);
+          const groupSelectors = {
+            stages: '.stage-node[tabindex="0"]',
+            transitions: '.edge-label[tabindex="0"]',
+            toolbar: '.toolbar-button[tabindex="0"]',
+            actions: '.action-button[tabindex="0"]',
+            links: 'a[href][tabindex="0"], a[href]:not([tabindex="-1"])',
+            buttons: 'button[tabindex="0"], button:not([tabindex="-1"])'
+          };
+          const selector = groupSelectors[state.currentFocusMode.value];
+          if (selector) {
+            cycleFocus(selector, reverse);
+          }          break;
         }
         break;
     }

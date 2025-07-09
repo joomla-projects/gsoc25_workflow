@@ -94,10 +94,14 @@ export default {
   methods: {
     onEdgeKeydown(e) {
       if (e.key === 'Enter' || e.key === ' ') {
-        this.data.onEdit?.();
+        this.data.onSelect();
         e.preventDefault();
       }
-      if (e.key === 'Delete' || e.key === 'Backspace') {
+      if ((e.key === 'e' || e.key === 'E') && this.data?.isTransitionMode) {
+        this.data.onEdit();
+        e.preventDefault();
+      }
+      if ((e.key === 'Delete' || e.key === 'Backspace') && this.data?.isTransitionMode) {
         this.data.onDelete?.();
         e.preventDefault();
       }

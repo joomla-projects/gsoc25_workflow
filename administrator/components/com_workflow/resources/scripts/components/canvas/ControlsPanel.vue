@@ -2,7 +2,8 @@
   <Panel position="top-left" aria-label="Workflow actions" class="d-flex gap-2 p-2">
     <button
       @click="$emit('add-stage')"
-      class="btn btn-primary d-flex align-items-center gap-1"
+      class="toolbar-button btn btn-primary d-flex align-items-center gap-1"
+      tabindex="0"
       :aria-label="translate('COM_WORKFLOW_GRAPH_ADD_STAGE')"
     >
       <span class="icon icon-plus" aria-hidden="true"></span>
@@ -11,7 +12,8 @@
 
     <button
       @click="$emit('add-transition')"
-      class="btn btn-info d-flex align-items-center gap-1"
+      class="toolbar-button btn btn-info d-flex align-items-center gap-1"
+      tabindex="0"
       :aria-label="translate('COM_WORKFLOW_GRAPH_ADD_TRANSITION')"
     >
       <span class="icon icon-plus" aria-hidden="true"></span>
@@ -20,7 +22,8 @@
 
     <button
       @click="$emit('toggle-transition-mode')"
-      :class="['btn', isTransitionMode ? 'btn-success' : 'btn-primary', 'd-flex', 'align-items-center', 'gap-1']"
+      :class="['btn toolbar-button', isTransitionMode ? 'btn-success' : 'btn-primary', 'd-flex', 'align-items-center', 'gap-1']"
+      tabindex="0"
       :aria-pressed="isTransitionMode"
       :aria-label="isTransitionMode ? translate('COM_WORKFLOW_GRAPH_EXIT_TRANSITION_MODE') : translate('COM_WORKFLOW_GRAPH_ENTER_TRANSITION_MODE')"
     >

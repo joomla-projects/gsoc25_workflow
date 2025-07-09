@@ -1,4 +1,4 @@
-import { getColorForStage } from "./utils.es6"
+import { getColorForStage } from "./utils.es6.js"
 
 /**
  * Calculate and return positioned stage nodes in a grid layout.

@@ -76,7 +76,7 @@
 
 <script>
 import { Handle, Position } from '@vue-flow/core';
-import {focusNode} from "../utils/focus-utils";
+import {focusNode} from "../../utils/focus-utils";
 
 export default {
   name: 'StageNode',

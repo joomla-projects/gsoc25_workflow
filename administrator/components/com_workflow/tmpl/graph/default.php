@@ -34,19 +34,23 @@ $script = $wa->getAsset('script', name: 'com_workflow.workflowgraph')->getUri(tr
 $shortcuts =[
     ['key' => 'Alt + N',             'description' => 'Add Stage'],
     ['key' => 'Alt + M',             'description' => 'Add Transition'],
-    ['key' => 'Enter',               'description' => 'Select Item'],
+    ['key' => 'Enter / SpaceBar',    'description' => 'Select Item'],
     ['key' => 'Alt + U',             'description' => 'Edit Item'],
+    ['key' => 'Select + E',          'description' => 'Edit Item'],
     ['key' => 'Alt + Shift + D',     'description' => 'Delete Item'],
+    ['key' => 'Select + Delete',     'description' => 'Delete Item'],
+    ['key' => 'Select + Backspace',  'description' => 'Delete Item'],
     ['key' => 'Alt + C',             'description' => 'Toggle Mode'],
     ['key' => 'Ctrl/Cmd + Z',        'description' => 'Undo'],
     ['key' => 'Ctrl/Cmd + Y',        'description' => 'Redo'],
-    ['key' => 'Escape',              'description' => 'Clear Selection / Close Modal'],
+    ['key' => 'Escape',              'description' => 'Clear Selection'],
     ['key' => '+ / =',               'description' => 'Zoom In'],
     ['key' => '- / _',               'description' => 'Zoom Out'],
     ['key' => 'F',                   'description' => 'Fit View'],
-    ['key' => 'Tab',                 'description' => 'Cycle Focus'],
-    ['key' => 'Arrow Keys',          'description' => 'Move Node / Pan View'],
-    ['key' => 'Shift + Arrow Keys',  'description' => 'Move Node (Fast)'],
+    ['key' => 'Tab',                 'description' => 'Focus Type Change'],
+    ['key' => 'Arrows',          'description' => 'Navigate Nodes'],
+    ['key' => 'Shift + Arrows',  'description' => 'Move View'],
+    ['key' => 'Select + Arrows', 'description' => 'Move Stage'],
 ];
 
 $col1 = array_slice($shortcuts, 0, ceil(count($shortcuts) / 2));

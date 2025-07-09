@@ -1,4 +1,4 @@
-import { getEdgeColor} from "./utils.es6";
+import { getEdgeColor} from "./utils.es6.js";
 
 /**
  * Generate styled edges based on transition data.
