@@ -25,7 +25,7 @@ use Joomla\CMS\Router\Route;
 /**
  * The workflow Graphical View and Api controller
  *
- * @since _DEPLOY_VERSION_
+ * @since __DEPLOY_VERSION__
  */
 class GraphController extends AdminController
 {
@@ -33,7 +33,7 @@ class GraphController extends AdminController
      * Present workflow id
      *
      * @var    integer
-     * @since  _DEPLOY_VERSION_
+     * @since  __DEPLOY_VERSION__
      */
     protected $workflowId;
 
@@ -41,7 +41,7 @@ class GraphController extends AdminController
      * The extension
      *
      * @var    string
-     * @since  _DEPLOY_VERSION_
+     * @since  __DEPLOY_VERSION__
      */
     protected $extension;
 
@@ -49,7 +49,7 @@ class GraphController extends AdminController
      * The section of the current extension
      *
      * @var    string
-     * @since  _DEPLOY_VERSION_
+     * @since  __DEPLOY_VERSION__
      */
     protected $section;
 
@@ -74,7 +74,7 @@ class GraphController extends AdminController
             }
 
             if (empty($this->workflowId)) {
-                throw new \InvalidArgumentException(Text::_('COM_WORKFLOW_ERROR_WORKFLOW_ID_NOT_SET'));
+                throw new \InvalidArgumentException(Text::_('COM_WORKFLOW_GRAPH_ERROR_WORKFLOW_ID_NOT_SET'));
             }
         }
 
@@ -91,7 +91,7 @@ class GraphController extends AdminController
             }
 
             if (empty($this->extension)) {
-                throw new \InvalidArgumentException(Text::_('COM_WORKFLOW_ERROR_EXTENSION_NOT_SET'));
+                throw new \InvalidArgumentException(Text::_('COM_WORKFLOW_GRAPH_ERROR_EXTENSION_NOT_SET'));
             }
         }
     }
@@ -115,13 +115,13 @@ class GraphController extends AdminController
             $model = $this->getModel('Workflow');
 
             if (empty($id)) {
-                throw new \InvalidArgumentException(Text::_('COM_WORKFLOW_ERROR_INVALID_ID'));
+                throw new \InvalidArgumentException(Text::_('COM_WORKFLOW_GRAPH_ERROR_INVALID_ID'));
             }
 
             $workflow = $model->getItem($id);
 
             if (empty($workflow->id)) {
-                throw new \RuntimeException(Text::_('COM_WORKFLOW_ERROR_WORKFLOW_NOT_FOUND'));
+                throw new \RuntimeException(Text::_('COM_WORKFLOW_GRAPH_ERROR_WORKFLOW_NOT_FOUND'));
             }
 
             // Check permissions

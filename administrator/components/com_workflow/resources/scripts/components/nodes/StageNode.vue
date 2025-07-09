@@ -6,7 +6,7 @@
     tabindex="0"
     :data-stage-id="stage?.id"
     role="button"
-    :aria-label="`${translate('WORKFLOW_GRAPH_STAGE')}: ${stage?.title}. ${stage?.published ? translate('WORKFLOW_GRAPH_ENABLED') : translate('WORKFLOW_GRAPH_DISABLED')}`"
+    :aria-label="`${translate('COM_WORKFLOW_GRAPH_STAGE')}: ${stage?.title}. ${stage?.published ? translate('WORKFLOW_GRAPH_ENABLED') : translate('WORKFLOW_GRAPH_DISABLED')}`"
     @keydown="onNodeKeydown"
     @focus="onNodeFocus"
     @blur="onNodeBlur"
@@ -30,16 +30,16 @@
         <button
           @click.stop="data.onEdit"
           class="btn btn-lg btn-secondary py-0 px-1 mr-2"
-          :aria-label="translate('WORKFLOW_GRAPH_EDIT_STAGE')"
-          :title="translate('WORKFLOW_GRAPH_EDIT_STAGE')"
+          :aria-label="translate('COM_WORKFLOW_GRAPH_EDIT_STAGE')"
+          :title="translate('COM_WORKFLOW_GRAPH_EDIT_STAGE')"
         >
           <i class="icon icon-pencil" aria-hidden="true"></i>
         </button>
         <button
           @click.stop="data.onDelete"
           class="btn btn-lg btn-danger py-0 px-1 mx-2"
-          :aria-label="translate('WORKFLOW_GRAPH_DELETE_STAGE')"
-          :title="translate('WORKFLOW_GRAPH_DELETE_STAGE')"
+          :aria-label="translate('COM_WORKFLOW_GRAPH_DELETE_STAGE')"
+          :title="translate('COM_WORKFLOW_GRAPH_DELETE_STAGE')"
         >
           <i class="icon icon-trash" aria-hidden="true"></i>
         </button>
@@ -52,7 +52,7 @@
           :class="stage.published ? 'bg-success' : 'bg-danger'"
           class="badge rounded-pill p-1"
         >
-          {{ stage.published ? translate('WORKFLOW_GRAPH_ENABLED') : translate('WORKFLOW_GRAPH_DISABLED') }}
+          {{ stage.published ? translate('COM_WORKFLOW_GRAPH_ENABLED') : translate('COM_WORKFLOW_GRAPH_DISABLED') }}
         </span>
 
         <div class="d-flex gap-1">
@@ -60,7 +60,7 @@
             v-if="stage.default"
             class="badge bg-warning bg-opacity-10 rounded-pill p-1"
           >
-            {{ translate('WORKFLOW_GRAPH_DEFAULT') }}
+            {{ translate('COM_WORKFLOW_GRAPH_DEFAULT') }}
           </span>
         </div>
       </div>

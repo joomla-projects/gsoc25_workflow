@@ -1,38 +1,82 @@
 <?php
 
+use Joomla\CMS\Language\Text;
+
 /**
  * @package     Joomla.Administrator
  * @subpackage  com_workflow
  *
  * @copyright   (C) 2025 Open Source Matters, Inc. <https://www.joomla.org>
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
- * @since       _DEPLOY_VERSION_
+ * @since       __DEPLOY_VERSION__
  */
 
-\defined('_JEXEC') or die;
 
-use Joomla\CMS\Factory;
-use Joomla\CMS\HTML\HTMLHelper;
-use Joomla\CMS\Language\Text;
-use Joomla\CMS\Router\Route;
+// phpcs:disable PSR1.Files.SideEffects
+\defined('_JEXEC') or die;
+// phpcs:enable PSR1.Files.SideEffects
 
 
 /** @var Joomla\CMS\WebAsset\WebAssetManager $wa */
 $wa = $this->getDocument()->getWebAssetManager();
 $wa->useScript('keepalive');
 $wa->useScript('form.validate');
+$wa->useScript('bootstrap.dropdown');
 $wa->useScript('joomla.dialog-autocreate');
 $wa->useStyle('com_workflow.workflowgraph');
 
 // Populate the language
 $this->loadTemplate('texts');
 
-$app   = Factory::getApplication();
-$user  = $app->getIdentity();
-$input = $app->getInput();
 // Get the URI for the JavaScript module
 $script = $wa->getAsset('script', name: 'com_workflow.workflowgraph')->getUri(true);
+
+$shortcuts =[
+    ['key' => 'Alt + N',             'description' => 'Add Stage'],
+    ['key' => 'Alt + M',             'description' => 'Add Transition'],
+    ['key' => 'Enter',               'description' => 'Select Item'],
+    ['key' => 'Alt + U',             'description' => 'Edit Item'],
+    ['key' => 'Alt + Shift + D',     'description' => 'Delete Item'],
+    ['key' => 'Alt + C',             'description' => 'Toggle Mode'],
+    ['key' => 'Ctrl/Cmd + Z',        'description' => 'Undo'],
+    ['key' => 'Ctrl/Cmd + Y',        'description' => 'Redo'],
+    ['key' => 'Escape',              'description' => 'Clear Selection / Close Modal'],
+    ['key' => '+ / =',               'description' => 'Zoom In'],
+    ['key' => '- / _',               'description' => 'Zoom Out'],
+    ['key' => 'F',                   'description' => 'Fit View'],
+    ['key' => 'Tab',                 'description' => 'Cycle Focus'],
+    ['key' => 'Arrow Keys',          'description' => 'Move Node / Pan View'],
+    ['key' => 'Shift + Arrow Keys',  'description' => 'Move Node (Fast)'],
+];
+
+$col1 = array_slice($shortcuts, 0, ceil(count($shortcuts) / 2));
+$col2 = array_slice($shortcuts, ceil(count($shortcuts) / 2));
+
+$shortcutsHtml = [];
+$shortcutsHtml[] = '<div class="p-3">';
+$shortcutsHtml[] = '<div class="row">';
+
+$renderColumn = function($column) {
+    $html = '<div class="col-md-6"><table class="table table-borderless mb-0">';
+    foreach ($column as $item) {
+        $html .= '<tr>';
+        $html .= '<td class="fw-bold text-nowrap"><kbd>' . htmlspecialchars($item['key']) . '</kbd></td>';
+        $html .= '<td>' . Text::_($item['description']) . '</td>';
+        $html .= '</tr>';
+    }
+    $html .= '</table></div>';
+    return $html;
+};
+
+$shortcutsHtml[] = $renderColumn($col1);
+$shortcutsHtml[] = $renderColumn($col2);
+
+$shortcutsHtml[] = '</div>';
+$shortcutsHtml[] = '</div>';
 ?>
 
+<template id="shortcuts-popup-content">
+    <?php echo implode($shortcutsHtml); ?>
+</template>
 <div id="workflow-graph-root"></div>
 <script type="module" src="<?php echo $script ?>"></script>

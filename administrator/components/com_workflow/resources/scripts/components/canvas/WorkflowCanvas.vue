@@ -4,7 +4,7 @@
     class="w-100 h-100 position-relative"
     role="region"
     tabindex="0"
-    :aria-label="translate('WORKFLOW_CANVAS_REGION')"
+    :aria-label="translate('COM_WORKFLOW_GRAPH_CANVAS_REGION')"
     ref="canvasRegion"
   >
     <VueFlow
@@ -33,7 +33,7 @@
         zoomable
         :node-color="(node) => node.data?.stage?.color || '#0d6efd'"
         :mask-color="'rgba(255, 255, 255, 0.6)'"
-        :aria-label="translate('WORKFLOW_GRAPH_MINIMAP')"
+        :aria-label="translate('COM_WORKFLOW_GRAPH_MINIMAP')"
       />
       <CustomControls aria-label="Graph controls" />
       <ControlsPanel
@@ -45,31 +45,41 @@
       />
     </VueFlow>
 
+    <div id="delete-dialog-template">
+      <div class="p-3">
+        <p>{{ deleteModal.message }}</p>
+        <div class="d-flex justify-content-end gap-2 mt-3">
+          <button class="btn btn-secondary" data-dialog-close>
+            {{ translate('JCANCEL') }}
+          </button>
+          <button class="btn btn-danger" data-dialog-confirm>
+            {{ translate('DELETE') }}
+          </button>
+        </div>
+      </div>
+    </div>
+
     <button
       ref="ModalDialog"
       class="d-none"
       data-joomla-dialog=""
       data-checkin-url=""
       data-close-on-message=""
-      data-reload-on-close=""
       aria-hidden="true"
     ></button>
+    <button
+      ref="deleteDialog"
+      class="d-none"
+      data-joomla-dialog=""
+      aria-hidden="true"
+    />
 
     <div ref="liveRegion" aria-live="polite" role="status" class="visually-hidden"></div>
   </div>
-  <ConfirmModal
-    :visible="deleteModal.visible"
-    :title="deleteModal.title"
-    :message="deleteModal.message"
-    :confirmText="translate('DELETE')"
-    :cancelText="translate('CANCEL')"
-    @confirm="handleDeleteConfirm"
-    @cancel="handleDeleteCancel"
-  />
 </template>
 
 <script>
-import { ref, computed, onMounted, onUnmounted, getCurrentInstance } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useStore } from 'vuex';
 import { VueFlow, useVueFlow } from '@vue-flow/core';
 import { Background } from '@vue-flow/background';
@@ -77,7 +87,6 @@ import { MiniMap } from '@vue-flow/minimap';
 import stageNode from '../nodes/StageNode.vue';
 import customEdge from '../edges/CustomEdge.vue';
 import CustomControls from './CustomControls.vue';
-import ConfirmModal from '../modals/ConfirmModal.vue';
 import ControlsPanel from './ControlsPanel.vue';
 import { announce, setupDialogFocusHandlers } from '../utils/focus-utils.js';
 import { generatePositionedNodes, createSpecialNode } from '../utils/positioning.js';
@@ -92,7 +101,6 @@ export default {
     Background,
     MiniMap,
     CustomControls,
-    ConfirmModal,
     ControlsPanel
   },
   props: {
@@ -110,14 +118,13 @@ export default {
   setup() {
     const store = useStore();
     const { fitView ,zoomIn, zoomOut, viewport } = useVueFlow();
-    const instance = getCurrentInstance();
-    const translate = instance?.proxy?.$translate || ((x) => x);
 
     const isTransitionMode = ref(false);
     const selectedStage = ref(null);
     const selectedTransition = ref(null);
     const liveRegion = ref(null);
     const ModalDialog = ref(null);
+    const deleteDialog = ref(null);
     const saveStatus = ref('upToDate');
     const previouslyFocusedElement = ref(null);
     const deleteModal = ref({ visible: false, type: '', id: null, title: '', message: '' });
@@ -156,6 +163,10 @@ export default {
       }
     })));
 
+    function translate(key){
+      return Joomla.Text._(key);
+    }
+
     function selectStage(id) {
       selectedStage.value = parseInt(id);
       selectedTransition.value = null;
@@ -171,19 +182,19 @@ export default {
     function clearSelection() { selectedStage.value = null; selectedTransition.value = null; }
     function addStage() {
       openModal('stage');
-      announce(liveRegion.value, translate('WORKFLOW_GRAPH_ADD_STAGE_DIALOG_OPENED'));
+      announce(liveRegion.value, translate('COM_WORKFLOW_GRAPH_ADD_STAGE_DIALOG_OPENED'));
     }
     function addTransition() {
       openModal('transition');
-      announce(liveRegion.value, translate('WORKFLOW_GRAPH_ADD_TRANSITION_DIALOG_OPENED'));
+      announce(liveRegion.value, translate('COM_WORKFLOW_GRAPH_ADD_TRANSITION_DIALOG_OPENED'));
     }
     function toggleTransitionMode() {
       isTransitionMode.value = !isTransitionMode.value;
       announce(
         liveRegion.value,
         isTransitionMode.value
-          ? translate('WORKFLOW_GRAPH_TRANSITION_MODE_ON')
-          : translate('WORKFLOW_GRAPH_TRANSITION_MODE_OFF')
+          ? translate('COM_WORKFLOW_GRAPH_TRANSITION_MODE_ON')
+          : translate('COM_WORKFLOW_GRAPH_TRANSITION_MODE_OFF')
       );
     }
 
@@ -192,9 +203,20 @@ export default {
         visible: true,
         type,
         id,
-        title: translate(type === 'stage' ? 'DELETE_STAGE_TITLE' : 'DELETE_TRANSITION_TITLE'),
-        message: translate(type === 'stage' ? 'DELETE_STAGE_CONFIRM' : 'DELETE_TRANSITION_CONFIRM')
+        title: translate(type === 'stage' ? 'COM_WORKFLOW_GRAPH_DELETE_STAGE_TITLE' : 'COM_WORKFLOW_GRAPH_DELETE_TRANSITION_TITLE'),
+        message: translate(type === 'stage' ? 'COM_WORKFLOW_GRAPH_DELETE_STAGE_CONFIRM' : 'COM_WORKFLOW_GRAPH_DELETE_TRANSITION_CONFIRM')
       };
+
+      const popupOptions = {
+        src: `#delete-dialog-template`,
+        width: '800px',
+        height: 'fit-content',
+        textHeader: deleteModal.value.title,
+        preferredParent: 'body'
+      };
+
+      deleteDialog?.value.setAttribute('data-joomla-dialog', JSON.stringify(popupOptions));
+      deleteDialog?.value.click();
     }
     function handleDeleteConfirm() {
       if (deleteModal.value.type === 'stage') deleteStage(deleteModal.value.id.toString());
@@ -217,10 +239,10 @@ export default {
       if (!el) return;
       if (saveStatus.value === 'unsaved') {
         el.classList.add('text-warning');
-        el.textContent = translate('WORKFLOW_GRAPH_UNSAVED_CHANGES');
+        el.textContent = translate('COM_WORKFLOW_GRAPH_UNSAVED_CHANGES');
       } else {
         el.classList.remove('text-warning');
-        el.textContent = translate('WORKFLOW_GRAPH_UP_TO_DATE');
+        el.textContent = translate('COM_WORKFLOW_GRAPH_UP_TO_DATE');
       }
     }
     async function handleNodeDragStop({ node }) {
@@ -304,6 +326,13 @@ export default {
         saveNodePosition,
         store,
       });
+      document.addEventListener('joomla:confirm', (e) => {
+        if (e.detail.confirm && deleteModal.value.visible) {
+          handleDeleteConfirm();
+        }
+        deleteModal.value.visible = false;
+      });
+
       onUnmounted(detach);
     });
 
@@ -313,6 +342,7 @@ export default {
       positionedNodes,
       styledEdges,
       ModalDialog,
+      deleteDialog,
       liveRegion,
       deleteModal,
       isTransitionMode,

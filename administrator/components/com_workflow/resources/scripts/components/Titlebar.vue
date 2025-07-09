@@ -4,27 +4,27 @@
       <h2 class="h2 mb-2" id="workflow-title">{{ translate(workflow?.title) }}</h2>
       <dl class="d-flex align-items-center flex-wrap mb-0" aria-label="workflow details">
         <div class="me-3 mb-1 d-flex align-items-center">
-          <dt class="visually-hidden">{{ translate('WORKFLOW_GRAPH_STATUS') }}</dt>
+          <dt class="visually-hidden">{{ translate('COM_WORKFLOW_GRAPH_STATUS') }}</dt>
           <dd>
             <span
               class="badge"
               :class="workflow.published ? 'bg-success text-white' : 'bg-warning text-dark'"
               role="status"
             >
-              {{ workflow.published ? translate('WORKFLOW_GRAPH_ENABLED') : translate('WORKFLOW_GRAPH_DISABLED') }}
+              {{ workflow.published ? translate('COM_WORKFLOW_GRAPH_ENABLED') : translate('COM_WORKFLOW_GRAPH_DISABLED') }}
             </span>
           </dd>
         </div>
         <div class="me-3 mb-1 d-flex align-items-center">
-          <dt class="visually-hidden">{{ translate('WORKFLOW_GRAPH_STAGE_COUNT') }}</dt>
+          <dt class="visually-hidden">{{ translate('COM_WORKFLOW_GRAPH_STAGE_COUNT') }}</dt>
           <dd>
-            {{ stagesCount }} {{ stagesCount === 1 ? translate('WORKFLOW_GRAPH_STAGE') : translate('WORKFLOW_GRAPH_STAGES') }}
+            {{ stagesCount }} {{ stagesCount === 1 ? translate('COM_WORKFLOW_GRAPH_STAGE') : translate('COM_WORKFLOW_GRAPH_STAGES') }}
           </dd>
         </div>
         <div class="me-3 mb-1 d-flex align-items-center">
-          <dt class="visually-hidden">{{ translate('WORKFLOW_GRAPH_TRANSITION_COUNT') }}</dt>
+          <dt class="visually-hidden">{{ translate('COM_WORKFLOW_GRAPH_TRANSITION_COUNT') }}</dt>
           <dd>
-            {{ transitionsCount }} {{ transitionsCount === 1 ? translate('WORKFLOW_GRAPH_TRANSITION') : translate('WORKFLOW_GRAPH_TRANSITIONS') }}
+            {{ transitionsCount }} {{ transitionsCount === 1 ? translate('COM_WORKFLOW_GRAPH_TRANSITION') : translate('COM_WORKFLOW_GRAPH_TRANSITIONS') }}
           </dd>
         </div>
       </dl>
@@ -39,8 +39,8 @@
     >
       {{
         saveStatus.value === 'unsaved'
-          ? translate('WORKFLOW_GRAPH_UNSAVED_CHANGES')
-          : translate('WORKFLOW_GRAPH_UP_TO_DATE')
+          ? translate('COM_WORKFLOW_GRAPH_UNSAVED_CHANGES')
+          : translate('COM_WORKFLOW_GRAPH_UP_TO_DATE')
       }}
     </div>
   </section>
@@ -57,7 +57,7 @@ export default {
   },
   computed: {
     workflow() {
-      return this.$store.getters.workflow || { title: 'WORKFLOW_GRAPH_LOADING', published: false };
+      return this.$store.getters.workflow || { title: 'COM_WORKFLOW_GRAPH_LOADING', published: false };
     },
     stagesCount() {
       return this.$store.getters.stages?.length || 0;

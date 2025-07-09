@@ -155,7 +155,7 @@ export default {
 			return true;
 		}
 
-		commit('SET_ERROR', 'WORKFLOW_GRAPH_UPDATE_STAGE_POSITION_FAILED');
+		commit('SET_ERROR', 'COM_WORKFLOW_GRAPH_UPDATE_STAGE_POSITION_FAILED');
 		return false;
 	},
 

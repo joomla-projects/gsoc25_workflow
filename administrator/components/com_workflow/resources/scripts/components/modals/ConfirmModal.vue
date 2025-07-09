@@ -1,11 +1,5 @@
-<template>
-  <div
-    v-if="visible"
-    class="modal-backdrop"
-    @keydown.esc="cancel"
-    @keydown.tab="handleTab"
-    tabindex="0"
-  >
+<template id="delete-dialog-template">>
+  <div v-if="visible" class="modal-backdrop" @keydown.esc="cancel" @keydown.tab="handleTab" tabindex="0">
     <div
       ref="modal"
       class="modal-content"
@@ -17,20 +11,12 @@
       <h5 :id="titleId">{{ title }}</h5>
       <p :id="descId">{{ message }}</p>
 
-      <div class="modal-actions">
-        <button
-          ref="confirmBtn"
-          @click="confirm"
-          class="btn btn-danger"
-        >
-          {{ confirmText }}
-        </button>
-        <button
-          ref="cancelBtn"
-          @click="cancel"
-          class="btn btn-secondary"
-        >
+      <div class="modal-actions d-flex justify-content-end gap-2 mt-3">
+        <button class="btn btn-secondary" @click="cancel">
           {{ cancelText }}
+        </button>
+        <button class="btn btn-danger" @click="confirm">
+          {{ confirmText }}
         </button>
       </div>
     </div>
@@ -39,6 +25,7 @@
 
 <script>
 export default {
+  name: 'ConfirmModal',
   props: {
     visible: Boolean,
     title: String,
@@ -55,8 +42,8 @@ export default {
   emits: ['confirm', 'cancel'],
   data() {
     return {
-      titleId: 'modal-title',
-      descId: 'modal-desc',
+      titleId: 'confirm-modal-title',
+      descId: 'confirm-modal-desc',
       focusableEls: [],
       focusIndex: 0
     };
@@ -66,7 +53,6 @@ export default {
       if (newVal) {
         this.$nextTick(() => {
           this.focusableEls = this.getFocusableElements();
-          this.focusIndex = 0;
           this.focusableEls[0]?.focus();
         });
       }

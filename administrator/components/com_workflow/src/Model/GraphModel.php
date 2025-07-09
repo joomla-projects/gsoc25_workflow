@@ -6,7 +6,7 @@
  *
  * @copyright   (C) 2025 Open Source Matters, Inc. <https://www.joomla.org>
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
- * @since       _DEPLOY_VERSION_
+ * @since       __DEPLOY_VERSION__
  */
 
 namespace Joomla\Component\Workflow\Administrator\Model;
@@ -21,7 +21,7 @@ use Joomla\CMS\MVC\Model\AdminModel;
 /**
  * Model class for Graphical View of the workflow
  *
- * @since  _DEPLOY_VERSION_
+ * @since  __DEPLOY_VERSION__
  */
 class GraphModel extends AdminModel
 {
@@ -32,7 +32,7 @@ class GraphModel extends AdminModel
      *
      * @return  void
      *
-     * @since  _DEPLOY_VERSION_
+     * @since  __DEPLOY_VERSION__
      */
     public function populateState()
     {
@@ -50,7 +50,7 @@ class GraphModel extends AdminModel
      *
      * @return  string  The name of the model.
      *
-     * @since   _DEPLOY_VERSION_
+     * @since   __DEPLOY_VERSION__
      */
     public function getName()
     {

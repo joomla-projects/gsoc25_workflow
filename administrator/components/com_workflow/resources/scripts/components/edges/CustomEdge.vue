@@ -33,8 +33,8 @@
           @click.stop="data?.onEdit?.()"
           class="btn btn-lg btn-secondary py-0 px-1"
           :class="data?.isTransitionMode ? 'd-block' : 'd-none'"
-          :aria-label="translate('WORKFLOW_GRAPH_EDIT_TRANSITION')"
-          :title="translate('WORKFLOW_GRAPH_EDIT_TRANSITION')"
+          :aria-label="translate('COM_WORKFLOW_GRAPH_EDIT_TRANSITION')"
+          :title="translate('COM_WORKFLOW_GRAPH_EDIT_TRANSITION')"
         >
           <i class="icon icon-edit" aria-hidden="true"></i>
         </button>
@@ -42,8 +42,8 @@
           @click.stop="data?.onDelete?.()"
           class="btn btn-lg btn-danger py-0 px-1"
           :class="data?.isTransitionMode ? 'd-block' : 'd-none'"
-          :aria-label="translate('WORKFLOW_GRAPH_DELETE_TRANSITION')"
-          :title="translate('WORKFLOW_GRAPH_DELETE_TRANSITION')"
+          :aria-label="translate('COM_WORKFLOW_GRAPH_DELETE_TRANSITION')"
+          :title="translate('COM_WORKFLOW_GRAPH_DELETE_TRANSITION')"
         >
           <i class="icon icon-delete" aria-hidden="true"></i>
         </button>

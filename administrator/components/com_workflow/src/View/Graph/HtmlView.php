@@ -17,6 +17,7 @@ use Joomla\CMS\MVC\View\GenericDataException;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Toolbar\ToolbarHelper;
+use Joomla\Component\Workflow\Administrator\Model\GraphModel;
 
 // phpcs:disable PSR1.Files.SideEffects
 \defined('_JEXEC') or die;
@@ -25,7 +26,7 @@ use Joomla\CMS\Toolbar\ToolbarHelper;
 /**
  * View class to display the entire workflow graph
  *
- * @since  _DEPLOY_VERSION_
+ * @since  __DEPLOY_VERSION__
  */
 class HtmlView extends BaseHtmlView
 {
@@ -33,57 +34,39 @@ class HtmlView extends BaseHtmlView
      * The model state
      *
      * @var    object
-     * @since  _DEPLOY_VERSION_
+     * @since  __DEPLOY_VERSION__
      */
     protected $state;
 
     /**
-     * The ID of current workflow
-     *
-     * @var    integer
-     * @since  _DEPLOY_VERSION_
-     */
-    protected $workflow;
-
-
-    /**
-     * From object to generate fields
-     *
-     * @var    \Joomla\CMS\Form\Form
-     *
-     * @since  _DEPLOY_VERSION_
-     */
-    protected $form;
-
-    /**
-     * The list of current stages
+     * Items array
      *
      * @var    object
-     * @since  _DEPLOY_VERSION_
+     * @since  __DEPLOY_VERSION__
      */
-    protected $stages = [];
-
-    /**
-     * The list of current transitions
-     *
-     * @var    object
-     * @since  _DEPLOY_VERSION_
-     */
-    protected $transitions = [];
+    protected $item;
 
     /**
      * The name of current extension
      *
      * @var    string
-     * @since  _DEPLOY_VERSION_
+     * @since  __DEPLOY_VERSION__
      */
     protected $extension;
+
+    /**
+     * The ID of current workflow
+     *
+     * @var    integer
+     * @since  __DEPLOY_VERSION__
+     */
+    protected $workflow;
 
     /**
      * The section of the current extension
      *
      * @var    string
-     * @since  _DEPLOY_VERSION_
+     * @since  __DEPLOY_VERSION__
      */
     protected $section;
 
@@ -94,12 +77,14 @@ class HtmlView extends BaseHtmlView
      *
      * @return  void
      *
-     * @since  _DEPLOY_VERSION_
+     * @since  __DEPLOY_VERSION__
      */
     public function display($tpl = null)
     {
+        /** @var GraphModel $model */
         $model = $this->getModel();
 
+        // Get the data
         $this->state = $model->getState();
         $this->item  = $model->getItem();
 
@@ -142,24 +127,32 @@ class HtmlView extends BaseHtmlView
      *
      * @return  void
      *
-     * @since  _DEPLOY_VERSION_
+     * @since  __DEPLOY_VERSION__
      */
     protected function addToolbar()
     {
         Factory::getApplication()->getInput()->set('hidemainmenu', true);
 
-        $toolbar  = $this->getDocument()->getToolbar();
         $user     = $this->getCurrentUser();
         $userId   = $user->id;
+        $toolbar  = $this->getDocument()->getToolbar();
+
         $canDo     = ContentHelper::getActions($this->extension, 'workflow', $this->item->id);
 
-        // Set the title
-        ToolbarHelper::title(Text::_('COM_WORKFLOW_WORKFLOWS_EDIT'), 'file-alt contact');
+        ToolbarHelper::title(Text::_('COM_WORKFLOW_GRAPH_WORKFLOWS_EDIT'), 'file-alt contact');
 
         // Since it's an existing record, check the edit permission, or fall back to edit own if the owner.
         $itemEditable = $canDo->get('core.edit') || ($canDo->get('core.edit.own') && $this->item->created_by == $userId);
         $arrow  = $this->getLanguage()->isRtl() ? 'arrow-right' : 'arrow-left';
 
+        $shortcutsPopupId = 'shortcuts-popup-content';
+        $shortcutsPopupOptions = json_encode([
+            'src'             => '#' . $shortcutsPopupId,
+            'width'           => '800px',
+            'height'          => 'fit-content',
+            'textHeader'      => Text::_('COM_WORKFLOW_GRAPH_SHORTCUTS_TITLE'),
+            'preferredParent' => 'body',
+        ]);
         $toolbar->link(
             'JTOOLBAR_BACK',
             Route::_('index.php?option=com_workflow&view=workflows&extension=' . $this->escape($this->item->extension))
@@ -181,6 +174,11 @@ class HtmlView extends BaseHtmlView
 
 
             $toolbar->help('Workflow');
+            $toolbar->customButton('Shortcuts')
+                ->html('<joomla-toolbar-button><button class="btn btn-info" data-joomla-dialog="'
+                    . htmlspecialchars($shortcutsPopupOptions, ENT_QUOTES, 'UTF-8') . '"'
+                    . 'title="' . Text::_('COM_WORKFLOW_GRAPH_SHORTCUTS') . '"><span class="fa fa-keyboard" aria-hidden="true"></span>'
+                    . Text::_('COM_WORKFLOW_GRAPH_SHORTCUTS') . '</button></joomla-toolbar-button>');
         }
     }
 }

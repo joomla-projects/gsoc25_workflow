@@ -62,7 +62,7 @@ onMounted(() => {
   if (workflowIdFinal !== null && !isNaN(workflowIdFinal)) {
     store.dispatch('loadWorkflow', workflowIdFinal);
   } else {
-    throw new Error('WORKFLOW_GRAPH_INVALID_WORKFLOW_ID');
+    throw new Error('COM_WORKFLOW_GRAPH_INVALID_WORKFLOW_ID');
   }
 });
 </script>
