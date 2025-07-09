@@ -10,14 +10,6 @@ window.WorkflowGraph = window.WorkflowGraph || {};
 window.WorkflowGraph.Event = EventBus;
 
 document.addEventListener('DOMContentLoaded', () => {
-  window.WorkflowGraph.Event.listen('onClickRedoWorkflow', () => {
-    store.dispatch('redo');
-  });
-
-  window.WorkflowGraph.Event.listen('onClickUndoWorkflow', () => {
-    store.dispatch('undo');
-  });
-
   const mountElement = document.getElementById('workflow-graph-root');
 
   if (mountElement) {

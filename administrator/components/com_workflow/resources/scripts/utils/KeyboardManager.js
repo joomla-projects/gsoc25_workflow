@@ -155,7 +155,7 @@ export function setupGlobalShortcuts({ addStage, addTransition, editItem, delete
     store.dispatch('updateStagePosition', { id: stageId, x: newX, y: newY });
     setSaveStatus('unsaved');
     updateSaveMessage();
-    saveNodePosition(stageId);
+    saveNodePosition();
   }
 
   document.addEventListener('keydown', handleKey);

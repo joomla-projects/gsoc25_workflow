@@ -64,6 +64,7 @@ import { generatePositionedNodes, createSpecialNode } from '../../utils/position
 import { generateStyledEdges } from '../../utils/edges.js';
 import { setupGlobalShortcuts } from '../../utils/KeyboardManager.js';
 import { debounce } from '../../utils/utils.es6'
+import store from "../../store/store.es6";
 
 export default {
   name: 'WorkflowCanvas',
@@ -213,13 +214,11 @@ export default {
         saveStatus.value = 'unsaved';
         updateSaveMessage();
         await store.dispatch('updateStagePosition', { id: node?.id, x, y })
-        saveNodePosition(node.id)
+        saveNodePosition()
       }
     }
 
-    const saveNodePosition = debounce(async (stageId) => {
-      const node = positionedNodes.value.find(n => n.id === stageId);
-      if (node) {
+    const saveNodePosition = debounce(async () => {
         const response = await store.dispatch('updateStagePositionAjax');
         if (response) {
           saveStatus.value = 'upToDate';
@@ -227,7 +226,6 @@ export default {
         } else {
           console.error('Failed to save stage position:', response?.error || 'Unknown error');
         }
-      }
     }, 3000);
 
     function openModal(type, id = null) {
@@ -262,8 +260,18 @@ export default {
           else if (selectedTransition.value) showDeleteModal('transition', selectedTransition.value);
         },
         toggleMode: toggleTransitionMode,
-        undo: () => store.dispatch('undo'),
-        redo: () => store.dispatch('redo'),
+        undo: () => {
+          store.dispatch('undo');
+          saveStatus.value = 'unsaved';
+          updateSaveMessage();
+          saveNodePosition();
+        },
+        redo : () => {
+          store.dispatch('redo');
+          saveStatus.value = 'unsaved';
+          updateSaveMessage();
+          saveNodePosition();
+        },
         clearSelection,
         zoomIn,
         zoomOut,
@@ -288,6 +296,20 @@ export default {
       setTimeout(() => {
         fitView({ padding: 0.2, duration: 300 });
       }, 0);
+    });
+
+    window.WorkflowGraph.Event.listen('onClickRedoWorkflow', () => {
+      store.dispatch('redo');
+      saveStatus.value = 'unsaved';
+      updateSaveMessage();
+      saveNodePosition();
+    });
+
+    window.WorkflowGraph.Event.listen('onClickUndoWorkflow', () => {
+      store.dispatch('undo');
+      saveStatus.value = 'unsaved';
+      updateSaveMessage();
+      saveNodePosition();
     });
 
 
