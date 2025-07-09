@@ -22,6 +22,7 @@ export const workflowGraph = async () => {
 
   const bundle = await rollup({
     input: resolve(inputJS),
+    external: ['joomla.dialog'],
     plugins: [
       VuePlugin({
         target: 'browser',

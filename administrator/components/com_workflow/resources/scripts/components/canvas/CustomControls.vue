@@ -34,7 +34,7 @@ import { useVueFlow } from '@vue-flow/core'
 export default {
   name: 'CustomControls',
   setup() {
-    const { zoomIn, zoomOut, fitView, viewport } = useVueFlow();
+    const { zoomIn, zoomOut, fitView } = useVueFlow();
     const controlsContainer = ref(null);
 
     return {

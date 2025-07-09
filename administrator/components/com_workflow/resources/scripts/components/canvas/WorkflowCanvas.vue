@@ -44,43 +44,14 @@
         @toggle-transition-mode="toggleTransitionMode"
       />
     </VueFlow>
-
-    <div id="delete-dialog-template">
-      <div class="p-3">
-        <p>{{ deleteModal.message }}</p>
-        <div class="d-flex justify-content-end gap-2 mt-3">
-          <button class="btn btn-secondary" data-dialog-close>
-            {{ translate('JCANCEL') }}
-          </button>
-          <button class="btn btn-danger" data-dialog-confirm>
-            {{ translate('DELETE') }}
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <button
-      ref="ModalDialog"
-      class="d-none"
-      data-joomla-dialog=""
-      data-checkin-url=""
-      data-close-on-message=""
-      aria-hidden="true"
-    ></button>
-    <button
-      ref="deleteDialog"
-      class="d-none"
-      data-joomla-dialog=""
-      aria-hidden="true"
-    />
-
     <div ref="liveRegion" aria-live="polite" role="status" class="visually-hidden"></div>
   </div>
 </template>
 
 <script>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useStore } from 'vuex';
+import JoomlaDialog from 'joomla.dialog';
 import { VueFlow, useVueFlow } from '@vue-flow/core';
 import { Background } from '@vue-flow/background';
 import { MiniMap } from '@vue-flow/minimap';
@@ -123,8 +94,6 @@ export default {
     const selectedStage = ref(null);
     const selectedTransition = ref(null);
     const liveRegion = ref(null);
-    const ModalDialog = ref(null);
-    const deleteDialog = ref(null);
     const saveStatus = ref('upToDate');
     const previouslyFocusedElement = ref(null);
     const deleteModal = ref({ visible: false, type: '', id: null, title: '', message: '' });
@@ -199,31 +168,19 @@ export default {
     }
 
     function showDeleteModal(type, id) {
-      deleteModal.value = {
-        visible: true,
-        type,
-        id,
-        title: translate(type === 'stage' ? 'COM_WORKFLOW_GRAPH_DELETE_STAGE_TITLE' : 'COM_WORKFLOW_GRAPH_DELETE_TRANSITION_TITLE'),
-        message: translate(type === 'stage' ? 'COM_WORKFLOW_GRAPH_DELETE_STAGE_CONFIRM' : 'COM_WORKFLOW_GRAPH_DELETE_TRANSITION_CONFIRM')
-      };
-
-      const popupOptions = {
-        src: `#delete-dialog-template`,
-        width: '800px',
-        height: 'fit-content',
-        textHeader: deleteModal.value.title,
-        preferredParent: 'body'
-      };
-
-      deleteDialog?.value.setAttribute('data-joomla-dialog', JSON.stringify(popupOptions));
-      deleteDialog?.value.click();
+      const title = translate(type === 'stage' ? 'COM_WORKFLOW_GRAPH_DELETE_STAGE_TITLE' : 'COM_WORKFLOW_GRAPH_DELETE_TRANSITION_TITLE');
+      const message = translate(type === 'stage' ? 'COM_WORKFLOW_GRAPH_DELETE_STAGE_CONFIRM' : 'COM_WORKFLOW_GRAPH_DELETE_TRANSITION_CONFIRM')
+      JoomlaDialog.confirm(message,title)
+        .then((result) => {
+          if(result){
+            handleDeleteConfirm(type, id);
+          }
+        });
     }
-    function handleDeleteConfirm() {
-      if (deleteModal.value.type === 'stage') deleteStage(deleteModal.value.id.toString());
-      else deleteTransition(deleteModal.value.id.toString());
-      deleteModal.value.visible = false;
+    function handleDeleteConfirm(type, id) {
+      if (type === 'stage') deleteStage(id.toString());
+      else deleteTransition(id.toString());
     }
-    function handleDeleteCancel() { deleteModal.value.visible = false; }
     function deleteStage(id) {
       store.dispatch('deleteStage', { id, workflowId: workflowId.value });
       selectedStage.value = null;
@@ -278,20 +235,16 @@ export default {
       const baseUrl = `index.php?option=com_workflow&view=${type}&workflow_id=${workflowId.value}&extension=${extension}&layout=modal&tmpl=component`;
       const src = id ? `${baseUrl}&id=${id}` : baseUrl;
       const textHeader = id
-        ? translate(`COM_WORKFLOW_EDIT_${type.toUpperCase()}`)
-        : translate(`COM_WORKFLOW_ADD_${type.toUpperCase()}`);
-      const popupOptions = {
+        ? translate(`COM_WORKFLOW_GRAPH_EDIT_${type.toUpperCase()}`)
+        : translate(`COM_WORKFLOW_GRAPH_ADD_${type.toUpperCase()}`);
+
+      const dialog = new JoomlaDialog({
         popupType: 'iframe',
         textHeader: textHeader,
         src: src
-      };
-      let dialogRef = ModalDialog?.value;
-      dialogRef.setAttribute('data-joomla-dialog', JSON.stringify(popupOptions));
-      dialogRef.setAttribute('data-checkin-url', '');
-      dialogRef.setAttribute('data-close-on-message', '');
-      dialogRef.setAttribute('data-reload-on-close', '');
-      setupDialogFocusHandlers(previouslyFocusedElement);
-      dialogRef.click();
+      });
+      dialog.show();
+      setupDialogFocusHandlers(previouslyFocusedElement, store);
     }
 
     // Bind keyboard shortcuts
@@ -326,30 +279,27 @@ export default {
         saveNodePosition,
         store,
       });
-      document.addEventListener('joomla:confirm', (e) => {
-        if (e.detail.confirm && deleteModal.value.visible) {
-          handleDeleteConfirm();
-        }
-        deleteModal.value.visible = false;
-      });
-
       onUnmounted(detach);
     });
+
+    watch([positionedNodes, styledEdges], () => {
+      setTimeout(() => {
+        fitView({ padding: 0.2, duration: 300 });
+      }, 0);
+    });
+
 
     return {
       loading,
       error,
       positionedNodes,
       styledEdges,
-      ModalDialog,
-      deleteDialog,
       liveRegion,
       deleteModal,
       isTransitionMode,
       handleConnect,
       selectEdge,
       handleDeleteConfirm,
-      handleDeleteCancel,
       addStage,
       addTransition,
       toggleTransitionMode,

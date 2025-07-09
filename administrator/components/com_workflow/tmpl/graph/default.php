@@ -21,7 +21,7 @@ use Joomla\CMS\Language\Text;
 $wa = $this->getDocument()->getWebAssetManager();
 $wa->useScript('keepalive');
 $wa->useScript('form.validate');
-$wa->useScript('bootstrap.dropdown');
+$wa->useScript('joomla.dialog');
 $wa->useScript('joomla.dialog-autocreate');
 $wa->useStyle('com_workflow.workflowgraph');
 

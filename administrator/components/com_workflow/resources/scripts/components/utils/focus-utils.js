@@ -51,7 +51,7 @@ export function cycleFocus(selector, reverse = false) {
  *
  *
  */
-export function setupDialogFocusHandlers(previouslyFocusedElement) {
+export function setupDialogFocusHandlers(previouslyFocusedElement, store) {
   setTimeout(() => {
     const dialog = document.querySelector('joomla-dialog dialog[open]');
     if (dialog) {
@@ -62,7 +62,10 @@ export function setupDialogFocusHandlers(previouslyFocusedElement) {
           handleDialogIframeLoad(iframe);
         });
       }
-      dialog.addEventListener('close', handleDialogClose);
+
+      dialog.addEventListener('close', () =>
+        handleDialogClose(previouslyFocusedElement, store)
+      );
       dialog.addEventListener('keydown', handleDialogKeydown);
     }
   }, 100);
@@ -78,19 +81,29 @@ function handleDialogIframeLoad(iframe) {
       } else {
         iframeDoc.body.focus();
       }
+
+      iframeDoc.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          const parentDialog = document.querySelector('joomla-dialog dialog[open]');
+          if (parentDialog && parentDialog.close) {
+            parentDialog.close();
+          }
+        }
+      });
+
     }
   } catch (error) {
     iframe.focus();
   }
 }
 
-function handleDialogClose(previouslyFocusedElement) {
+function handleDialogClose(previouslyFocusedElement, store) {
   if (previouslyFocusedElement.value) {
-    nextTick(() => {
       previouslyFocusedElement.value.focus();
       previouslyFocusedElement.value = null;
-    });
   }
+  store.dispatch('loadWorkflow', store.getters.workflowId);
 }
 function handleDialogKeydown(e) {
   if (e.key === 'Escape') {

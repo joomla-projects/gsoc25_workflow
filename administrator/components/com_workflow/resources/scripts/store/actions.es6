@@ -29,7 +29,6 @@ export default {
 			commit('SET_TRANSITIONS', transitions);
 
 			dispatch('saveToHistory');
-			return { workflow, stages, transitions };
 		} catch (error) {
 			const errorMessage = error.message || 'Failed to load workflow';
 			commit('SET_ERROR', errorMessage);

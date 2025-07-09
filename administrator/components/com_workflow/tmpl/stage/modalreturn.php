@@ -5,8 +5,8 @@
 // phpcs:enable PSR1.Files.SideEffects
 
 ?>
-<script type="text/javascript">
-    if (window.parent && window.parent.Joomla && window.parent.Joomla.Modal) {
-        window.parent.Joomla.Modal.getCurrent().close();
+<script>
+    if(window.top && window.top.document.querySelector('dialog[open]')) {
+        window.top.document.querySelector('dialog[open]').close();
     }
 </script>
