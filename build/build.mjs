@@ -33,7 +33,7 @@ import { cleanVendors } from './build-modules-js/init/cleanup-media.mjs';
 import { recreateMediaFolder } from './build-modules-js/init/recreate-media.mjs';
 import { watching } from './build-modules-js/watch.mjs';
 import { mediaManager, watchMediaManager } from './build-modules-js/javascript/build-com_media-js.mjs';
-import { workflowGraph, watchWorkflowGraph } from './build-modules-js/javascript/build-com_workflow-js.mjs'
+import { workflowGraph, watchWorkflowGraph } from './build-modules-js/javascript/build-com_workflow-js.mjs';
 import { compressFiles } from './build-modules-js/compress.mjs';
 import { cssVersioning } from './build-modules-js/css-versioning.mjs';
 import { versioning } from './build-modules-js/versioning.mjs';

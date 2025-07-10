@@ -1,8 +1,8 @@
 import { createStore } from 'vuex';
-import state from './state.es6';
-import mutations from './mutations.es6';
-import actions from './actions.es6';
-import getters from './getters.es6';
+import state from './state.es6.js';
+import mutations from './mutations.es6.js';
+import actions from './actions.es6.js';
+import getters from './getters.es6.js';
 import createPersistedState from './plugins/persisted-state.es6';
 
 /**
@@ -17,7 +17,7 @@ export default createStore({
   plugins: [
     createPersistedState({
       key: 'workflow-graph-state',
-      paths: ['canvas']
-    })
-  ]
+      paths: ['canvas'],
+    }),
+  ],
 });

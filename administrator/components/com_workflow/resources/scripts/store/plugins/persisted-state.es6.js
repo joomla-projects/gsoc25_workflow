@@ -8,7 +8,7 @@ export default function createPersistedState({ key = 'vuex', paths = [] } = {}) 
       const stored = localStorage.getItem(key);
       if (stored) {
         const parsed = JSON.parse(stored);
-        paths.forEach(path => {
+        paths.forEach((path) => {
           if (parsed[path] !== undefined) {
             store.state[path] = parsed[path];
           }
@@ -17,13 +17,17 @@ export default function createPersistedState({ key = 'vuex', paths = [] } = {}) 
 
       store.subscribe((mutation, state) => {
         const partial = {};
-        paths.forEach(path => {
+        paths.forEach((path) => {
           partial[path] = state[path];
         });
         localStorage.setItem(key, JSON.stringify(partial));
       });
     } catch (err) {
-      console.warn('[persist.js] Failed to load or save state:', err);
+      if (window.Joomla && window.Joomla.renderMessages) {
+        window.Joomla.renderMessages({
+          error: [err],
+        });
+      }
     }
   };
 }

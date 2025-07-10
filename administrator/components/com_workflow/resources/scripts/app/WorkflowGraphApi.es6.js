@@ -1,6 +1,7 @@
 /**
  * Handles API communication for the workflow graph.
  */
+
 class WorkflowGraphApi {
 
   /**
@@ -11,7 +12,7 @@ class WorkflowGraphApi {
   constructor() {
     const {
       apiBaseUrl,
-      extension
+      extension,
     } = Joomla.getOptions('com_workflow', {});
 
     if (!apiBaseUrl) {
@@ -47,33 +48,30 @@ class WorkflowGraphApi {
       Joomla.request({
         url: `${this.baseUrl}${url}&extension=${this.extension}`,
         ...options,
-        onSuccess: (responseText, xhr) => {
+        onSuccess: (responseText) => {
           const response = responseText?.trim();
           try {
             const parsed = JSON.parse(response);
             resolve(parsed);
-            return;
           } catch {
+            const temp = document.createElement('div');
+            temp.innerHTML = response;
 
+            const success = temp.querySelector('joomla-alert[type="success"] .alert-message');
+            if (success) {
+              resolve({success: true, message: success.textContent.trim()});
+              return;
+            }
+
+            const error = temp.querySelector('joomla-alert[type="error"], joomla-alert[type="danger"], joomla-alert[type="warning"] .alert-message');
+            if (error) {
+              const msg = error.querySelector('.alert-message')?.textContent.trim() || 'An error occurred.';
+              reject(new Error(msg));
+              return;
+            }
+
+            resolve({success: true, message: 'No system message. Assuming success.', raw: response});
           }
-          const temp = document.createElement('div');
-          temp.innerHTML = response;
-
-          const success = temp.querySelector('joomla-alert[type="success"] .alert-message');
-          if (success) {
-            resolve({ success: true, message: success.textContent.trim() });
-            return;
-          }
-
-          const error = temp.querySelector('joomla-alert[type="error"], joomla-alert[type="danger"], joomla-alert[type="warning"] .alert-message');
-          if (error) {
-            const msg = error.querySelector('.alert-message')?.textContent.trim() || 'An error occurred.';
-            reject(new Error(msg));
-            return;
-          }
-
-          // No message, assume okay
-          resolve({ success: true, message: 'No system message. Assuming success.', raw: response });
         },
         onError: (xhr) => {
           let message = 'Network error';
@@ -84,7 +82,7 @@ class WorkflowGraphApi {
             message = xhr.statusText || message;
           }
           reject(new Error(message));
-        }
+        },
       });
     });
   }
@@ -101,13 +99,13 @@ class WorkflowGraphApi {
       const data = typeof response === 'string' ? JSON.parse(response) : response;
 
       if (data.success === false) {
-        WorkflowGraph.Event.fire('onWorkflowError', { error: data.message || 'Failed to load workflow' });
+        window.WorkflowGraph.Event.fire('onWorkflowError', { error: data.message || 'Failed to load workflow' });
         return null;
       }
 
       return data?.data || data;
     } catch (error) {
-      WorkflowGraph.Event.fire('onWorkflowError', { error: error.message });
+      window.WorkflowGraph.Event.fire('onWorkflowError', { error: error.message });
       throw error;
     }
   }
@@ -124,13 +122,13 @@ class WorkflowGraphApi {
       const data = typeof response === 'string' ? JSON.parse(response) : response;
 
       if (data.success === false) {
-        WorkflowGraph.Event.fire('onStagesError', { error: data.message || 'Failed to load stages' });
+        window.WorkflowGraph.Event.fire('onStagesError', { error: data.message || 'Failed to load stages' });
         return null;
       }
 
       return data?.data || data;
     } catch (error) {
-      WorkflowGraph.Event.fire('onStagesError', { error: error.message });
+      window.WorkflowGraph.Event.fire('onStagesError', { error: error.message });
       throw error;
     }
   }
@@ -147,13 +145,13 @@ class WorkflowGraphApi {
       const data = typeof response === 'string' ? JSON.parse(response) : response;
 
       if (data.success === false) {
-        WorkflowGraph.Event.fire('onTransitionsError', { error: data.message || 'Failed to load transitions' });
+        window.WorkflowGraph.Event.fire('onTransitionsError', { error: data.message || 'Failed to load transitions' });
         return null;
       }
 
       return data?.data || data;
     } catch (error) {
-      WorkflowGraph.Event.fire('onTransitionsError', { error: error.message });
+      window.WorkflowGraph.Event.fire('onTransitionsError', { error: error.message });
       throw error;
     }
   }
@@ -173,7 +171,7 @@ class WorkflowGraphApi {
       formData.append('cid[]', id);
       formData.append('workflow_id', workflowId);
       formData.append(this.csrfToken, '1');
-      if(stageDelete){
+      if (stageDelete) {
         formData.append('task', 'stages.delete');
       } else {
         formData.append('task', 'stages.trash');
@@ -186,13 +184,13 @@ class WorkflowGraphApi {
 
       const data = typeof response === 'string' ? JSON.parse(response) : response;
       if (data.success === false) {
-        WorkflowGraph.Event.fire('onStageError', { error: data.message || 'Failed to delete stage' });
+        window.WorkflowGraph.Event.fire('onStageError', { error: data.message || 'Failed to delete stage' });
         return false;
       }
 
       return true;
     } catch (error) {
-      WorkflowGraph.Event.fire('onStageError', { error: error.message });
+      window.WorkflowGraph.Event.fire('onStageError', { error: error.message });
       throw error;
     }
   }
@@ -220,12 +218,12 @@ class WorkflowGraphApi {
       const data = typeof response === 'string' ? JSON.parse(response) : response;
 
       if (data.success === false) {
-        WorkflowGraph.Event.fire('onTransitionError', { error: data.message || 'Failed to delete transition' })
+        window.WorkflowGraph.Event.fire('onTransitionError', { error: data.message || 'Failed to delete transition' });
       }
 
       return true;
     } catch (error) {
-      WorkflowGraph.Event.fire('onTransitionError', { error: error.message });
+      window.WorkflowGraph.Event.fire('onTransitionError', { error: error.message });
       throw error;
     }
   }
@@ -238,7 +236,7 @@ class WorkflowGraphApi {
    * @returns {Promise<Object|null>}
    */
   async updateStagePosition(workflowId, positions) {
-    try{
+    try {
       const formData = new FormData();
       formData.append('workflow_id', workflowId);
       formData.append(this.csrfToken, '1');
@@ -248,21 +246,21 @@ class WorkflowGraphApi {
         formData.append(`positions[${id}][y]`, position.y);
       });
 
-      const response = await this.makeRequest(`&task=stages.updateStagesPosition&format=raw`, {
+      const response = await this.makeRequest('&task=stages.updateStagesPosition&format=raw', {
         method: 'POST',
-        data: formData
+        data: formData,
       });
 
       const data = typeof response === 'string' ? JSON.parse(response) : response;
 
       if (data.success === false) {
-        WorkflowGraph.Event.fire('onUpdatePositionError', { error: data.message || 'Failed to update stage positions' });
+        window.WorkflowGraph.Event.fire('onUpdatePositionError', { error: data.message || 'Failed to update stage positions' });
         return null;
       }
 
       return data.data || data;
     } catch (error) {
-      WorkflowGraph.Event.fire('onStageError', { error: error.message });
+      window.WorkflowGraph.Event.fire('onStageError', { error: error.message });
       throw error;
     }
   }

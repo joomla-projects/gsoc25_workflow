@@ -1,4 +1,4 @@
-  import { announce, cycleFocus, cycleMode } from './focus-utils';
+  import { announce, cycleFocus, cycleMode } from './focus-utils.es6';
 
 /**
  * Attach global keyboard listeners for workflow canvas.

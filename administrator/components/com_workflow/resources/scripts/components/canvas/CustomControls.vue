@@ -1,38 +1,41 @@
 <template>
-  <div class="custom-controls" tabindex="0" ref="controlsContainer">
+  <div class="custom-controls"
+       tabindex="0"
+       ref="controlsContainer"
+  >
     <button
       class="toolbar-button custom-controls-button"
       tabindex="0"
-      @click="zoomIn"
       aria-label="Zoom in"
       title="Zoom in (+ key)"
+      @click="zoomIn"
     >
-      <i class="icon icon-plus"></i>
+      <i class="icon icon-plus" />
     </button>
     <button
       class="toolbar-button custom-controls-button"
       tabindex="0"
-      @click="zoomOut"
       aria-label="Zoom out"
       title="Zoom out (- key)"
+      @click="zoomOut"
     >
-      <i class="icon icon-minus"></i>
+      <i class="icon icon-minus" />
     </button>
     <button
       class="toolbar-button custom-controls-button"
       tabindex="0"
-      @click="fitView"
       aria-label="Fit view"
       title="Fit view (F key)"
+      @click="fitView"
     >
-      <i class="icon icon-grid"></i>
+      <i class="icon icon-grid" />
     </button>
   </div>
 </template>
 
 <script>
-import { ref, onMounted, onUnmounted } from 'vue'
-import { useVueFlow } from '@vue-flow/core'
+import { ref } from 'vue';
+import { useVueFlow } from '@vue-flow/core';
 
 export default {
   name: 'CustomControls',
@@ -44,8 +47,8 @@ export default {
       zoomIn,
       zoomOut,
       fitView,
-      controlsContainer
+      controlsContainer,
     };
-  }
-}
+  },
+};
 </script>

@@ -3,8 +3,8 @@
     id="main-canvas"
     class="w-100 h-100 position-relative"
     role="region"
-    :aria-label="translate('COM_WORKFLOW_GRAPH_CANVAS_REGION')"
     ref="canvasRegion"
+    :aria-label="translate('COM_WORKFLOW_GRAPH_CANVAS_REGION')"
   >
     <VueFlow
       v-if="!loading && !error"
@@ -17,7 +17,7 @@
       :node-types="nodeTypes"
       :edge-types="edgeTypes"
       :connectable="true"
-      :elementsSelectable="true"
+      :elements-selectable="true"
       :snap-to-grid="true"
       :snap-grid="[20, 20]"
       @connect="handleConnect"
@@ -25,7 +25,11 @@
       @edge-click="selectEdge"
       @node-drag-stop="handleNodeDragStop"
     >
-      <Background pattern-color="var(--body-color)" variant="dots" :gap="12" />
+      <Background
+        pattern-color="var(--body-color)"
+        variant="dots"
+        :gap="12"
+      />
       <MiniMap
         position="bottom-left"
         pannable
@@ -43,27 +47,33 @@
         @toggle-transition-mode="toggleTransitionMode"
       />
     </VueFlow>
-    <div ref="liveRegion" aria-live="polite" role="status" class="visually-hidden"></div>
+    <div ref="liveRegion"
+         aria-live="polite"
+         role="status"
+         class="visually-hidden"
+    />
   </div>
 </template>
 
 <script>
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import {
+  ref, computed, onMounted, onUnmounted, watch
+} from 'vue';
 import { useStore } from 'vuex';
+// eslint-disable-next-line import/no-unresolved
 import JoomlaDialog from 'joomla.dialog';
 import { VueFlow, useVueFlow } from '@vue-flow/core';
 import { Background } from '@vue-flow/background';
 import { MiniMap } from '@vue-flow/minimap';
 import stageNode from '../nodes/StageNode.vue';
-import customEdge from '../edges/CustomEdge.vue';
+import CustomEdge from '../edges/CustomEdge.vue';
 import CustomControls from './CustomControls.vue';
 import ControlsPanel from './ControlsPanel.vue';
-import { announce, setupDialogFocusHandlers } from '../../utils/focus-utils.js';
-import { generatePositionedNodes, createSpecialNode } from '../../utils/positioning.js';
-import { generateStyledEdges } from '../../utils/edges.js';
-import { setupGlobalShortcuts } from '../../utils/KeyboardManager.js';
-import { debounce } from '../../utils/utils.es6'
-import store from "../../store/store.es6";
+import { announce, setupDialogFocusHandlers } from '../../utils/focus-utils.es6.js';
+import { generatePositionedNodes, createSpecialNode } from '../../utils/positioning.es6.js';
+import { generateStyledEdges } from '../../utils/edges.es6.js';
+import { setupGlobalShortcuts } from '../../utils/KeyboardManager.es6.js';
+import { debounce } from '../../utils/utils.es6';
 
 export default {
   name: 'WorkflowCanvas',
@@ -72,23 +82,25 @@ export default {
     Background,
     MiniMap,
     CustomControls,
-    ControlsPanel
+    ControlsPanel,
   },
   props: {
     nodeTypes: {
       type: Object,
-      default: () => ({ stage: stageNode })
+      default: () => ({ stage: stageNode }),
     },
     edgeTypes: {
       type: Object,
-      default: () => ({ custom: customEdge })
+      default: () => ({ custom: CustomEdge }),
     },
     saveStatus: { type: Object, required: true },
-    setSaveStatus: { type: Function, required: true }
+    setSaveStatus: { type: Function, required: true },
   },
   setup() {
     const store = useStore();
-    const { fitView ,zoomIn, zoomOut, viewport } = useVueFlow();
+    const {
+      fitView, zoomIn, zoomOut, viewport
+    } = useVueFlow();
 
     const isTransitionMode = ref(false);
     const selectedStage = ref(null);
@@ -104,128 +116,63 @@ export default {
     const error = computed(() => store.getters.error);
     const workflowId = computed(() => store.getters.workflowId);
 
-    const positionedNodes = computed(() => {
-      const nodes = generatePositionedNodes(stages.value);
-      const special = createSpecialNode('from_any', { x: 600, y: -200 }, '#EF4444', 'From Any', selectStage, isTransitionMode.value);
-      return [...nodes.map(n => ({
-        ...n,
-        data: {
-          ...n.data,
-          isSelected: selectedStage.value === parseInt(n.id),
-          onSelect: () => selectStage(n.id),
-          onEdit: () => editStage(n.id),
-          onDelete: () => showDeleteModal('stage', n.id)
-        },
-        draggable: !isTransitionMode.value
-      })), special];
-    });
-
-    const styledEdges = computed(() => generateStyledEdges(transitions.value, {
-      transitionMode: isTransitionMode.value,
-      selectedId: selectedTransition.value
-    }).map(edge => ({
-      ...edge,
-      data: {
-        ...edge.data,
-        onSelect: () => selectTransition(edge.id),
-        onDelete: () => showDeleteModal('transition', edge.id),
-        onEdit: () => editTransition(edge.id)
-      }
-    })));
-
-    function translate(key){
+    function translate(key) {
       return Joomla.Text._(key);
     }
 
     function selectStage(id) {
-      selectedStage.value = parseInt(id);
+      selectedStage.value = parseInt(id, 10);
       selectedTransition.value = null;
     }
 
     function selectTransition(id) {
-      selectedTransition.value = parseInt(id);
+      selectedTransition.value = parseInt(id, 10);
       selectedStage.value = null;
     }
 
-    function editStage(id) { openModal('stage', id); }
-    function editTransition(id) { openModal('transition', id); }
-    function clearSelection() { selectedStage.value = null; selectedTransition.value = null; }
-    function addStage() {
-      openModal('stage');
-      announce(liveRegion.value, translate('COM_WORKFLOW_GRAPH_ADD_STAGE_DIALOG_OPENED'));
+    function editStage(id) {
+      openModal('stage', id);
     }
-    function addTransition() {
-      openModal('transition');
-      announce(liveRegion.value, translate('COM_WORKFLOW_GRAPH_ADD_TRANSITION_DIALOG_OPENED'));
+
+    function editTransition(id) {
+      openModal('transition', id);
     }
-    function toggleTransitionMode() {
-      isTransitionMode.value = !isTransitionMode.value;
-      announce(
-        liveRegion.value,
-        isTransitionMode.value
-          ? translate('COM_WORKFLOW_GRAPH_TRANSITION_MODE_ON')
-          : translate('COM_WORKFLOW_GRAPH_TRANSITION_MODE_OFF')
-      );
+
+    function clearSelection() {
+      selectedStage.value = null;
+      selectedTransition.value = null;
     }
 
     function showDeleteModal(type, id) {
-      const title = translate(type === 'stage' ? 'COM_WORKFLOW_GRAPH_DELETE_STAGE_TITLE' : 'COM_WORKFLOW_GRAPH_DELETE_TRANSITION_TITLE');
-      const message = translate(type === 'stage' ? 'COM_WORKFLOW_GRAPH_DELETE_STAGE_CONFIRM' : 'COM_WORKFLOW_GRAPH_DELETE_TRANSITION_CONFIRM')
-      JoomlaDialog.confirm(message,title)
-        .then((result) => {
-          if(result){
-            handleDeleteConfirm(type, id);
-          }
-        });
+      const title = translate(type === 'stage'
+        ? 'COM_WORKFLOW_GRAPH_DELETE_STAGE_TITLE'
+        : 'COM_WORKFLOW_GRAPH_DELETE_TRANSITION_TITLE');
+
+      const message = translate(type === 'stage'
+        ? 'COM_WORKFLOW_GRAPH_DELETE_STAGE_CONFIRM'
+        : 'COM_WORKFLOW_GRAPH_DELETE_TRANSITION_CONFIRM');
+
+      JoomlaDialog.confirm(message, title).then((result) => {
+        if (result) {
+          handleDeleteConfirm(type, id);
+        }
+      });
     }
+
     function handleDeleteConfirm(type, id) {
       if (type === 'stage') deleteStage(id.toString());
       else deleteTransition(id.toString());
     }
+
     function deleteStage(id) {
       store.dispatch('deleteStage', { id, workflowId: workflowId.value });
       selectedStage.value = null;
     }
+
     function deleteTransition(id) {
       store.dispatch('deleteTransition', { id, workflowId: workflowId.value });
       selectedTransition.value = null;
     }
-    function handleConnect() { if (isTransitionMode.value) openModal('transition'); }
-    function selectEdge({ edge }) { selectTransition(edge?.id); }
-    function updateSaveMessage() {
-      const el = document.getElementById('save-message');
-      if (!el) return;
-      if (saveStatus.value === 'unsaved') {
-        el.classList.add('text-warning');
-        el.textContent = translate('COM_WORKFLOW_GRAPH_UNSAVED_CHANGES');
-      } else {
-        el.classList.remove('text-warning');
-        el.textContent = translate('COM_WORKFLOW_GRAPH_UP_TO_DATE');
-      }
-    }
-    async function handleNodeDragStop({ node }) {
-      if(!node || !node.id || node.id === 'from_any') return
-      const position = store.getters.stages.find(s => s.id === parseInt(node.id)).position
-      if (node?.id) {
-        const nodePosition = node.computedPosition || position || { x: 0, y: 0 }
-        const x = nodePosition.x
-        const y = nodePosition.y
-        saveStatus.value = 'unsaved';
-        updateSaveMessage();
-        await store.dispatch('updateStagePosition', { id: node?.id, x, y })
-        saveNodePosition()
-      }
-    }
-
-    const saveNodePosition = debounce(async () => {
-        const response = await store.dispatch('updateStagePositionAjax');
-        if (response) {
-          saveStatus.value = 'upToDate';
-          updateSaveMessage();
-        } else {
-          console.error('Failed to save stage position:', response?.error || 'Unknown error');
-        }
-    }, 3000);
 
     function openModal(type, id = null) {
       previouslyFocusedElement.value = document.activeElement;
@@ -238,14 +185,103 @@ export default {
 
       const dialog = new JoomlaDialog({
         popupType: 'iframe',
-        textHeader: textHeader,
-        src: src
+        textHeader,
+        src,
       });
       dialog.show();
       setupDialogFocusHandlers(previouslyFocusedElement, store);
     }
 
-    // Bind keyboard shortcuts
+    function addStage() {
+      openModal('stage');
+      announce(liveRegion.value, translate('COM_WORKFLOW_GRAPH_ADD_STAGE_DIALOG_OPENED'));
+    }
+
+    function addTransition() {
+      openModal('transition');
+      announce(liveRegion.value, translate('COM_WORKFLOW_GRAPH_ADD_TRANSITION_DIALOG_OPENED'));
+    }
+
+    function toggleTransitionMode() {
+      isTransitionMode.value = !isTransitionMode.value;
+      announce(
+        liveRegion.value,
+        isTransitionMode.value
+          ? translate('COM_WORKFLOW_GRAPH_TRANSITION_MODE_ON')
+          : translate('COM_WORKFLOW_GRAPH_TRANSITION_MODE_OFF')
+      );
+    }
+
+    function handleConnect() {
+      if (isTransitionMode.value) openModal('transition');
+    }
+
+    function selectEdge({ edge }) {
+      selectTransition(edge?.id);
+    }
+
+    function updateSaveMessage() {
+      const el = document.getElementById('save-message');
+      if (!el) return;
+      if (saveStatus.value === 'unsaved') {
+        el.classList.add('text-warning');
+        el.textContent = translate('COM_WORKFLOW_GRAPH_UNSAVED_CHANGES');
+      } else {
+        el.classList.remove('text-warning');
+        el.textContent = translate('COM_WORKFLOW_GRAPH_UP_TO_DATE');
+      }
+    }
+
+    const saveNodePosition = debounce(async () => {
+      const response = await store.dispatch('updateStagePositionAjax');
+      if (response) {
+        saveStatus.value = 'upToDate';
+        updateSaveMessage();
+      } else {
+        console.error('Failed to save stage position:', response?.error || 'Unknown error');
+      }
+    }, 3000);
+
+    async function handleNodeDragStop({ node }) {
+      if (!node || !node.id || node.id === 'from_any') return;
+      const position = store.getters.stages.find(s => s.id === parseInt(node.id, 10))?.position;
+      const nodePosition = node.computedPosition || position || { x: 0, y: 0 };
+      const { x, y } = nodePosition;
+      saveStatus.value = 'unsaved';
+      updateSaveMessage();
+      await store.dispatch('updateStagePosition', { id: node.id, x, y });
+      saveNodePosition();
+    }
+
+    const positionedNodes = computed(() => {
+      const nodes = generatePositionedNodes(stages.value);
+      const special = createSpecialNode('from_any', { x: 600, y: -200 }, '#EF4444', 'From Any', selectStage, isTransitionMode.value);
+      return [...nodes.map(n => ({
+        ...n,
+        data: {
+          ...n.data,
+          isSelected: selectedStage.value === parseInt(n.id, 10),
+          onSelect: () => selectStage(n.id),
+          onEdit: () => editStage(n.id),
+          onDelete: () => showDeleteModal('stage', n.id),
+        },
+        draggable: !isTransitionMode.value,
+      })), special];
+    });
+
+    const styledEdges = computed(() => generateStyledEdges(transitions.value, {
+      transitionMode: isTransitionMode.value,
+      selectedId: selectedTransition.value,
+    }).map(edge => ({
+      ...edge,
+      data: {
+        ...edge.data,
+        onSelect: () => selectTransition(edge.id),
+        onDelete: () => showDeleteModal('transition', edge.id),
+        onEdit: () => editTransition(edge.id),
+      },
+    })));
+
     onMounted(() => {
       const detach = setupGlobalShortcuts({
         addStage,
@@ -265,7 +301,7 @@ export default {
           updateSaveMessage();
           saveNodePosition();
         },
-        redo : () => {
+        redo: () => {
           store.dispatch('redo');
           saveStatus.value = 'unsaved';
           updateSaveMessage();
@@ -281,9 +317,9 @@ export default {
           selectedTransition,
           isTransitionMode,
           currentFocusMode,
-          liveRegion: liveRegion.value
+          liveRegion: liveRegion.value,
         },
-        setSaveStatus: (val) => saveStatus.value = val,
+        setSaveStatus: val => { saveStatus.value = val; },
         updateSaveMessage,
         saveNodePosition,
         store,
@@ -311,7 +347,6 @@ export default {
       saveNodePosition();
     });
 
-
     return {
       loading,
       error,
@@ -326,7 +361,7 @@ export default {
       addTransition,
       toggleTransitionMode,
       clearSelection,
-      handleNodeDragStop
+      handleNodeDragStop,
     };
   }
 };

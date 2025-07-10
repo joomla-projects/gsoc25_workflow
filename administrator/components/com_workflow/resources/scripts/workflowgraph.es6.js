@@ -18,6 +18,10 @@ document.addEventListener('DOMContentLoaded', () => {
     app.use(translate);
     app.mount(mountElement);
   } else {
-    console.error('Mount element #workflow-graph-root not found');
+    if (window.Joomla && window.Joomla.renderMessages) {
+      window.Joomla.renderMessages({
+        error: ['Mount element #workflow-graph-root not found'],
+      });
+    }
   }
 });

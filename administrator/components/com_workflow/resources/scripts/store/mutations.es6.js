@@ -21,14 +21,14 @@ export default {
 		state.error = error;
 	},
 	UPDATE_STAGE_POSITION(state, { id, x, y }) {
-		state.stages= state.stages.map(stage => {
+		state.stages = state.stages.map((stage) => {
 			if (stage.id.toString() === id) {
 				return {
 					...stage,
 					position: {
-						x: x,
-						y: y
-					}
+						x,
+						y,
+					},
 				};
 			}
 			return stage;
@@ -46,22 +46,23 @@ export default {
 		// Limit history size
 		if (state.history.length > 100) {
 			state.history.shift();
-			state.historyIndex--;
+			state.historyIndex -= 1;
 		}
 	},
 	UNDO_REDO(state, direction) {
 		if ((state.historyIndex > 0 && direction === -1) || (state.historyIndex < state.history.length - 1 && direction === 1)) {
-			state.historyIndex = state.historyIndex + direction;
+			state.historyIndex += direction;
 			const snapshot = state.history[state.historyIndex];
-			state.stages = state.stages.map(stage => {
-				const historyStage = snapshot.stagePositions.find(s => s.id === stage.id);
+			state.stages = state.stages.map((stage) => {
+				const historyStage = snapshot.stagePositions.find((s) => s.id === stage.id);
 				if (historyStage) {
 					return {
 						...stage,
-						position: historyStage.position
-					}
+						position: historyStage.position,
+					};
 				}
+        return {...stage};
 			});
 		}
-	}
+	},
 };

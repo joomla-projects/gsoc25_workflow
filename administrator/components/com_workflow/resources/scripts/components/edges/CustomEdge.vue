@@ -31,22 +31,27 @@
           {{ data?.title }}
         </h3>
         <button
-          @click.stop="data?.onEdit?.()"
           class="btn btn-lg btn-secondary py-0 px-1"
           :class="data?.isTransitionMode ? 'd-block' : 'd-none'"
           :aria-label="translate('COM_WORKFLOW_GRAPH_EDIT_TRANSITION')"
           :title="translate('COM_WORKFLOW_GRAPH_EDIT_TRANSITION')"
+          @click.stop="data?.onEdit?.()"
         >
-          <i class="icon icon-edit" aria-hidden="true"></i>
+          <i class="icon icon-edit"
+             aria-hidden="true"
+          />
         </button>
         <button
-          @click.stop="data?.onDelete?.()"
           class="btn btn-lg btn-danger py-0 px-1"
           :class="data?.isTransitionMode ? 'd-block' : 'd-none'"
           :aria-label="translate('COM_WORKFLOW_GRAPH_DELETE_TRANSITION')"
           :title="translate('COM_WORKFLOW_GRAPH_DELETE_TRANSITION')"
+          @click.stop="data?.onDelete?.()"
         >
-          <i class="icon icon-delete" aria-hidden="true"></i>
+          <i
+            class="icon icon-delete"
+            aria-hidden="true"
+          />
         </button>
       </div>
     </foreignObject>
@@ -57,18 +62,48 @@
 import { getSmoothStepPath } from '@vue-flow/core';
 
 export default {
-  name: 'customEdge',
+  name: 'CustomEdge',
   props: {
-    id: String,
-    sourceX: Number,
-    sourceY: Number,
-    targetX: Number,
-    targetY: Number,
-    sourcePosition: String,
-    targetPosition: String,
-    style: Object,
-    markerEnd: Object,
-    data: Object
+    id: {
+      type: String,
+      default: '',
+    },
+    sourceX: {
+      type: Number,
+      default: 0,
+    },
+    sourceY: {
+      type: Number,
+      default: 0,
+    },
+    targetX: {
+      type: Number,
+      default: 0,
+    },
+    targetY: {
+      type: Number,
+      default: 0,
+    },
+    sourcePosition: {
+      type: String,
+      default: '',
+    },
+    targetPosition: {
+      type: String,
+      default: '',
+    },
+    style: {
+      type: Object,
+      default: () => ({}),
+    },
+    markerEnd: {
+      type: Object,
+      default: () => ({}),
+    },
+    data: {
+      type: Object,
+      default: () => ({}),
+    }
   },
   computed: {
     edgeData() {
@@ -79,7 +114,7 @@ export default {
         targetX: this.targetX,
         targetY: this.targetY,
         targetPosition: this.targetPosition,
-        borderRadius: 10
+        borderRadius: 10,
       });
     },
     edgePath() {
@@ -90,7 +125,7 @@ export default {
     },
     labelY() {
       return this.edgeData[2] + (this.data?.offsetIndex || 0) * 18;
-    }
+    },
   },
   methods: {
     onEdgeKeydown(e) {
@@ -108,7 +143,7 @@ export default {
       }
     },
     onEdgeFocus() {},
-    onEdgeBlur() {}
-  }
+    onEdgeBlur() {},
+  },
 };
 </script>

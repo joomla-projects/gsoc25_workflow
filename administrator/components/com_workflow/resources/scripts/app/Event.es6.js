@@ -17,7 +17,7 @@ export default new class EventBus {
    * @param {*} [data=null] - Optional payload
    */
   fire(event, data = null) {
-    (this.events[event] || []).forEach(fn => fn(data));
+    (this.events[event] || []).forEach((fn) => fn(data));
   }
 
   /**
@@ -39,7 +39,7 @@ export default new class EventBus {
    */
   off(event, callback) {
     if (this.events[event]) {
-      this.events[event] = this.events[event].filter(fn => fn !== callback);
+      this.events[event] = this.events[event].filter((fn) => fn !== callback);
     }
   }
 }();

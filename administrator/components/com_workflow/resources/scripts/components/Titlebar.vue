@@ -1,10 +1,21 @@
 <template>
-  <section class="workflow-graph-titlebar d-flex flex-wrap align-items-center justify-content-between" aria-labelledby="workflow-title" role="region">
+  <section class="workflow-graph-titlebar d-flex flex-wrap align-items-center justify-content-between"
+           aria-labelledby="workflow-title"
+           role="region"
+  >
     <div class="col-md-6 d-flex flex-column">
-      <h1 class="h2 mb-2" id="workflow-title">{{ translate(workflow?.title) }}</h1>
-      <dl class="d-flex align-items-center flex-wrap mb-0" aria-label="workflow details">
+      <h1 id="workflow-title"
+          class="h2 mb-2"
+      >
+        {{ translate(workflow?.title) }}
+      </h1>
+      <dl class="d-flex align-items-center flex-wrap mb-0"
+          aria-label="workflow details"
+      >
         <div class="me-3 mb-1 d-flex align-items-center">
-          <dt class="visually-hidden">{{ translate('COM_WORKFLOW_GRAPH_STATUS') }}</dt>
+          <dt class="visually-hidden">
+            {{ translate('COM_WORKFLOW_GRAPH_STATUS') }}
+          </dt>
           <dd>
             <span
               class="badge"
@@ -16,15 +27,20 @@
           </dd>
         </div>
         <div class="me-3 mb-1 d-flex align-items-center">
-          <dt class="visually-hidden">{{ translate('COM_WORKFLOW_GRAPH_STAGE_COUNT') }}</dt>
+          <dt class="visually-hidden">
+            {{ translate('COM_WORKFLOW_GRAPH_STAGE_COUNT') }}
+          </dt>
           <dd>
             {{ stagesCount }} {{ stagesCount === 1 ? translate('COM_WORKFLOW_GRAPH_STAGE') : translate('COM_WORKFLOW_GRAPH_STAGES') }}
           </dd>
         </div>
         <div class="me-3 mb-1 d-flex align-items-center">
-          <dt class="visually-hidden">{{ translate('COM_WORKFLOW_GRAPH_TRANSITION_COUNT') }}</dt>
+          <dt class="visually-hidden">
+            {{ translate('COM_WORKFLOW_GRAPH_TRANSITION_COUNT') }}
+          </dt>
           <dd>
-            {{ transitionsCount }} {{ transitionsCount === 1 ? translate('COM_WORKFLOW_GRAPH_TRANSITION') : translate('COM_WORKFLOW_GRAPH_TRANSITIONS') }}
+            {{ transitionsCount }} {{ transitionsCount === 1 ? translate('COM_WORKFLOW_GRAPH_TRANSITION') :
+            translate('COM_WORKFLOW_GRAPH_TRANSITIONS') }}
           </dd>
         </div>
       </dl>
@@ -32,8 +48,8 @@
     <div
       id="save-message"
       :class="{
-      'text-warning': saveStatus.value === 'unsaved',
-      'text-muted': saveStatus.value !== 'unsaved'
+        'text-warning': saveStatus.value === 'unsaved',
+        'text-muted': saveStatus.value !== 'unsaved'
       }"
       class="mb-2 text-success fw-bold"
     >
@@ -52,8 +68,8 @@ export default {
   props: {
     saveStatus: {
       type: String,
-      default: 'upToDate'
-    }
+      default: 'upToDate',
+    },
   },
   computed: {
     workflow() {
