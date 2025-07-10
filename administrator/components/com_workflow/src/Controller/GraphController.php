@@ -110,7 +110,7 @@ class GraphController extends AdminController
     public function getWorkflow(): void
     {
         try {
-            $id = $this->input->getInt('workflow_id');
+            $id    = $this->input->getInt('workflow_id');
             $model = $this->getModel('Workflow');
 
             if (empty($id)) {
@@ -134,7 +134,7 @@ class GraphController extends AdminController
                 'description' => $workflow->description,
                 'published'   => (bool) $workflow->published,
                 'default'     => (bool) $workflow->default,
-                'extension'   => $workflow->extension
+                'extension'   => $workflow->extension,
             ];
 
             echo new JsonResponse($response);
@@ -159,12 +159,12 @@ class GraphController extends AdminController
     {
         try {
             $workflowId = $this->input->getInt('workflow_id');
-            $model = $this->getModel('Stages');
+            $model      = $this->getModel('Stages');
 
             $model->setState('filter.workflow_id', $workflowId);
             $model->setState('list.limit', 0); // Get all stages
 
-            $stages = $model->getItems();
+            $stages   = $model->getItems();
             $response = [];
 
             foreach ($stages as $stage) {
@@ -202,13 +202,13 @@ class GraphController extends AdminController
     {
         try {
             $workflowId = $this->input->getInt('workflow_id');
-            $model = $this->getModel('Transitions');
+            $model      = $this->getModel('Transitions');
 
             $model->setState('filter.workflow_id', $workflowId);
             $model->setState('list.limit', 0);
 
             $transitions = $model->getItems();
-            $response = [];
+            $response    = [];
 
             foreach ($transitions as $transition) {
                 $response[] = [
@@ -219,7 +219,7 @@ class GraphController extends AdminController
                     'from_stage_id' => (int) $transition->from_stage_id,
                     'to_stage_id'   => (int) $transition->to_stage_id,
                     'ordering'      => (int) $transition->ordering,
-                    'workflow_id'   => (int) $transition->workflow_id
+                    'workflow_id'   => (int) $transition->workflow_id,
                 ];
             }
 

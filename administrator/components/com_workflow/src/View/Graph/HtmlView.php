@@ -107,7 +107,7 @@ class HtmlView extends BaseHtmlView
         // Prepare workflow data for frontend
         $options = [
             'apiBaseUrl' => Route::_('index.php?option=com_workflow'),
-            'extension' => $this->escape($this->extension),
+            'extension'  => $this->escape($this->extension),
             'workflowId' => $this->item->id,
         ];
 
@@ -143,9 +143,9 @@ class HtmlView extends BaseHtmlView
 
         // Since it's an existing record, check the edit permission, or fall back to edit own if the owner.
         $itemEditable = $canDo->get('core.edit') || ($canDo->get('core.edit.own') && $this->item->created_by == $userId);
-        $arrow  = $this->getLanguage()->isRtl() ? 'arrow-right' : 'arrow-left';
+        $arrow        = $this->getLanguage()->isRtl() ? 'arrow-right' : 'arrow-left';
 
-        $shortcutsPopupId = 'shortcuts-popup-content';
+        $shortcutsPopupId      = 'shortcuts-popup-content';
         $shortcutsPopupOptions = json_encode([
             'src'             => '#' . $shortcutsPopupId,
             'width'           => '800px',

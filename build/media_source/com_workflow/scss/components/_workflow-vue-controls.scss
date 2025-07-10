@@ -14,8 +14,8 @@
   padding: 5px;
   background: var(--button-bg);
   border: none;
-  border-bottom: 1px solid var(--border-light);
   cursor: pointer;
+  border-bottom: 1px solid var(--border-light);
   user-select: none;
 }
 
@@ -37,5 +37,5 @@
 }
 
 .vue-flow__controls-button:disabled svg {
-  fill-opacity: 0.4;
+  fill-opacity: .4;
 }

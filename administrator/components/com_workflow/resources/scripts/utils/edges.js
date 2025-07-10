@@ -24,7 +24,7 @@ export function generateStyledEdges(transitions, options = {}) {
     );
 
     const edgeColor = getEdgeColor(transition, isSelected)
-    const strokeWidth = isSelected ? 10 : 5;
+    const strokeWidth = isSelected ? 7 : 3;
 
     return {
       id: String(transition.id),

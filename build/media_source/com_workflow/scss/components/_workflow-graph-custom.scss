@@ -2,7 +2,7 @@
 .workflow-canvas {
   background-color: var(--primary-rgb);
   background-image: linear-gradient(var(--primary-border-subtle) 1px, transparent 1px),
-  linear-gradient(90deg, var(--primary-border-subtle) 1px, transparent 1px);
+    linear-gradient(90deg, var(--primary-border-subtle) 1px, transparent 1px);
   background-size: 20px 20px;
 }
 
@@ -14,10 +14,14 @@
   height: 80vh;
 }
 
+.min-width-0{
+  min-width: 0;
+}
+
 /* ───── Edges ───── */
 .vue-flow__edge-path {
   stroke-width: 2;
-  transition: stroke 0.2s ease, stroke-width 0.2s ease;
+  transition: stroke .2s ease, stroke-width .2s ease;
 }
 
 .vue-flow__edge.selected .vue-flow__edge-path {
@@ -35,8 +39,8 @@
   font-weight: 500;
   background: var(--white);
   border: 1px solid var(--border);
-  border-radius: 4px;
   padding: 4px 8px;
+  border-radius: 4px;
   pointer-events: all;
   cursor: pointer;
 }
@@ -49,7 +53,7 @@
 /* ───── Controls & Minimap ───── */
 .vue-flow__controls,
 .vue-flow__minimap {
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, .1);
 }
 
 .vue-flow__controls button:focus,
@@ -80,7 +84,7 @@
 /* ───── Handle ───── */
 .vue-flow__handle {
   opacity: 0;
-  transition: opacity 0.2s;
+  transition: opacity .2s;
 }
 
 /* ───── Card Actions ───── */
@@ -91,10 +95,10 @@
 
 /* ───── Text Truncation ───── */
 .line-clamp-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  display: block;
   overflow: hidden;
+  text-overflow: ellipsis;
+  line-clamp: 2;
 }
 
 /* ───── Accessibility ───── */
@@ -124,17 +128,17 @@ button:focus {
 /* ───── Custom Controls ───── */
 .custom-controls {
   position: absolute;
-  bottom: 20px;
   right: 20px;
+  bottom: 20px;
   display: flex;
+  z-index: 5;
   flex-direction: column;
   gap: 1px;
-  z-index: 5;
   padding: 2px;
-  background-color: var(--backdrop-bg);
   color: var(--black);
+  background-color: var(--backdrop-bg);
   border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
 }
 
 .custom-controls:focus {
@@ -146,21 +150,21 @@ button:focus {
   width: 32px;
   height: 32px;
   padding: 0;
-  background-color: var(--bg-color);
   color: var(--primary);
+  background-color: var(--bg-normal);
   border: 1px solid var(--border);
-  border-radius: 4px;
   display: flex;
+  border-radius: 4px;
   align-items: center;
   justify-content: center;
   cursor: pointer;
 }
 
 .custom-controls-button:hover {
-  background-color: var(--hover-bg);
+  background-color: var(--bg-reverted);
 }
 
 .custom-controls-button.active {
-  background-color: var(--primary);
   color: var(--white);
+  background-color: var(--primary);
 }

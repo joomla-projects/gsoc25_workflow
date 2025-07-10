@@ -215,14 +215,14 @@ class StagesModel extends ListModel
      */
     public function updatePositions($stagePositions, $workflowId)
     {
-        if (empty($stagePositions) || !is_array($stagePositions)) {
+        if (empty($stagePositions) || !\is_array($stagePositions)) {
             throw new \InvalidArgumentException('Invalid stage positions data provided');
         }
 
         // Convert the stage positions to the expected format
         $stages = [];
         foreach ($stagePositions as $id => $position) {
-            if (isset($position['x']) && isset($position['y'])) {
+            if (isset($position['x'], $position['y'])) {
                 $stages[] = [
                     'id' => (int) $id,
                     'x'  => (float) $position['x'],
@@ -244,8 +244,8 @@ class StagesModel extends ListModel
                 }
 
                 $id = (int) $stage['id'];
-                $x = (float) $stage['x'];
-                $y = (float) $stage['y'];
+                $x  = (float) $stage['x'];
+                $y  = (float) $stage['y'];
 
                 // Format the position as a text which can later converted to json
                 $point  = '{"x":' . $x . ', "y":' . $y . '}';

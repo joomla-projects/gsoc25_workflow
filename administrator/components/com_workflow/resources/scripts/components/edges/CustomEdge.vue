@@ -24,7 +24,7 @@
     >
       <div class="d-flex align-items-center border text-bg-info rounded shadow-sm px-2 py-1 gap-1">
         <h3
-          class="h3 text-truncate text-center flex-grow-1 fw-semibold"
+          class="h3 text-truncate text-center text-white flex-grow-1 fw-semibold"
           :style="{ maxWidth: data?.isTransitionMode ? '80px' : '100%' }"
           :title="data?.title"
         >

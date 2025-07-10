@@ -2,8 +2,8 @@
 .vue-flow {
   position: relative;
   width: 100%;
-  height: 100%;
   z-index: 0;
+  height: 100%;
   overflow: hidden;
   direction: ltr;
 }
@@ -35,8 +35,8 @@
 
 .vue-flow__transformationpane {
   z-index: 2;
-  transform-origin: 0 0;
   pointer-events: none;
+  transform-origin: 0 0;
 }
 
 .vue-flow__viewport {
@@ -65,8 +65,8 @@
 }
 
 .vue-flow .vue-flow__edges {
-  pointer-events: none;
   overflow: visible;
+  pointer-events: none;
 }
 
 .vue-flow__edge-path,
@@ -83,7 +83,7 @@
 
 .vue-flow__edge.animated path {
   stroke-dasharray: 5;
-  animation: dashdraw 0.5s linear infinite;
+  animation: dashdraw .5s linear infinite;
 }
 
 .vue-flow__edge.animated path.vue-flow__edge-interaction {
@@ -120,7 +120,7 @@
 
 .vue-flow__connection .animated {
   stroke-dasharray: 5;
-  animation: dashdraw 0.5s linear infinite;
+  animation: dashdraw .5s linear infinite;
 }
 
 .vue-flow__connectionline {
@@ -136,8 +136,8 @@
 .vue-flow__node-input,
 .vue-flow__node-output {
   border-style: solid;
-  border-width: 1px;
   border-color: var(--node-border-color);
+  border-width: 1px;
 }
 
 .vue-flow__node-default.selected,
@@ -149,15 +149,15 @@
 .vue-flow__node-output.selected,
 .vue-flow__node-output:focus,
 .vue-flow__node-output:focus-visible {
-  outline: none;
   border: 1px solid var(--node-selected-border-color);
+  outline: none;
 }
 
 .vue-flow__node {
   position: absolute;
   pointer-events: all;
-  transform-origin: 0 0;
   box-sizing: border-box;
+  transform-origin: 0 0;
   cursor: default;
   user-select: none;
 }
@@ -172,8 +172,8 @@
 
 .vue-flow__nodesselection {
   z-index: 3;
-  transform-origin: left top;
   pointer-events: none;
+  transform-origin: left top;
 }
 
 .vue-flow__nodesselection-rect {
@@ -187,9 +187,9 @@
 }
 
 .vue-flow__handle {
-  position: absolute;
-  pointer-events: none;
   min-width: 5px;
+  pointer-events: none;
+  position: absolute;
   min-height: 5px;
 }
 

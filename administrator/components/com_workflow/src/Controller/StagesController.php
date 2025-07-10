@@ -209,12 +209,11 @@ class StagesController extends AdminController
         // Check for request forgeries
         $this->checkToken();
 
-        $app = $this->app;
-        $input = $app->input;
+        $app        = $this->app;
+        $input      = $app->input;
         $workflowId = $input->getInt('id');
-
-        $positions = $input->get('positions', [], 'array');
-        $model = $this->getModel('Stages', 'Administrator');
+        $positions  = $input->get('positions', [], 'array');
+        $model      = $this->getModel('Stages', 'Administrator');
 
         $response = [];
         try {
@@ -222,7 +221,7 @@ class StagesController extends AdminController
 
             $response = [
                 'success' => true,
-                'message' => Text::_('COM_WORKFLOW_POSITIONS_SAVED')
+                'message' => Text::_('COM_WORKFLOW_POSITIONS_SAVED'),
             ];
             echo new JsonResponse($response);
         } catch (\Exception $e) {

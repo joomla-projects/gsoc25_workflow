@@ -20,16 +20,16 @@
 
     <!-- Stage Header -->
     <div class="card-header d-flex justify-content-between align-items-start p-1">
-      <div class="flex-fill w-75">
-        <h2 class="h3 card-title mb-1 fw-semibold" :title="stage?.title">{{ stage.title }}</h2>
+      <div class="flex-fill w-75 me-3 min-width-0">
+        <h2 class="h3 card-title mb-1 fw-semibold text-truncate" :title="stage?.title">{{ stage.title }}</h2>
         <p class="card-text text-muted mb-0 text-truncate" :title="stage?.description">{{ stage.description }}</p>
       </div>
 
       <!-- Actions -->
-      <div class="stage-card-actions align-items-center mr-2" :class="data?.isSpecial ? 'd-none' : 'd-flex'">
+      <div class="stage-card-actions align-items-center" :class="data?.isSpecial ? 'd-none' : 'd-flex'">
         <button
           @click.stop="data.onEdit"
-          class="btn btn-lg btn-secondary py-0 px-1 mr-2"
+          class="btn btn-lg btn-secondary py-0 px-1 me-2"
           :aria-label="translate('COM_WORKFLOW_GRAPH_EDIT_STAGE')"
           :title="translate('COM_WORKFLOW_GRAPH_EDIT_STAGE')"
         >
@@ -37,7 +37,7 @@
         </button>
         <button
           @click.stop="data.onDelete"
-          class="btn btn-lg btn-danger py-0 px-1 mx-2"
+          class="btn btn-lg btn-danger py-0 px-1"
           :aria-label="translate('COM_WORKFLOW_GRAPH_DELETE_STAGE')"
           :title="translate('COM_WORKFLOW_GRAPH_DELETE_STAGE')"
         >

@@ -188,8 +188,8 @@ class StageController extends FormController
      */
     public function save($key = null, $urlVar = null)
     {
-        $result = parent::save($key, $urlVar);
-        $input = $this->input;
+        $result  = parent::save($key, $urlVar);
+        $input   = $this->input;
         $isModal = $input->get('layout') === 'modal' || $input->get('tmpl') === 'component';
         $task    = $this->getTask();
 
@@ -214,8 +214,8 @@ class StageController extends FormController
      */
     public function cancel($key = null)
     {
-        $result = parent::cancel($key);
-        $input = $this->input;
+        $result  = parent::cancel($key);
+        $input   = $this->input;
         $isModal = $input->get('layout') === 'modal' || $input->get('tmpl') === 'component';
 
         if ($isModal) {
