@@ -1,7 +1,5 @@
 <?php
 
-use Joomla\CMS\Language\Text;
-
 /**
  * @package     Joomla.Administrator
  * @subpackage  com_workflow
@@ -11,11 +9,11 @@ use Joomla\CMS\Language\Text;
  * @since       __DEPLOY_VERSION__
  */
 
-
 // phpcs:disable PSR1.Files.SideEffects
 \defined('_JEXEC') or die;
 // phpcs:enable PSR1.Files.SideEffects
 
+use Joomla\CMS\Language\Text;
 
 /** @var Joomla\CMS\WebAsset\WebAssetManager $wa */
 $wa = $this->getDocument()->getWebAssetManager();
@@ -31,7 +29,7 @@ $this->loadTemplate('texts');
 // Get the URI for the JavaScript module
 $script = $wa->getAsset('script', name: 'com_workflow.workflowgraph')->getUri(true);
 
-$shortcuts =[
+$shortcuts = [
     ['key' => 'Alt + N',             'description' => 'Add Stage'],
     ['key' => 'Alt + M',             'description' => 'Add Transition'],
     ['key' => 'Enter / SpaceBar',    'description' => 'Select Item'],
@@ -60,7 +58,7 @@ $shortcutsHtml = [];
 $shortcutsHtml[] = '<div class="p-3">';
 $shortcutsHtml[] = '<div class="row">';
 
-$renderColumn = function($column) {
+$renderColumn = function ($column) {
     $html = '<div class="col-md-6"><table class="table table-borderless mb-0">';
     foreach ($column as $item) {
         $html .= '<tr>';

@@ -1,6 +1,5 @@
 <?php
 
-
 /**
  * @package     Joomla.Administrator
  * @subpackage  com_workflow

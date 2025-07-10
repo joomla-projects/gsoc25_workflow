@@ -160,7 +160,7 @@ class HtmlView extends BaseHtmlView
             ->icon('icon-' . $arrow);
 
 
-        if ($itemEditable){
+        if ($itemEditable) {
             $toolbar->customButton('undo')
                 ->html('<joomla-toolbar-button><button onclick="WorkflowGraph.Event.fire(\'onClickUndoWorkflow\')" '
             . 'class="btn btn-info action-button" tabindex="0"><span class="icon-undo-2 icon-fw" aria-hidden="true"></span>'

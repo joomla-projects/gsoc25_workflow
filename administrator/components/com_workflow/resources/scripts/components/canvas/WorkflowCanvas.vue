@@ -127,7 +127,7 @@ export default {
       ...edge,
       data: {
         ...edge.data,
-        onSelect: () => selectEdge(edge.id),
+        onSelect: () => selectTransition(edge.id),
         onDelete: () => showDeleteModal('transition', edge.id),
         onEdit: () => editTransition(edge.id)
       }
@@ -191,7 +191,7 @@ export default {
       selectedTransition.value = null;
     }
     function handleConnect() { if (isTransitionMode.value) openModal('transition'); }
-    function selectEdge(id) { selectTransition(id); }
+    function selectEdge({ edge }) { selectTransition(edge?.id); }
     function updateSaveMessage() {
       const el = document.getElementById('save-message');
       if (!el) return;
