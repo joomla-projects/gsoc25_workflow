@@ -1,4 +1,4 @@
-/* ───── Layout ───── */
+/* ----- Layout ----- */
 .workflow-canvas {
   background-color: var(--primary-rgb);
   background-image: linear-gradient(var(--primary-border-subtle) 1px, transparent 1px),
@@ -18,7 +18,11 @@
   min-width: 0;
 }
 
-/* ───── Edges ───── */
+.h-40 {
+  height: 40px;
+}
+
+/* ----- Edges ----- */
 .vue-flow__edge-path {
   stroke-width: 2;
   transition: stroke .2s ease, stroke-width .2s ease;
@@ -33,7 +37,7 @@
   stroke-width: 3;
 }
 
-/* ───── Edge Labels ───── */
+/* ----- Edge Labels ----- */
 .vue-flow__edge-label {
   padding: 4px 8px;
   font-size: 12px;
@@ -50,19 +54,13 @@
   border-color: var(--gray-400);
 }
 
-/* ───── Controls & Minimap ───── */
+/* ----- Controls & Minimap ----- */
 .vue-flow__controls,
 .vue-flow__minimap {
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, .1);
 }
 
-.vue-flow__controls button:focus,
-.vue-flow__minimap:focus {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
-}
-
-/* ───── Nodes ───── */
+/* ----- Nodes ----- */
 .stage-node {
   position: relative;
 }
@@ -81,19 +79,19 @@
   max-width: 250px !important;
 }
 
-/* ───── Handle ───── */
+/* ----- Handle ----- */
 .vue-flow__handle {
   opacity: 0;
   transition: opacity .2s;
 }
 
-/* ───── Card Actions ───── */
+/* ----- Card Actions ----- */
 .stage-card-actions button {
   --btn-padding-x: 2px !important;
   --btn-padding-y: 0 !important;
 }
 
-/* ───── Text Truncation ───── */
+/* ----- Text Truncation ----- */
 .line-clamp-2 {
   display: block;
   overflow: hidden;
@@ -101,16 +99,13 @@
   line-clamp: 2;
 }
 
-/* ───── Accessibility ───── */
-:focus {
-  outline: 3px solid var(--primary) !important;
-  outline-offset: 2px;
-}
-
-.stage-node:focus,
-.edge-label:focus,
-button:focus {
-  box-shadow: 0 0 0 3px var(--primary);
+/* ----- Accessibility ----- */
+.stage-node:focus, .stage-node:focus-visible,
+.edge-label:focus, .edge-label:focus-visible,
+button:focus, button:focus-visible,
+:focus-visible, :focus:not(:disabled):not([readonly]) {
+  border: 2px solid var(--template-link-color) !important;
+  box-shadow: 0 0 0 .25rem rgba(42, 105, 183, .25) !important;
 }
 
 .sr-only,
@@ -125,7 +120,7 @@ button:focus {
   border: 0;
 }
 
-/* ───── Custom Controls ───── */
+/* ----- Custom Controls ----- */
 .custom-controls {
   position: absolute;
   right: 20px;
@@ -139,11 +134,6 @@ button:focus {
   background-color: var(--backdrop-bg);
   border-radius: 4px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
-}
-
-.custom-controls:focus {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
 }
 
 .custom-controls-button {

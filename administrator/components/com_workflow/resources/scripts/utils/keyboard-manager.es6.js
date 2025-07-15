@@ -38,6 +38,15 @@ export function setupGlobalShortcuts({
       return;
     }
 
+    const groupSelectors = {
+      buttons: 'button[tabindex="0"], button:not([tabindex="-1"])',
+      stages: '.stage-node[tabindex="0"]',
+      transitions: '.edge-label[tabindex="0"]',
+      toolbar: '.toolbar-button[tabindex="0"]',
+      actions: '.action-button[tabindex="0"]',
+      links: 'a[href][tabindex="0"], a[href]:not([tabindex="-1"])',
+    };
+
     function moveNode(stageId, direction, fast = false) {
       const el = document.querySelector(`.stage-node[data-stage-id='${stageId}']`);
       if (!el) return;
@@ -125,10 +134,16 @@ export function setupGlobalShortcuts({
         fitView();
         break;
 
-      case e.key === 'Tab':
+      case e.key === 'Tab': {
         e.preventDefault();
-        cycleMode(['stages', 'transitions', 'toolbar', 'actions', 'links', 'buttons'], state.currentFocusMode, state.liveRegion);
+        cycleMode(['buttons', 'stages', 'transitions', 'toolbar', 'actions', 'links'], state.currentFocusMode, state.liveRegion);
+        const tabSelector = groupSelectors[state.currentFocusMode.value];
+        if (tabSelector) {
+          const first = document.querySelector(tabSelector);
+          if (first) first.focus();
+        }
         break;
+      }
 
       case ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key):
         e.preventDefault();
@@ -145,14 +160,6 @@ export function setupGlobalShortcuts({
           }
         } else {
           const reverse = ['ArrowLeft', 'ArrowUp'].includes(e.key);
-          const groupSelectors = {
-            stages: '.stage-node[tabindex="0"]',
-            transitions: '.edge-label[tabindex="0"]',
-            toolbar: '.toolbar-button[tabindex="0"]',
-            actions: '.action-button[tabindex="0"]',
-            links: 'a[href][tabindex="0"], a[href]:not([tabindex="-1"])',
-            buttons: 'button[tabindex="0"], button:not([tabindex="-1"])',
-          };
           const selector = groupSelectors[state.currentFocusMode.value];
           if (selector) {
             cycleFocus(selector, reverse);

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="stage-node card p-3 border shadow-sm position-relative"
+    class="stage-node card p-2 border shadow-sm position-relative"
     :class="{ 'shadow': isSelected, 'hover-shadow': !isSelected }"
     :style="stageStyle"
     tabindex="0"
@@ -39,12 +39,12 @@
     <!-- Stage Header -->
     <div class="card-header d-flex justify-content-between align-items-start p-1">
       <div class="flex-fill w-75 me-3 min-width-0">
-        <h2
-          class="h3 card-title mb-1 fw-semibold text-truncate"
+        <span
+          class="h3 d-block card-title mb-1 fw-semibold text-truncate"
           :title="stage?.title"
         >
           {{ stage.title }}
-        </h2>
+        </span>
         <p
           class="card-text text-muted mb-0 text-truncate"
           :title="stage?.description"
@@ -71,6 +71,7 @@
         </button>
         <button
           class="btn btn-lg btn-danger py-0 px-1"
+          :class="stage.default ? 'd-none' : ''"
           :aria-label="translate('COM_WORKFLOW_GRAPH_DELETE_STAGE')"
           :title="translate('COM_WORKFLOW_GRAPH_DELETE_STAGE')"
           @click.stop="data.onDelete"
@@ -83,8 +84,8 @@
       </div>
     </div>
 
-    <div class="card-body p-1 pt-0">
-      <div class="d-flex justify-content-between align-items-center mb-2">
+    <div class="card-body px-1 py-0">
+      <div class="d-flex justify-content-between align-items-center">
         <span
           :class="stage.published ? 'bg-success' : 'bg-danger'"
           class="badge rounded-pill p-1"

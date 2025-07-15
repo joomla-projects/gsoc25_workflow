@@ -22,16 +22,16 @@
       @focus="onEdgeFocus"
       @blur="onEdgeBlur"
     >
-      <div class="d-flex align-items-center border text-bg-info rounded shadow-sm px-2 py-1 gap-1">
-        <h3
-          class="h3 text-truncate text-center text-white flex-grow-1 fw-semibold"
+      <div class="d-flex align-items-center border text-bg-primary rounded shadow-sm px-2 py-1 gap-1 h-40 m-auto">
+        <span
+          class="h3 d-block text-truncate text-center text-white flex-grow-1 fw-semibold h-100 m-auto align-content-center"
           :style="{ maxWidth: data?.isTransitionMode ? '80px' : '100%' }"
           :title="data?.title"
         >
           {{ data?.title }}
-        </h3>
+        </span>
         <button
-          class="btn btn-lg btn-secondary py-0 px-1"
+          class="btn btn-md btn-secondary py-0 px-1"
           :class="data?.isTransitionMode ? 'd-block' : 'd-none'"
           :aria-label="translate('COM_WORKFLOW_GRAPH_EDIT_TRANSITION')"
           :title="translate('COM_WORKFLOW_GRAPH_EDIT_TRANSITION')"
@@ -43,14 +43,14 @@
           />
         </button>
         <button
-          class="btn btn-lg btn-danger py-0 px-1"
+          class="btn btn-md btn-danger py-0 px-1"
           :class="data?.isTransitionMode ? 'd-block' : 'd-none'"
           :aria-label="translate('COM_WORKFLOW_GRAPH_DELETE_TRANSITION')"
           :title="translate('COM_WORKFLOW_GRAPH_DELETE_TRANSITION')"
           @click.stop="data?.onDelete?.()"
         >
           <i
-            class="icon icon-delete"
+            class="icon icon-trash"
             aria-hidden="true"
           />
         </button>

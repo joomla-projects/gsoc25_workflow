@@ -11,7 +11,7 @@
       class="workflow-canvas"
       fit-view-on-init
       max-zoom="2.5"
-      min-zoom="0.3"
+      min-zoom=".3"
       :nodes="positionedNodes"
       :edges="styledEdges"
       :node-types="nodeTypes"
@@ -35,7 +35,7 @@
         pannable
         zoomable
         :node-color="(node) => node.data?.stage?.color || '#0d6efd'"
-        :mask-color="'rgba(255, 255, 255, 0.6)'"
+        :mask-color="'rgba(255, 255, 255, .6)'"
         :aria-label="translate('COM_WORKFLOW_GRAPH_MINIMAP')"
       />
       <CustomControls aria-label="Graph controls" />
@@ -108,7 +108,7 @@ export default {
     const selectedTransition = ref(null);
     const liveRegion = ref(null);
     const saveStatus = ref('upToDate');
-    const currentFocusMode = ref('stages');
+    const currentFocusMode = ref('links');
     const previouslyFocusedElement = ref(null);
 
     const stages = computed(() => store.getters.stages || []);
@@ -332,7 +332,7 @@ export default {
 
     watch([positionedNodes, styledEdges], () => {
       setTimeout(() => {
-        fitView({ padding: 0.2, duration: 300 });
+        fitView({ padding: 0.7, duration: 300 });
       }, 0);
     });
 
