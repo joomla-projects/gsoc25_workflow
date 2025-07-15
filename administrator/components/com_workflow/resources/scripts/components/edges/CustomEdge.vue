@@ -113,9 +113,10 @@ export default {
         sourceY: this.sourceY,
         sourcePosition: this.sourcePosition,
         targetX: this.targetX,
-        targetY: this.targetY,
+        targetY: this.targetY - 2,
         targetPosition: this.targetPosition,
         borderRadius: 10,
+        offset: 10,
       });
     },
     edgePath() {

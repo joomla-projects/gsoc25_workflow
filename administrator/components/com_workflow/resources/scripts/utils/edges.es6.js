@@ -29,7 +29,7 @@ export function generateStyledEdges(transitions, options = {}) {
     }
 
     const edgeColor = getEdgeColor(transition, isSelected);
-    const strokeWidth = isSelected ? 7 : 3;
+    const strokeWidth = isSelected ? 5 : 3;
 
     return {
       id: String(transition.id),
@@ -45,8 +45,8 @@ export function generateStyledEdges(transitions, options = {}) {
       },
       markerEnd: {
         type: 'arrow',
-        width: 20,
-        height: 20,
+        width: 10,
+        height: 10,
         color: edgeColor,
       },
       data: {

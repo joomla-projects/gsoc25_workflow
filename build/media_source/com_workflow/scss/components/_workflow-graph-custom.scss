@@ -1,8 +1,6 @@
 /* ----- Layout ----- */
 .workflow-canvas {
   background-color: var(--primary-rgb);
-  background-image: linear-gradient(var(--primary-border-subtle) 1px, transparent 1px),
-    linear-gradient(90deg, var(--primary-border-subtle) 1px, transparent 1px);
   background-size: 20px 20px;
 }
 

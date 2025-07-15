@@ -131,7 +131,7 @@ export function setupGlobalShortcuts({
 
       case ['f', 'F'].includes(e.key):
         e.preventDefault();
-        fitView();
+        fitView({ padding: 0.5, duration: 300 });
         break;
 
       case e.key === 'Tab': {

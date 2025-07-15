@@ -9,17 +9,16 @@
     <VueFlow
       v-if="!loading && !error"
       class="workflow-canvas"
-      fit-view-on-init
       max-zoom="2.5"
       min-zoom=".3"
       :nodes="positionedNodes"
       :edges="styledEdges"
       :node-types="nodeTypes"
       :edge-types="edgeTypes"
-      :connectable="true"
+      :nodes-connectable="true"
       :elements-selectable="true"
       :snap-to-grid="true"
-      :snap-grid="[20, 20]"
+      :snap-grid="[40, 40]"
       @connect="handleConnect"
       @pane-click="clearSelection"
       @edge-click="selectEdge"
@@ -28,7 +27,7 @@
       <Background
         pattern-color="var(--body-color)"
         variant="dots"
-        :gap="12"
+        :gap="16"
       />
       <MiniMap
         position="bottom-left"
@@ -136,7 +135,7 @@ export default {
         src,
       });
       dialog.show();
-      setupDialogFocusHandlers(previouslyFocusedElement, store);
+      setupDialogFocusHandlers(previouslyFocusedElement, store, fitView);
     }
 
     function selectStage(id) {
@@ -330,12 +329,6 @@ export default {
       onUnmounted(detach);
     });
 
-    watch([positionedNodes, styledEdges], () => {
-      setTimeout(() => {
-        fitView({ padding: 0.7, duration: 300 });
-      }, 0);
-    });
-
     window.WorkflowGraph.Event.listen('onClickRedoWorkflow', () => {
       store.dispatch('redo');
       saveStatus.value = 'unsaved';
@@ -348,6 +341,12 @@ export default {
       saveStatus.value = 'unsaved';
       updateSaveMessage();
       saveNodePosition();
+    });
+
+    watch([loading, error], () => {
+      setTimeout(() => {
+        fitView({ padding: 0.5, duration: 300 });
+      }, 0);
     });
 
     return {

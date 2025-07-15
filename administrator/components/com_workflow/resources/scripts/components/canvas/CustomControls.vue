@@ -27,7 +27,7 @@
       tabindex="0"
       aria-label="Fit view"
       title="Fit view (F key)"
-      @click="fitView"
+      @click="customFitView"
     >
       <i class="icon icon-grid" />
     </button>
@@ -42,13 +42,19 @@ export default {
   name: 'CustomControls',
   setup() {
     const { zoomIn, zoomOut, fitView } = useVueFlow();
+    function customFitView() {
+      fitView({
+        padding: 0.5,
+        duration: 300,
+      });
+    }
     const controlsContainer = ref(null);
 
     return {
       zoomIn,
       zoomOut,
-      fitView,
       controlsContainer,
+      customFitView,
     };
   },
 };

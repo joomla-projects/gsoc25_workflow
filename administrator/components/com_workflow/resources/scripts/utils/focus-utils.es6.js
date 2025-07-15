@@ -99,13 +99,15 @@ function handleDialogIframeLoad(iframe) {
  * Handle dialog close event.
  * @param previouslyFocusedElement
  * @param store
+ * @param fitView
  */
-function handleDialogClose(previouslyFocusedElement, store) {
+function handleDialogClose(previouslyFocusedElement, store, fitView) {
   if (previouslyFocusedElement.value) {
     previouslyFocusedElement.value.focus();
     previouslyFocusedElement.value = null;
   }
   store.dispatch('loadWorkflow', store.getters.workflowId);
+  fitView({ padding: 0.5, duration: 300 });
 }
 
 /**
@@ -128,8 +130,9 @@ function handleDialogKeydown(e) {
  *
  * @param {Ref<HTMLElement>} previouslyFocusedElement - Ref to store the previously focused element.
  * @param {Object} store - Vuex store instance.
+ * @param {function} fitView
  */
-export function setupDialogFocusHandlers(previouslyFocusedElement, store) {
+export function setupDialogFocusHandlers(previouslyFocusedElement, store, fitView) {
   setTimeout(() => {
     const dialog = document.querySelector('joomla-dialog dialog[open]');
     if (dialog) {
@@ -142,7 +145,7 @@ export function setupDialogFocusHandlers(previouslyFocusedElement, store) {
       }
 
       dialog.addEventListener('close', () => {
-        handleDialogClose(previouslyFocusedElement, store);
+        handleDialogClose(previouslyFocusedElement, store, fitView);
       });
       dialog.addEventListener('keydown', handleDialogKeydown);
     }
