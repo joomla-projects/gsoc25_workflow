@@ -26,7 +26,6 @@
     >
       <Background
         pattern-color="var(--body-color)"
-        variant="dots"
         :gap="16"
       />
       <MiniMap
@@ -298,12 +297,18 @@ export default {
         },
         toggleMode: toggleTransitionMode,
         undo: () => {
+          if (!store.getters.canUndo) {
+            return;
+          }
           store.dispatch('undo');
           saveStatus.value = 'unsaved';
           updateSaveMessage();
           saveNodePosition();
         },
         redo: () => {
+          if (!store.getters.canRedo) {
+            return;
+          }
           store.dispatch('redo');
           saveStatus.value = 'unsaved';
           updateSaveMessage();
@@ -330,6 +335,9 @@ export default {
     });
 
     window.WorkflowGraph.Event.listen('onClickRedoWorkflow', () => {
+      if (!store.getters.canRedo) {
+        return;
+      }
       store.dispatch('redo');
       saveStatus.value = 'unsaved';
       updateSaveMessage();
@@ -337,6 +345,9 @@ export default {
     });
 
     window.WorkflowGraph.Event.listen('onClickUndoWorkflow', () => {
+      if (!store.getters.canUndo) {
+        return;
+      }
       store.dispatch('undo');
       saveStatus.value = 'unsaved';
       updateSaveMessage();

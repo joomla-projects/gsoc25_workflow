@@ -9,7 +9,17 @@ export default {
     state.workflow = workflow;
   },
   SET_STAGES(state, stages) {
-    state.stages = stages;
+    state.stages = stages.map((stage, idx) => ({
+      ...stage,
+      position: {
+        x: typeof stage?.position?.x === 'number' && !Number.isNaN(stage.position.x)
+          ? stage.position.x
+          : 100 + (idx % 4) * 400,
+        y: typeof stage?.position?.y === 'number' && !Number.isNaN(stage.position.y)
+          ? stage.position.y
+          : 100 + Math.floor(idx / 4) * 300,
+      },
+    }));
   },
   SET_TRANSITIONS(state, transitions) {
     state.transitions = transitions;
@@ -35,6 +45,10 @@ export default {
     });
   },
   ADD_TO_HISTORY(state, snapshot) {
+    if (snapshot === state.history[state.historyIndex]) {
+      return;
+    }
+
     // Remove any future states if we're in the middle of the history
     if (state.historyIndex < state.history.length - 1) {
       state.history = state.history.slice(0, state.historyIndex + 1);

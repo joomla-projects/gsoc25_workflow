@@ -303,7 +303,7 @@ class GraphController extends AdminController
             } elseif ($value === 2) {
                 $ntext = $this->text_prefix . '_N_ITEMS_ARCHIVED';
             } else {
-                $ntext = $this->text_prefix . '_' . strtoupper($type) .'_N_ITEMS_TRASHED';
+                $ntext = $this->text_prefix . '_' . strtoupper($type) . '_N_ITEMS_TRASHED';
             }
 
             $response = [
@@ -335,7 +335,7 @@ class GraphController extends AdminController
             $cid   = array_filter($cid);
 
             if (empty($cid)) {
-                throw new \RuntimeException(Text::_($this->text_prefix . '_' . strtoupper($type). '_NO_ITEM_SELECTED'));
+                throw new \RuntimeException(Text::_($this->text_prefix . '_' . strtoupper($type) . '_NO_ITEM_SELECTED'));
             }
             // Get the model.
             $model = $this->getModel($type);
@@ -344,7 +344,7 @@ class GraphController extends AdminController
             if ($model->delete($cid)) {
                 $response = [
                     'success' => true,
-                    'message' => Text::plural($this->text_prefix . '_' . strtoupper($type) .'_N_ITEMS_DELETED', \count($cid)),
+                    'message' => Text::plural($this->text_prefix . '_' . strtoupper($type) . '_N_ITEMS_DELETED', \count($cid)),
                 ];
             } else {
                 throw new \RuntimeException(Text::plural($this->text_prefix . '_' . strtoupper($type) . '_N_ITEMS_FAILED_DELETING', \count($cid)));

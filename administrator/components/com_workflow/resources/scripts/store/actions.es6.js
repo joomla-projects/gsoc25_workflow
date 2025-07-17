@@ -18,9 +18,9 @@ export default {
     try {
       // Load workflow, stages, and transitions in parallel
       const [workflowRes, stagesRes, transitionsRes] = await Promise.all([
-        workflowGraphApi.getWorkflow(id),
-        workflowGraphApi.getStages(id),
-        workflowGraphApi.getTransitions(id),
+        await workflowGraphApi.getWorkflow(id),
+        await workflowGraphApi.getStages(id),
+        await workflowGraphApi.getTransitions(id),
       ]);
 
       commit('SET_WORKFLOW', workflowRes?.data);
