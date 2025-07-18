@@ -28,7 +28,18 @@
         pattern-color="var(--body-color)"
         :gap="16"
       />
+
+      <button
+        class="btn btn-sm btn-light border position-absolute bottom-0 start-0 m-2"
+        @click="showMiniMap = !showMiniMap"
+        :aria-label="showMiniMap ? 'Hide MiniMap' : 'Show MiniMap'"
+        style="z-index: 1003"
+        id="toggle-minimap"
+      >
+        {{ showMiniMap ? '–' : '+' }}
+      </button>
       <MiniMap
+        v-if="showMiniMap"
         position="bottom-left"
         pannable
         zoomable
@@ -108,6 +119,7 @@ export default {
     const saveStatus = ref('upToDate');
     const currentFocusMode = ref('links');
     const previouslyFocusedElement = ref(null);
+    const showMiniMap = ref(true);
 
     const stages = computed(() => store.getters.stages || []);
     const transitions = computed(() => store.getters.transitions || []);
@@ -372,6 +384,7 @@ export default {
     return {
       loading,
       error,
+      showMiniMap,
       positionedNodes,
       styledEdges,
       liveRegion,
