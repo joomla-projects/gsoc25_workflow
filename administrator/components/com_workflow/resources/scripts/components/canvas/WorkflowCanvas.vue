@@ -15,7 +15,7 @@
       :edges="styledEdges"
       :node-types="nodeTypes"
       :edge-types="edgeTypes"
-      :nodes-connectable="true"
+      :nodes-connectable="workflow?.canCreate"
       :elements-selectable="true"
       :snap-to-grid="true"
       :snap-grid="[40, 40]"
@@ -30,17 +30,23 @@
       />
 
       <button
+        id="toggle-minimap"
         class="toolbar-button custom-controls-button position-absolute"
+        tabindex="0"
         style="z-index: 1003"
         :style="showMiniMap ? 'bottom: 130px; left: 180px;' : 'bottom: 10px; left: 10px;'"
-        tabindex="0"
-        @click="showMiniMap = !showMiniMap"
         :aria-label="showMiniMap ? translate('COM_WORKFLOW_GRAPH_MINIMAP_HIDE') : translate('COM_WORKFLOW_GRAPH_MINIMAP_SHOW')"
         :title="showMiniMap ? translate('COM_WORKFLOW_GRAPH_MINIMAP_HIDE') : translate('COM_WORKFLOW_GRAPH_MINIMAP_SHOW')"
-        id="toggle-minimap"
+        @click="showMiniMap = !showMiniMap"
       >
-        <span v-if="showMiniMap" class="fa fa-close"></span>
-        <span v-else class="icon icon-expand-2"></span>
+        <span
+          v-if="showMiniMap"
+          class="fa fa-close"
+        />
+        <span
+          v-else
+          class="icon icon-expand-2"
+        />
       </button>
       <MiniMap
         v-if="showMiniMap"
@@ -53,6 +59,7 @@
       />
       <CustomControls aria-label="Graph controls" />
       <ControlsPanel
+        v-if="workflow?.canCreate"
         class="canvas-controls-panel"
         :is-transition-mode="isTransitionMode"
         @add-stage="addStage"
@@ -71,7 +78,7 @@
 
 <script>
 import {
-  ref, computed, onMounted, onUnmounted, watch, nextTick,
+  ref, computed, onMounted, onUnmounted, watch,
 } from 'vue';
 import { useStore } from 'vuex';
 // eslint-disable-next-line import/no-unresolved
@@ -113,7 +120,7 @@ export default {
   setup() {
     const store = useStore();
     const {
-      fitView, zoomIn, zoomOut, viewport, zoomTo, setViewport, onViewportChange, getViewport,
+      fitView, zoomIn, zoomOut, viewport, setViewport, onViewportChange,
     } = useVueFlow();
 
     const isTransitionMode = ref(true);
@@ -125,6 +132,7 @@ export default {
     const previouslyFocusedElement = ref(null);
 
     const showMiniMap = ref(true);
+    const workflow = computed(() => store.getters.workflow || {});
     const stages = computed(() => store.getters.stages || []);
     const transitions = computed(() => store.getters.transitions || []);
     const loading = computed(() => store.getters.loading);
@@ -134,11 +142,18 @@ export default {
       return Joomla.Text._(key);
     }
 
-    function openModal(type, id = null) {
+    function openModal(type, id = null, params = {}) {
       previouslyFocusedElement.value = document.activeElement;
       const extension = Joomla.getOptions('com_workflow', {})?.extension || '';
       const baseUrl = `index.php?option=com_workflow&view=${type}&workflow_id=${workflowId.value}&extension=${extension}&layout=modal&tmpl=component`;
-      const src = id ? `${baseUrl}&id=${id}` : baseUrl;
+      const baseUrlwithId = id ? `${baseUrl}&id=${id}` : baseUrl;
+      const extraQuery = Object.entries(params)
+        .map(([key, val]) => `${encodeURIComponent(key)}=${encodeURIComponent(val)}`)
+        .join('&');
+      const src = extraQuery
+        ? `${baseUrlwithId}&${extraQuery}`
+        : baseUrlwithId;
+
       const textHeader = id
         ? translate(`COM_WORKFLOW_GRAPH_EDIT_${type.toUpperCase()}`)
         : translate(`COM_WORKFLOW_GRAPH_ADD_${type.toUpperCase()}`);
@@ -152,6 +167,30 @@ export default {
       setupDialogFocusHandlers(previouslyFocusedElement, store);
     }
 
+    function canEdit(id, type = 'stage') {
+      if (type === 'stage') {
+        const stage = stages.value.find((s) => s.id === parseInt(id, 10));
+        return stage?.permissions?.edit;
+      }
+      if (type === 'transition') {
+        const transition = transitions.value.find((t) => t.id === parseInt(id, 10));
+        return transition?.permissions?.edit;
+      }
+      return false;
+    }
+
+    function canDelete(id, type = 'stage') {
+      if (type === 'stage') {
+        const stage = stages.value.find((s) => s.id === parseInt(id, 10));
+        return stage?.permissions?.delete;
+      }
+      if (type === 'transition') {
+        const transition = transitions.value.find((t) => t.id === parseInt(id, 10));
+        return transition?.permissions?.delete;
+      }
+      return false;
+    }
+
     function selectStage(id) {
       selectedStage.value = parseInt(id, 10);
       selectedTransition.value = null;
@@ -163,10 +202,16 @@ export default {
     }
 
     function editStage(id) {
+      if (!canEdit(id, 'stage')) {
+        return;
+      }
       openModal('stage', id);
     }
 
     function editTransition(id) {
+      if (!canEdit(id, 'transition')) {
+        return;
+      }
       openModal('transition', id);
     }
 
@@ -176,11 +221,17 @@ export default {
     }
 
     function deleteStage(id) {
+      if (!canDelete(id, 'stage')) {
+        return;
+      }
       store.dispatch('deleteStage', { id, workflowId: workflowId.value });
       selectedStage.value = null;
     }
 
     function deleteTransition(id) {
+      if (!canDelete(id, 'transition')) {
+        return;
+      }
       store.dispatch('deleteTransition', { id, workflowId: workflowId.value });
       selectedTransition.value = null;
     }
@@ -191,6 +242,9 @@ export default {
     }
 
     function showDeleteModal(type, id) {
+      if ((!canDelete(id, 'stage') && type === 'stage') || (!canDelete(id, 'transition') && type === 'transition')) {
+        return;
+      }
       const title = translate(type === 'stage'
         ? 'COM_WORKFLOW_GRAPH_DELETE_STAGE_TITLE'
         : 'COM_WORKFLOW_GRAPH_DELETE_TRANSITION_TITLE');
@@ -207,11 +261,17 @@ export default {
     }
 
     function addStage() {
+      if (!workflow?.value?.canCreate) {
+        return;
+      }
       openModal('stage');
       announce(liveRegion.value, translate('COM_WORKFLOW_GRAPH_ADD_STAGE_DIALOG_OPENED'));
     }
 
     function addTransition() {
+      if (!workflow?.value?.canCreate) {
+        return;
+      }
       openModal('transition');
       announce(liveRegion.value, translate('COM_WORKFLOW_GRAPH_ADD_TRANSITION_DIALOG_OPENED'));
     }
@@ -226,8 +286,13 @@ export default {
       );
     }
 
-    function handleConnect() {
-      if (isTransitionMode.value) openModal('transition');
+    function handleConnect({ source, target }) {
+      if (!workflow?.value?.canCreate) {
+        return;
+      }
+      if (isTransitionMode.value && source && target) {
+        openModal('transition', null, { from_stage_id: source, to_stage_id: target });
+      }
     }
 
     function selectEdge({ edge }) {
@@ -385,18 +450,16 @@ export default {
         const { panX, panY, zoom } = store.getters.canvas ?? {};
 
         if (
-          typeof panX === 'number' && !Number.isNaN(panX) &&
-          typeof panY === 'number' && !Number.isNaN(panY) &&
-          typeof zoom === 'number' && !Number.isNaN(zoom)
+          typeof panX === 'number' && !Number.isNaN(panX)
+          && typeof panY === 'number' && !Number.isNaN(panY)
+          && typeof zoom === 'number' && !Number.isNaN(zoom)
         ) {
-
           isRestoringViewport = true;
           Promise.resolve()
             .then(() => setViewport({ x: panX, y: panY, zoom }))
             .finally(() => {
               isRestoringViewport = false;
             });
-
         } else {
           fitView({ padding: 0.5, duration: 300 });
         }
@@ -408,19 +471,17 @@ export default {
         return;
       }
 
-      if ([x, y, zoom].some(v => typeof v !== 'number' || Number.isNaN(v))) {
+      if ([x, y, zoom].some((v) => typeof v !== 'number' || Number.isNaN(v))) {
         return;
       }
       store.dispatch('updateCanvasViewport', { panX: x, panY: y, zoom });
     });
 
-
-
-
     return {
       loading,
       error,
       showMiniMap,
+      workflow,
       positionedNodes,
       styledEdges,
       liveRegion,

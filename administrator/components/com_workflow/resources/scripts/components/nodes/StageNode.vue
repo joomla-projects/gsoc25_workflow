@@ -59,6 +59,7 @@
         :class="data?.isSpecial ? 'd-none' : 'd-flex'"
       >
         <button
+          v-if="stage?.permissions?.edit"
           class="btn btn-lg btn-secondary py-0 px-1 me-2"
           :aria-label="translate('COM_WORKFLOW_GRAPH_EDIT_STAGE')"
           :title="translate('COM_WORKFLOW_GRAPH_EDIT_STAGE')"
@@ -70,6 +71,7 @@
           />
         </button>
         <button
+          v-if="stage?.permissions?.delete"
           class="btn btn-lg btn-danger py-0 px-1"
           :class="stage.default ? 'd-none' : ''"
           :aria-label="translate('COM_WORKFLOW_GRAPH_DELETE_STAGE_TITLE')"

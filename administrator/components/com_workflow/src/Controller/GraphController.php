@@ -142,7 +142,7 @@ class GraphController extends AdminController
                 throw new \RuntimeException(Text::_('JERROR_ALERTNOAUTHOR'));
             }
 
-            $canDo   = ContentHelper::getActions($this->extension, 'workflow', $workflow->id);
+            $canDo        = ContentHelper::getActions($this->extension, 'workflow', $workflow->id);
             $canCreate    = $canDo->get('core.create');
 
             $response = [
@@ -152,7 +152,7 @@ class GraphController extends AdminController
                 'published'   => (bool) $workflow->published,
                 'default'     => (bool) $workflow->default,
                 'extension'   => $workflow->extension,
-                'canCreate'      => $canCreate,
+                'canCreate'   => $canCreate,
             ];
 
             echo new JsonResponse($response);
@@ -194,7 +194,7 @@ class GraphController extends AdminController
             }
 
             $response = [];
-            $user = $this->app->getIdentity();
+            $user     = $this->app->getIdentity();
 
             foreach ($stages as $stage) {
                 $canEdit    = $user->authorise('core.edit', $this->extension . '.stage.' . $stage->id);
@@ -207,7 +207,6 @@ class GraphController extends AdminController
                     'published'   => (bool) $stage->published,
                     'default'     => (bool) $stage->default,
                     'ordering'    => (int) $stage->ordering,
-                    'editor'      =>  $stage->editor,
                     'position'    => $stage->position ? json_decode($stage->position, true) : null,
                     'workflow_id' => $stage->workflow_id,
                     'permissions' => [
@@ -253,10 +252,10 @@ class GraphController extends AdminController
             $transitions = $model->getItems();
 
             $response    = [];
-            $user = $this->app->getIdentity();
+            $user        = $this->app->getIdentity();
 
             foreach ($transitions as $transition) {
-                $canEdit = $user->authorise('core.edit', $this->extension . '.transition.' . (int) $transition->id);
+                $canEdit   = $user->authorise('core.edit', $this->extension . '.transition.' . (int) $transition->id);
                 $canDelete = $user->authorise('core.delete', $this->extension . '.transition.' . (int) $transition->id);
 
                 $response[] = [
