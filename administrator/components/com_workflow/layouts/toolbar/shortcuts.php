@@ -27,7 +27,6 @@ $shortcutsPopupOptions = json_encode([
 <joomla-toolbar-button>
     <button
         class="btn btn-info action-button"
-        onclick="WorkflowGraph.Event.fire('onClickRedoWorkflow');"
         data-joomla-dialog="<?php echo htmlspecialchars($shortcutsPopupOptions, ENT_QUOTES, 'UTF-8'); ?>"
         tabindex="0"
         title
