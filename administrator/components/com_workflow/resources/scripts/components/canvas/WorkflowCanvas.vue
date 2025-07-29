@@ -4,7 +4,6 @@
     ref="canvasRegion"
     class="w-100 h-100 position-relative"
     role="region"
-    :aria-label="translate('COM_WORKFLOW_GRAPH_ADD_TRANSITION')"
   >
     <VueFlow
       v-if="!loading && !error"
@@ -343,6 +342,7 @@ export default {
           ...n.data,
           isSelected: selectedStage.value === parseInt(n.id, 10),
           onSelect: () => selectStage(n.id),
+          onEscape: () => clearSelection(),
           onEdit: () => editStage(n.id),
           onDelete: () => showDeleteModal('stage', n.id),
         },

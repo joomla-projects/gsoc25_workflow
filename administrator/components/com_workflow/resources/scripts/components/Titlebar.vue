@@ -52,9 +52,8 @@
       id="save-message"
       :class="{
         'text-warning': saveStatus.value === 'unsaved',
-        'text-muted': saveStatus.value !== 'unsaved'
       }"
-      class="mb-2 text-primary fw-bold"
+      class="mb-2 fw-bold"
     >
       {{
         saveStatus.value === 'unsaved'
