@@ -1,7 +1,5 @@
 <template>
   <div
-    id="main-canvas"
-    ref="canvasRegion"
     class="w-100 h-100 position-relative"
     role="region"
   >
@@ -10,14 +8,15 @@
       class="workflow-canvas"
       max-zoom="2.5"
       min-zoom=".3"
-      :nodes="positionedNodes"
       :edges="styledEdges"
+      :nodes="positionedNodes"
       :node-types="nodeTypes"
       :edge-types="edgeTypes"
       :nodes-connectable="workflow?.canCreate"
       :elements-selectable="true"
       :snap-to-grid="true"
       :snap-grid="[40, 40]"
+      :disable-keyboard-a11y="true"
       @connect="handleConnect"
       @pane-click="clearSelection"
       @edge-click="selectEdge"
@@ -30,9 +29,8 @@
 
       <button
         id="toggle-minimap"
-        class="toolbar-button custom-controls-button position-absolute"
+        class="toolbar-button custom-controls-button position-absolute z-20"
         tabindex="0"
-        style="z-index: 1003"
         :style="showMiniMap ? 'bottom: 130px; left: 180px;' : 'bottom: 10px; left: 10px;'"
         :aria-label="showMiniMap ? translate('COM_WORKFLOW_GRAPH_MINIMAP_HIDE') : translate('COM_WORKFLOW_GRAPH_MINIMAP_SHOW')"
         :title="showMiniMap ? translate('COM_WORKFLOW_GRAPH_MINIMAP_HIDE') : translate('COM_WORKFLOW_GRAPH_MINIMAP_SHOW')"
@@ -49,21 +47,21 @@
       </button>
       <MiniMap
         v-if="showMiniMap"
+        class="z-10"
         position="bottom-left"
         pannable
         zoomable
         :node-color="(node) => node.data?.stage?.color || '#0d6efd'"
         :mask-color="'rgba(255, 255, 255, .6)'"
-        :aria-label="translate('COM_WORKFLOW_GRAPH_MINIMAP')"
       />
-      <CustomControls aria-label="Graph controls" />
+      <CustomControls
+        aria-label="Graph controls"
+      />
       <ControlsPanel
         v-if="workflow?.canCreate"
         class="canvas-controls-panel"
-        :is-transition-mode="isTransitionMode"
         @add-stage="addStage"
         @add-transition="addTransition"
-        @toggle-transition-mode="toggleTransitionMode"
       />
     </VueFlow>
     <div
@@ -122,7 +120,7 @@ export default {
       fitView, zoomIn, zoomOut, viewport, setViewport, onViewportChange,
     } = useVueFlow();
 
-    const isTransitionMode = ref(true);
+    const isTransitionMode = ref(false);
     const selectedStage = ref(null);
     const selectedTransition = ref(null);
     const liveRegion = ref(null);
@@ -191,11 +189,13 @@ export default {
     }
 
     function selectStage(id) {
+      isTransitionMode.value = false;
       selectedStage.value = parseInt(id, 10);
       selectedTransition.value = null;
     }
 
     function selectTransition(id) {
+      isTransitionMode.value = true;
       selectedTransition.value = parseInt(id, 10);
       selectedStage.value = null;
     }
@@ -217,6 +217,7 @@ export default {
     function clearSelection() {
       selectedStage.value = null;
       selectedTransition.value = null;
+      isTransitionMode.value = false;
     }
 
     function deleteStage(id) {
@@ -275,21 +276,11 @@ export default {
       announce(liveRegion.value, translate('COM_WORKFLOW_GRAPH_ADD_TRANSITION_DIALOG_OPENED'));
     }
 
-    function toggleTransitionMode() {
-      isTransitionMode.value = !isTransitionMode.value;
-      announce(
-        liveRegion.value,
-        isTransitionMode.value
-          ? translate('COM_WORKFLOW_GRAPH_TRANSITION_MODE_ON')
-          : translate('COM_WORKFLOW_GRAPH_TRANSITION_MODE_OFF'),
-      );
-    }
-
     function handleConnect({ source, target }) {
       if (!workflow?.value?.canCreate) {
         return;
       }
-      if (isTransitionMode.value && source && target) {
+      if (source && target) {
         openModal('transition', null, { from_stage_id: source, to_stage_id: target });
       }
     }
@@ -335,7 +326,7 @@ export default {
 
     const positionedNodes = computed(() => {
       const nodes = generatePositionedNodes(stages.value);
-      const special = createSpecialNode('from_any', { x: 600, y: -200 }, '#EF4444', 'From Any', selectStage, isTransitionMode.value, true);
+      const special = createSpecialNode('from_any', { x: 600, y: -200 }, '#ffff00', 'From Any', selectStage, false);
       return [...nodes.map((n) => ({
         ...n,
         data: {
@@ -346,18 +337,17 @@ export default {
           onEdit: () => editStage(n.id),
           onDelete: () => showDeleteModal('stage', n.id),
         },
-        // draggable: !isTransitionMode.value,
       })), special];
     });
 
     const styledEdges = computed(() => generateStyledEdges(transitions.value, {
-      transitionMode: isTransitionMode.value,
       selectedId: selectedTransition.value,
     }).map((edge) => ({
       ...edge,
       data: {
         ...edge.data,
         onSelect: () => selectTransition(edge.id),
+        onEscape: () => clearSelection(),
         onDelete: () => showDeleteModal('transition', edge.id),
         onEdit: () => editTransition(edge.id),
       },
@@ -375,7 +365,6 @@ export default {
           if (selectedStage.value) showDeleteModal('stage', selectedStage.value);
           else if (selectedTransition.value) showDeleteModal('transition', selectedTransition.value);
         },
-        toggleMode: toggleTransitionMode,
         undo: () => {
           if (!store.getters.canUndo) {
             return;
@@ -434,15 +423,6 @@ export default {
       saveNodePosition();
     });
 
-    // window.WorkflowGraph.Event.fire('Error', { error: error.message });
-    window.WorkflowGraph.Event.listen('Error', (event) => {
-      if (window.Joomla && window.Joomla.renderMessages) {
-        window.Joomla.renderMessages({
-          error: [event.error.message],
-        });
-      }
-    });
-
     let isRestoringViewport = false;
     watch([loading, error], () => {
       setTimeout(() => {
@@ -485,13 +465,11 @@ export default {
       positionedNodes,
       styledEdges,
       liveRegion,
-      isTransitionMode,
       handleConnect,
       selectEdge,
       handleDeleteConfirm,
       addStage,
       addTransition,
-      toggleTransitionMode,
       clearSelection,
       handleNodeDragStop,
     };

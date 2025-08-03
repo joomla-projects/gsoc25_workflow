@@ -20,9 +20,9 @@ import {
  */
 export function setupGlobalShortcuts({
   addStage, addTransition, editItem, deleteItem,
-  toggleMode, undo, redo, updateSaveMessage,
-  saveNodePosition, clearSelection, zoomIn,
-  zoomOut, fitView, viewport, state, setSaveStatus, store,
+  undo, redo, updateSaveMessage, saveNodePosition,
+  clearSelection, zoomIn, zoomOut, fitView,
+  viewport, state, setSaveStatus, store,
 }) {
   function isModifierPressed(e, key) {
     return (e.ctrlKey || e.metaKey) && [key.toLowerCase(), key.toUpperCase()].includes(e.key);
@@ -89,21 +89,6 @@ export function setupGlobalShortcuts({
         announce(state.liveRegion, 'Add transition');
         break;
 
-      case e.altKey && ['u', 'U'].includes(e.key):
-        e.preventDefault();
-        editItem();
-        break;
-
-      case e.altKey && e.shiftKey && ['d', 'D'].includes(e.key):
-        e.preventDefault();
-        deleteItem();
-        break;
-
-      case e.altKey && ['c', 'C'].includes(e.key):
-        e.preventDefault();
-        toggleMode();
-        break;
-
       case isModifierPressed(e, 'z'):
         e.preventDefault();
         undo();
@@ -112,6 +97,16 @@ export function setupGlobalShortcuts({
       case isModifierPressed(e, 'y'):
         e.preventDefault();
         redo();
+        break;
+
+      case e.key === 'e' || e.key === 'E':
+        e.preventDefault();
+        editItem();
+        break;
+
+      case e.key === 'Delete' || e.key === 'Backspace':
+        e.preventDefault();
+        deleteItem();
         break;
 
       case e.key === 'Escape':
@@ -148,7 +143,19 @@ export function setupGlobalShortcuts({
       case ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key):
         e.preventDefault();
         if (state.selectedStage.value) {
-          moveNode(state.selectedStage.value.toString(), e.key, e.shiftKey);
+          if (e.shiftKey) {
+            moveNode(state.selectedStage.value.toString(), e.key, e.shiftKey);
+          } else {
+            const buttonSelector = `.stage-node[data-stage-id='${state.selectedStage.value}'] button[tabindex="0"]`;
+            if (buttonSelector) {
+              cycleFocus(buttonSelector, 0);
+            }
+          }
+        } else if (state.selectedTransition.value) {
+          const buttonSelector = `.edge-label[data-edge-id='${state.selectedTransition.value}'] button[tabindex="0"]`;
+          if (buttonSelector) {
+            cycleFocus(buttonSelector, 0);
+          }
         } else if (e.shiftKey) {
           const panStep = 20;
           switch (e.key) {

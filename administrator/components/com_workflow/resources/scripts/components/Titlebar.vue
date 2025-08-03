@@ -1,45 +1,42 @@
 <template>
   <section
-    class="workflow-graph-titlebar d-flex flex-wrap align-items-center justify-content-between"
+    class="d-flex flex-wrap align-items-center justify-content-between"
     aria-labelledby="workflow-title"
     role="region"
   >
     <div class="col-md-6 d-flex flex-column">
-      <h2
-        id="workflow-title"
-        class="mb-2"
-      >
+      <h2 class="mb-2">
         {{ translate(workflow?.title) }}
       </h2>
       <dl
         class="d-flex align-items-center flex-wrap mb-0"
         aria-label="workflow details"
       >
-        <div class="me-3 mb-1 d-flex align-items-center">
+        <div class="me-3 mb-1 d-flex">
           <dt class="visually-hidden">
-            {{ translate('COM_WORKFLOW_GRAPH_STATUS') }}
+            {{ sprintf('COM_WORKFLOW_GRAPH_STATUS', workflow.published ? 'COM_WORKFLOW_GRAPH_ENABLED' : 'COM_WORKFLOW_GRAPH_DISABLED') }}
           </dt>
           <dd>
             <span
               class="badge"
-              :class="workflow.published ? 'bg-success text-white' : 'bg-warning text-dark'"
+              :class="workflow.published ? 'bg-success' : 'bg-warning'"
               role="status"
             >
               {{ workflow.published ? translate('COM_WORKFLOW_GRAPH_ENABLED') : translate('COM_WORKFLOW_GRAPH_DISABLED') }}
             </span>
           </dd>
         </div>
-        <div class="me-3 mb-1 d-flex align-items-center">
+        <div class="me-3 mb-1 d-flex">
           <dt class="visually-hidden">
-            {{ translate('COM_WORKFLOW_GRAPH_STAGE_COUNT') }}
+            {{ sprintf('COM_WORKFLOW_GRAPH_STAGE_COUNT', stagesCount) }}
           </dt>
           <dd>
             {{ stagesCount }} {{ stagesCount === 1 ? translate('COM_WORKFLOW_GRAPH_STAGE') : translate('COM_WORKFLOW_GRAPH_STAGES') }}
           </dd>
         </div>
-        <div class="me-3 mb-1 d-flex align-items-center">
+        <div class="me-3 mb-1 d-flex">
           <dt class="visually-hidden">
-            {{ translate('COM_WORKFLOW_GRAPH_TRANSITION_COUNT') }}
+            {{ sprintf('COM_WORKFLOW_GRAPH_TRANSITION_COUNT', transitionsCount) }}
           </dt>
           <dd>
             {{ transitionsCount }} {{ transitionsCount === 1 ? translate('COM_WORKFLOW_GRAPH_TRANSITION') :
@@ -50,10 +47,10 @@
     </div>
     <div
       id="save-message"
+      class="mb-2 fw-bold"
       :class="{
         'text-warning': saveStatus.value === 'unsaved',
       }"
-      class="mb-2 fw-bold"
     >
       {{
         saveStatus.value === 'unsaved'

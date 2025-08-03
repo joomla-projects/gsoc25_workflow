@@ -27,8 +27,8 @@ export function getColorForTransition(transition) {
  * @returns {string} Hex or HSL color.
  */
 export function getEdgeColor(transition, isSelected) {
-  if (isSelected) return '#3B82F6'; // Blue for selected
-  if (transition?.published) return getColorForTransition(transition);
+  if (isSelected) return getColorForTransition(transition); // Blue for selected
+  if (transition?.published) return '#3B82F6';
   return (transition.from_stage_id === -1 || transition.to_stage_id === -1) ? '#F97316' : '#10B981';
 }
 
