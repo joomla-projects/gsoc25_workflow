@@ -2,12 +2,10 @@
   <div
     id="workflow-app"
     class="d-flex flex-column flex-grow-1 min-vh-80"
-    role="application"
   >
     <div
       id="workflow-title"
       class="d-flex flex-column flex-shrink-0"
-      role="banner"
     >
       <WorkflowTitlebar
         :save-status="saveStatus"
@@ -17,7 +15,6 @@
       <div
         id="main-canvas"
         class="flex-grow-1 position-relative"
-        role="main"
       >
         <WorkflowCanvas
           ref="canvas"

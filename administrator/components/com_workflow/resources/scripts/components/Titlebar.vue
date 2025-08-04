@@ -2,7 +2,6 @@
   <section
     class="d-flex flex-wrap align-items-center justify-content-between"
     aria-labelledby="workflow-title"
-    role="region"
   >
     <div class="col-md-6 d-flex flex-column">
       <h2 class="mb-2">

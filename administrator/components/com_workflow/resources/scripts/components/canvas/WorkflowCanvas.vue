@@ -2,6 +2,7 @@
   <div
     class="w-100 h-100 position-relative"
     role="region"
+    aria-label="Workflow Canvas"
   >
     <VueFlow
       v-if="!loading && !error"
@@ -25,6 +26,8 @@
       <Background
         pattern-color="var(--body-color)"
         :gap="16"
+        :aria-label="translate('COM_WORKFLOW_GRAPH_BACKGROUND')"
+        :title="translate('COM_WORKFLOW_GRAPH_BACKGROUND')"
       />
 
       <button
