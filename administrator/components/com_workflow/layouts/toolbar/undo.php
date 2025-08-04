@@ -18,8 +18,16 @@ Factory::getApplication()->getDocument()->getWebAssetManager()
 
 ?>
 <joomla-toolbar-button>
-    <button class="btn btn-info action-button" onclick="WorkflowGraph.Event.fire('onClickUndoWorkflow');" tabindex="0">
+    <button id="undo-workflow" class="btn btn-info action-button" tabindex="0">
         <span class="icon-undo-2 icon-fw" aria-hidden="true"></span>
         <?php echo Text::_('COM_WORKFLOW_UNDO'); ?>
     </button>
 </joomla-toolbar-button>
+
+
+<script>
+    document.getElementById('undo-workflow')?.addEventListener('click', () => {
+        WorkflowGraph.Event.fire('onClickUndoWorkflow');
+    });
+</script>
+

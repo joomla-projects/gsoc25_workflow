@@ -11,37 +11,33 @@
         class="d-flex align-items-center flex-wrap mb-0"
         aria-label="workflow details"
       >
-        <div class="me-3 mb-1 d-flex">
-          <dt class="visually-hidden">
-            {{ sprintf('COM_WORKFLOW_GRAPH_STATUS', workflow.published ? 'COM_WORKFLOW_GRAPH_ENABLED' : 'COM_WORKFLOW_GRAPH_DISABLED') }}
-          </dt>
-          <dd>
-            <span
-              class="badge"
-              :class="workflow.published ? 'bg-success' : 'bg-warning'"
-              role="status"
-            >
-              {{ workflow.published ? translate('COM_WORKFLOW_GRAPH_ENABLED') : translate('COM_WORKFLOW_GRAPH_DISABLED') }}
-            </span>
-          </dd>
-        </div>
-        <div class="me-3 mb-1 d-flex">
-          <dt class="visually-hidden">
-            {{ sprintf('COM_WORKFLOW_GRAPH_STAGE_COUNT', stagesCount) }}
-          </dt>
-          <dd>
-            {{ stagesCount }} {{ stagesCount === 1 ? translate('COM_WORKFLOW_GRAPH_STAGE') : translate('COM_WORKFLOW_GRAPH_STAGES') }}
-          </dd>
-        </div>
-        <div class="me-3 mb-1 d-flex">
-          <dt class="visually-hidden">
-            {{ sprintf('COM_WORKFLOW_GRAPH_TRANSITION_COUNT', transitionsCount) }}
-          </dt>
-          <dd>
-            {{ transitionsCount }} {{ transitionsCount === 1 ? translate('COM_WORKFLOW_GRAPH_TRANSITION') :
-              translate('COM_WORKFLOW_GRAPH_TRANSITIONS') }}
-          </dd>
-        </div>
+        <dt class="visually-hidden">
+          {{ sprintf('COM_WORKFLOW_GRAPH_STATUS', workflow.published ? 'COM_WORKFLOW_GRAPH_ENABLED' : 'COM_WORKFLOW_GRAPH_DISABLED') }}
+        </dt>
+        <dd class="me-3 mb-1 d-flex">
+          <span
+            class="badge"
+            :class="workflow.published ? 'bg-success' : 'bg-warning'"
+            role="status"
+          >
+            {{ workflow.published ? translate('COM_WORKFLOW_GRAPH_ENABLED') : translate('COM_WORKFLOW_GRAPH_DISABLED') }}
+          </span>
+        </dd>
+
+        <dt class="visually-hidden">
+          {{ sprintf('COM_WORKFLOW_GRAPH_STAGE_COUNT', stagesCount) }}
+        </dt>
+        <dd class="me-3 mb-1 d-flex">
+          {{ stagesCount }} {{ stagesCount === 1 ? translate('COM_WORKFLOW_GRAPH_STAGE') : translate('COM_WORKFLOW_GRAPH_STAGES') }}
+        </dd>
+
+        <dt class="visually-hidden">
+          {{ sprintf('COM_WORKFLOW_GRAPH_TRANSITION_COUNT', transitionsCount) }}
+        </dt>
+        <dd class="me-3 mb-1 d-flex">
+          {{ transitionsCount }} {{ transitionsCount === 1 ? translate('COM_WORKFLOW_GRAPH_TRANSITION')
+            : translate('COM_WORKFLOW_GRAPH_TRANSITIONS') }}
+        </dd>
       </dl>
     </div>
     <div

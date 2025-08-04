@@ -18,8 +18,14 @@ Factory::getApplication()->getDocument()->getWebAssetManager()
 
 ?>
 <joomla-toolbar-button>
-    <button class="btn btn-info action-button" onclick="WorkflowGraph.Event.fire('onClickRedoWorkflow');" tabindex="0">
+    <button id="redo-workflow" class="btn btn-info action-button" tabindex="0">
         <span class="icon-redo icon-fw" aria-hidden="true"></span>
         <?php echo Text::_('COM_WORKFLOW_REDO'); ?>
     </button>
 </joomla-toolbar-button>
+
+<script>
+    document.getElementById('redo-workflow')?.addEventListener('click', () => {
+        WorkflowGraph.Event.fire('onClickRedoWorkflow');
+    });
+</script>
