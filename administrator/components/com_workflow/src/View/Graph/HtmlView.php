@@ -86,13 +86,11 @@ class HtmlView extends BaseHtmlView
         $model = $this->getModel();
 
         // Get the data
-        $this->state = $model->getState();
-        $this->item  = $model->getItem();
-
-
-        // Check for errors.
-        if (\count($errors = $model->getErrors())) {
-            throw new GenericDataException(implode("\n", $errors), 500);
+        try {
+            $this->state = $model->getState();
+            $this->item  = $model->getItem();
+        } catch (\Exception $e) {
+            throw new GenericDataException(Text::_('COM_WORKFLOW_GRAPH_ERROR_FETCHING_MODEL') . $e->getMessage(), 500, $e);
         }
 
         $extension = $this->state->get('filter.extension');

@@ -1,4 +1,5 @@
 import workflowGraphApi from '../app/WorkflowGraphApi.es6.js';
+import notifications from '../plugins/Notifications.es6';
 
 /**
  * Vuex Actions for asynchronous operations and workflows
@@ -23,10 +24,10 @@ export default {
         await workflowGraphApi.getTransitions(id),
       ]);
 
+      commit('SET_WORKFLOW_ID', id);
       commit('SET_WORKFLOW', workflowRes?.data);
       commit('SET_STAGES', stagesRes?.data);
       commit('SET_TRANSITIONS', transitionsRes?.data);
-      commit('SET_WORKFLOW_ID', id);
 
       dispatch('saveToHistory');
     } catch (error) {
@@ -60,9 +61,7 @@ export default {
       ) {
         const errorMessage = 'COM_WORKFLOW_ERROR_STAGE_DEFAULT_CANT_DELETED';
         commit('SET_ERROR', errorMessage);
-        if (window.Joomla && window.Joomla.renderMessages) {
-          window.Joomla.renderMessages({ error: [errorMessage] });
-        }
+        notifications.error(errorMessage);
         return;
       }
 

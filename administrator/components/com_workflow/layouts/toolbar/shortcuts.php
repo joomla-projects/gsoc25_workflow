@@ -13,7 +13,7 @@ defined('_JEXEC') or die;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 
-Factory::getDocument()->getWebAssetManager()
+Factory::getApplication()->getDocument()->getWebAssetManager()
     ->useScript('webcomponent.toolbar-button');
 
 $shortcutsPopupOptions = json_encode([

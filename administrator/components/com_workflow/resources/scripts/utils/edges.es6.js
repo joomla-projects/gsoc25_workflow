@@ -4,13 +4,11 @@ import { getEdgeColor } from './utils.es6.js';
  * Generate styled edges based on transition data.
  * @param {Array<Object>} transitions - List of transitions.
  * @param {Object} options - Optional configuration.
- * @param {Boolean} options.transitionMode - Whether transition mode is enabled.
  * @param {Number|String|null} options.selectedId - Currently selected transition id.
  * @returns {Array<Object>} Styled edge definitions.
  */
 export function generateStyledEdges(transitions, options = {}) {
   const {
-    transitionMode = false,
     selectedId = null,
   } = options;
 
@@ -51,14 +49,12 @@ export function generateStyledEdges(transitions, options = {}) {
       },
       data: {
         ...transition,
-        isTransitionMode: transitionMode,
         isSelected,
         isBiDirectional,
         offsetIndex,
         onEdit: () => {},
         onDelete: () => {},
       },
-      draggable: !transitionMode,
     };
   });
 }

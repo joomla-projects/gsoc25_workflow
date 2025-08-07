@@ -1,7 +1,7 @@
 <template>
   <div
     ref="controlsContainer"
-    class="custom-controls"
+    class="custom-controls z-10"
     tabindex="0"
   >
     <button

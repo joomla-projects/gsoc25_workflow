@@ -1,13 +1,11 @@
 <template>
   <div
     id="workflow-app"
-    class="workflow-app-container d-flex flex-column flex-grow-1 min-vh-80"
-    role="application"
-    aria-label="appTitle"
+    class="d-flex flex-column flex-grow-1 min-vh-80"
   >
     <div
+      id="workflow-title"
       class="d-flex flex-column flex-shrink-0"
-      role="banner"
     >
       <WorkflowTitlebar
         :save-status="saveStatus"
@@ -17,8 +15,6 @@
       <div
         id="main-canvas"
         class="flex-grow-1 position-relative"
-        role="main"
-        aria-labelledby="workflow-heading"
       >
         <WorkflowCanvas
           ref="canvas"
@@ -51,10 +47,10 @@ function handleCanvasFocus() {
 onMounted(() => {
   const { workflowId: idFromOpts = null } = Joomla.getOptions('com_workflow', {});
   const idFromURL = parseInt(new URL(window.location.href).searchParams.get('id'), 10);
-  const workflowIdFinal = idFromOpts || idFromURL;
+  const currentWorkflowId = idFromOpts || idFromURL;
 
-  if (workflowIdFinal !== null && !Number.isNaN(workflowIdFinal)) {
-    store.dispatch('loadWorkflow', workflowIdFinal);
+  if (currentWorkflowId !== null && !Number.isNaN(currentWorkflowId)) {
+    store.dispatch('loadWorkflow', currentWorkflowId);
   } else {
     throw new Error('COM_WORKFLOW_GRAPH_ERROR_INVALID_ID');
   }
