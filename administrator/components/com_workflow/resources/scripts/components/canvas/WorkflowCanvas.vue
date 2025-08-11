@@ -1,9 +1,18 @@
 <template>
   <div
     class="w-100 h-100 position-relative"
-    role="region"
-    aria-label="Workflow Canvas"
+    role="application"
+    aria-label="Workflow Graph Canvas"
+    tabindex="0"
+    @keydown="handleCanvasKeydown"
   >
+    <!-- Skip Links for Accessibility -->
+    <nav aria-label="Canvas Skip Links" class="visually-hidden-focusable">
+      <a href="#workflow-controls" class="skip-link">Skip to Controls</a><br />
+      <a href="#workflow-stages" class="skip-link">Skip to Stages</a><br />
+      <a href="#workflow-transitions" class="skip-link">Skip to Transitions</a>
+    </nav>
+
     <VueFlow
       v-if="!loading && !error"
       class="workflow-canvas"
@@ -17,7 +26,9 @@
       :elements-selectable="true"
       :snap-to-grid="true"
       :snap-grid="[40, 40]"
-      :disable-keyboard-a11y="true"
+      :disable-keyboard-a11y="false"
+      role="img"
+      :aria-label="`Workflow diagram with ${positionedNodes.length} stages and ${styledEdges.length} transitions`"
       @connect="handleConnect"
       @pane-click="clearSelection"
       @edge-click="selectEdge"
@@ -30,48 +41,142 @@
         :title="translate('COM_WORKFLOW_GRAPH_BACKGROUND')"
       />
 
-      <button
-        id="toggle-minimap"
-        class="toolbar-button custom-controls-button position-absolute z-20"
-        tabindex="0"
-        :style="showMiniMap ? 'bottom: 130px; left: 180px;' : 'bottom: 10px; left: 10px;'"
-        :aria-label="showMiniMap ? translate('COM_WORKFLOW_GRAPH_MINIMAP_HIDE') : translate('COM_WORKFLOW_GRAPH_MINIMAP_SHOW')"
-        :title="showMiniMap ? translate('COM_WORKFLOW_GRAPH_MINIMAP_HIDE') : translate('COM_WORKFLOW_GRAPH_MINIMAP_SHOW')"
-        @click="showMiniMap = !showMiniMap"
+      <!-- Controls Section -->
+      <section
+        id="workflow-controls"
+        aria-label="Canvas Controls"
+        class="workflow-controls-section"
       >
-        <span
+        <h2 class="visually-hidden">Canvas Controls</h2>
+
+        <!-- Minimap Toggle -->
+        <button
+          id="toggle-minimap"
+          class="toolbar-button custom-controls-button position-absolute z-20"
+          tabindex="0"
+          :style="showMiniMap ? 'bottom: 130px; left: 180px;' : 'bottom: 10px; left: 10px;'"
+          :aria-label="showMiniMap ? translate('COM_WORKFLOW_GRAPH_MINIMAP_HIDE') : translate('COM_WORKFLOW_GRAPH_MINIMAP_SHOW')"
+          :title="showMiniMap ? translate('COM_WORKFLOW_GRAPH_MINIMAP_HIDE') : translate('COM_WORKFLOW_GRAPH_MINIMAP_SHOW')"
+          :aria-pressed="showMiniMap.toString()"
+          @click="showMiniMap = !showMiniMap"
+        >
+          <span
+            v-if="showMiniMap"
+            class="fa fa-close"
+            aria-hidden="true"
+          />
+          <span
+            v-else
+            class="icon icon-expand-2"
+            aria-hidden="true"
+          />
+          <span class="visually-hidden">
+            {{ showMiniMap ? 'Hide' : 'Show' }} Mini Map
+          </span>
+        </button>
+
+        <MiniMap
           v-if="showMiniMap"
-          class="fa fa-close"
+          class="z-10"
+          position="bottom-left"
+          pannable
+          zoomable
+          role="img"
+          aria-label="Workflow overview minimap"
+          :node-color="(node) => node.data?.stage?.color || '#0d6efd'"
+          :mask-color="'rgba(255, 255, 255, .6)'"
         />
-        <span
-          v-else
-          class="icon icon-expand-2"
+
+        <CustomControls
+          aria-label="Graph zoom and view controls"
         />
-      </button>
-      <MiniMap
-        v-if="showMiniMap"
-        class="z-10"
-        position="bottom-left"
-        pannable
-        zoomable
-        :node-color="(node) => node.data?.stage?.color || '#0d6efd'"
-        :mask-color="'rgba(255, 255, 255, .6)'"
-      />
-      <CustomControls
-        aria-label="Graph controls"
-      />
-      <ControlsPanel
-        v-if="workflow?.canCreate"
-        class="canvas-controls-panel"
-        @add-stage="addStage"
-        @add-transition="addTransition"
-      />
+
+        <ControlsPanel
+          v-if="workflow?.canCreate"
+          class="canvas-controls-panel"
+          @add-stage="addStage"
+          @add-transition="addTransition"
+        />
+      </section>
+
+      <!-- Workflow Content Sections -->
+      <section
+        id="workflow-stages"
+        class="visually-hidden"
+        aria-label="Workflow Stages"
+      >
+        <h2>Stages ({{ positionedNodes.length }})</h2>
+        <ul>
+          <li
+            v-for="node in positionedNodes"
+            :key="`stage-${node.id}`"
+            :id="`stage-list-${node.id}`"
+          >
+            {{ node.data.stage.title }} -
+            {{ node.data.stage.published ? 'Published' : 'Unpublished' }}
+            <span v-if="node.data.stage.default">(Default)</span>
+          </li>
+        </ul>
+      </section>
+
+      <section
+        id="workflow-transitions"
+        class="visually-hidden"
+        aria-label="Workflow Transitions"
+      >
+        <h2>Transitions ({{ styledEdges.length }})</h2>
+        <ul>
+          <li
+            v-for="edge in styledEdges"
+            :key="`transition-${edge.id}`"
+            :id="`transition-list-${edge.id}`"
+          >
+            {{ edge.data.title }} - From stage {{ stages.find((s) => s.id === parseInt(edge.source, 10))?.title }} to stage {{ stages.find((s) => s.id === parseInt(edge.target, 10))?.title }}
+            {{ edge.data.published ? '(Published)' : '(Unpublished)' }}
+          </li>
+        </ul>
+      </section>
     </VueFlow>
+
+    <!-- Loading State -->
+    <div
+      v-if="loading"
+      class="d-flex justify-content-center align-items-center h-100"
+      role="status"
+      aria-live="polite"
+    >
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading workflow...</span>
+      </div>
+      <span class="ms-2">Loading workflow...</span>
+    </div>
+
+    <!-- Error State -->
+    <div
+      v-if="error"
+      class="d-flex justify-content-center align-items-center h-100"
+      role="alert"
+      aria-live="assertive"
+    >
+      <div class="alert alert-danger" role="alert">
+        <h3 class="alert-heading">Error Loading Workflow</h3>
+        <p>{{ error }}</p>
+        <button
+          class="btn btn-outline-danger"
+          @click="$emit('retry')"
+        >
+          Retry
+        </button>
+      </div>
+    </div>
+
+    <!-- Accessibility Live Region -->
     <div
       ref="liveRegion"
       aria-live="polite"
       role="status"
       class="visually-hidden"
+      aria-atomic="true"
     />
   </div>
 </template>
@@ -117,7 +222,8 @@ export default {
     saveStatus: { type: Object, required: true },
     setSaveStatus: { type: Function, required: true },
   },
-  setup() {
+  emits: ['retry'],
+  setup(props, { emit }) {
     const store = useStore();
     const {
       fitView, zoomIn, zoomOut, viewport, setViewport, onViewportChange,
@@ -138,10 +244,23 @@ export default {
     const loading = computed(() => store.getters.loading);
     const error = computed(() => store.getters.error);
     const workflowId = computed(() => store.getters.workflowId);
+
     function translate(key) {
       return Joomla.Text._(key);
     }
 
+    function handleCanvasKeydown(event) {
+      // Allow keyboard navigation within the canvas
+      if (event.key === 'F1') {
+        event.preventDefault();
+        const helpElement = document.getElementById('keyboard-help');
+        if (helpElement) {
+          helpElement.focus();
+        }
+      }
+    }
+
+    // ... [Keep all the existing functions from the original file: openModal, canEdit, canDelete, etc.]
     function openModal(type, id = null, params = {}) {
       previouslyFocusedElement.value = document.activeElement;
       const extension = Joomla.getOptions('com_workflow', {})?.extension || '';
@@ -195,12 +314,14 @@ export default {
       isTransitionMode.value = false;
       selectedStage.value = parseInt(id, 10);
       selectedTransition.value = null;
+      announce(liveRegion.value, `Stage selected: ${stages.value.find(s => s.id === parseInt(id, 10))?.title || id}`);
     }
 
     function selectTransition(id) {
       isTransitionMode.value = true;
       selectedTransition.value = parseInt(id, 10);
       selectedStage.value = null;
+      announce(liveRegion.value, `Transition selected: ${transitions.value.find(t => t.id === parseInt(id, 10))?.title || id}`);
     }
 
     function editStage(id) {
@@ -221,6 +342,7 @@ export default {
       selectedStage.value = null;
       selectedTransition.value = null;
       isTransitionMode.value = false;
+      announce(liveRegion.value, 'Selection cleared');
     }
 
     function deleteStage(id) {
@@ -285,6 +407,7 @@ export default {
       }
       if (source && target) {
         openModal('transition', null, { from_stage_id: source, to_stage_id: target });
+        announce(liveRegion.value, `Creating transition from stage ${source} to stage ${target}`);
       }
     }
 
@@ -293,7 +416,7 @@ export default {
     }
 
     function updateSaveMessage() {
-      const el = document.getElementById('save-message');
+      const el = document.getElementById('save-status');
       if (!el) return;
       if (saveStatus.value === 'unsaved') {
         el.classList.add('text-warning');
@@ -309,6 +432,7 @@ export default {
       if (response) {
         saveStatus.value = 'upToDate';
         updateSaveMessage();
+        announce(liveRegion.value, 'Stage positions saved');
       } else if (window.Joomla && window.Joomla.renderMessages) {
         window.Joomla.renderMessages({
           error: ['Failed to save stage position:', response?.error || 'Unknown error'],
@@ -324,6 +448,7 @@ export default {
       saveStatus.value = 'unsaved';
       updateSaveMessage();
       await store.dispatch('updateStagePosition', { id: node.id, x, y });
+      announce(liveRegion.value, `Stage ${node.data?.stage?.title} moved to position ${Math.round(x)}, ${Math.round(y)}`);
       saveNodePosition();
     }
 
@@ -355,7 +480,6 @@ export default {
         onEdit: () => editTransition(edge.id),
       },
     })));
-
     onMounted(() => {
       const detach = setupGlobalShortcuts({
         addStage,
@@ -465,6 +589,7 @@ export default {
       error,
       showMiniMap,
       workflow,
+      stages,
       positionedNodes,
       styledEdges,
       liveRegion,
@@ -475,6 +600,7 @@ export default {
       addTransition,
       clearSelection,
       handleNodeDragStop,
+      handleCanvasKeydown,
     };
   },
 };

@@ -1,30 +1,44 @@
 <template>
-  <div
+  <main
     id="workflow-app"
     class="d-flex flex-column flex-grow-1 min-vh-80"
+    role="main"
+    aria-labelledby="workflow-main-title"
   >
-    <div
-      id="workflow-title"
+    <header
+      id="workflow-header"
       class="d-flex flex-column flex-shrink-0"
+      role="banner"
     >
       <WorkflowTitlebar
         :save-status="saveStatus"
       />
-    </div>
+    </header>
+
     <div class="d-flex flex-grow-1 overflow-hidden">
-      <div
+      <section
         id="main-canvas"
         class="flex-grow-1 position-relative"
+        role="application"
+        aria-label="Workflow Canvas Application"
+        aria-describedby="canvas-description"
       >
+        <div
+          id="canvas-description"
+          class="visually-hidden"
+        >
+          Interactive workflow diagram. Use keyboard shortcuts: Alt+N to add stage, Alt+M to add transition, F to fit view, E to edit selected item, Delete to remove selected item.
+        </div>
+
         <WorkflowCanvas
           ref="canvas"
           :save-status="saveStatus"
           :set-save-status="setSaveStatus"
           @focus-request="handleCanvasFocus"
         />
-      </div>
+      </section>
     </div>
-  </div>
+  </main>
 </template>
 
 <script setup>

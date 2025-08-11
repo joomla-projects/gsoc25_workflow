@@ -55,30 +55,31 @@ $col1 = array_slice($shortcuts, 0, ceil(count($shortcuts) / 2));
 $col2 = array_slice($shortcuts, ceil(count($shortcuts) / 2));
 
 $shortcutsHtml = [];
-$shortcutsHtml[] = '<div class="p-3">';
-$shortcutsHtml[] = '<div class="row">';
+$shortcutsHtml[] = '<section class="p-3">';
+$shortcutsHtml[] = '<section class="row" role="group" aria-label="Keyboard shortcuts columns">';
 
 $renderColumn = function ($column) {
-    $html = '<div class="col-md-6"><table class="table table-borderless mb-0">';
+    $html = '<section class="col-md-6">';
+    $html .= '<table class="table table-borderless mb-0">';
     foreach ($column as $item) {
         $html .= '<tr>';
-        $html .= '<td class="fw-bold text-nowrap"><kbd>' . htmlspecialchars($item['key']) . '</kbd></td>';
+        $html .= '<th scope="row" class="fw-bold text-nowrap"><kbd>' . htmlspecialchars($item['key']) . '</kbd></th>';
         $html .= '<td>' . Text::_($item['description']) . '</td>';
         $html .= '</tr>';
     }
-    $html .= '</table></div>';
+    $html .= '</table></section>';
     return $html;
 };
 
 $shortcutsHtml[] = $renderColumn($col1);
 $shortcutsHtml[] = $renderColumn($col2);
 
-$shortcutsHtml[] = '</div>';
-$shortcutsHtml[] = '</div>';
+$shortcutsHtml[] = '</section>';
+$shortcutsHtml[] = '</section>';
 ?>
 
 <template id="shortcuts-popup-content">
     <?php echo implode($shortcutsHtml); ?>
 </template>
-<div id="workflow-graph-root"></div>
+<section id="workflow-graph-root" role="region" aria-label="Workflow graph"></section>
 <script type="module" src="<?php echo $script ?>"></script>

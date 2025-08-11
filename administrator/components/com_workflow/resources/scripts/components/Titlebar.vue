@@ -1,58 +1,77 @@
 <template>
   <section
     class="d-flex flex-wrap align-items-center justify-content-between"
-    aria-labelledby="workflow-title"
+    aria-labelledby="workflow-main-title"
+    role="banner"
   >
     <div class="col-md-6 d-flex flex-column">
-      <h2 class="mb-2">
+      <h1
+        id="workflow-main-title"
+        class="mb-2"
+      >
         {{ translate(workflow?.title) }}
-      </h2>
+      </h1>
       <dl
         class="d-flex align-items-center flex-wrap mb-0"
-        aria-label="workflow details"
+        aria-label="Workflow Details"
       >
-        <dt class="visually-hidden">
-          {{ sprintf('COM_WORKFLOW_GRAPH_STATUS', workflow.published ? 'COM_WORKFLOW_GRAPH_ENABLED' : 'COM_WORKFLOW_GRAPH_DISABLED') }}
-        </dt>
-        <dd class="me-3 mb-1 d-flex">
-          <span
-            class="badge"
-            :class="workflow.published ? 'bg-success' : 'bg-warning'"
-            role="status"
-          >
-            {{ workflow.published ? translate('COM_WORKFLOW_GRAPH_ENABLED') : translate('COM_WORKFLOW_GRAPH_DISABLED') }}
-          </span>
-        </dd>
+        <div class="me-3 mb-1 d-flex">
+          <dt class="visually-hidden">
+            Status:
+          </dt>
+          <dd class="mb-0">
+            <span
+              class="badge"
+              :class="workflow.published ? 'bg-success' : 'bg-warning'"
+              role="status"
+              :aria-label="`Status: ${workflow.published ? translate('COM_WORKFLOW_GRAPH_ENABLED') : translate('COM_WORKFLOW_GRAPH_DISABLED')}`"
+            >
+              {{ workflow.published ? translate('COM_WORKFLOW_GRAPH_ENABLED') : translate('COM_WORKFLOW_GRAPH_DISABLED') }}
+            </span>
+          </dd>
+        </div>
 
-        <dt class="visually-hidden">
-          {{ sprintf('COM_WORKFLOW_GRAPH_STAGE_COUNT', stagesCount) }}
-        </dt>
-        <dd class="me-3 mb-1 d-flex">
-          {{ stagesCount }} {{ stagesCount === 1 ? translate('COM_WORKFLOW_GRAPH_STAGE') : translate('COM_WORKFLOW_GRAPH_STAGES') }}
-        </dd>
+        <div class="me-3 mb-1 d-flex">
+          <dt class="visually-hidden">
+            Stage Count:
+          </dt>
+          <dd class="mb-0">
+            <span aria-label="`${stagesCount} ${stagesCount === 1 ? 'stage' : 'stages'} in workflow`">
+              {{ stagesCount }} {{ stagesCount === 1 ? translate('COM_WORKFLOW_GRAPH_STAGE') : translate('COM_WORKFLOW_GRAPH_STAGES') }}
+            </span>
+          </dd>
+        </div>
 
-        <dt class="visually-hidden">
-          {{ sprintf('COM_WORKFLOW_GRAPH_TRANSITION_COUNT', transitionsCount) }}
-        </dt>
-        <dd class="me-3 mb-1 d-flex">
-          {{ transitionsCount }} {{ transitionsCount === 1 ? translate('COM_WORKFLOW_GRAPH_TRANSITION')
-            : translate('COM_WORKFLOW_GRAPH_TRANSITIONS') }}
-        </dd>
+        <div class="me-3 mb-1 d-flex">
+          <dt class="visually-hidden">
+            Transition Count:
+          </dt>
+          <dd class="mb-0">
+            <span :aria-label="`${transitionsCount} ${transitionsCount === 1 ? 'transition' : 'transitions'} in workflow`">
+              {{ transitionsCount }} {{ transitionsCount === 1 ? translate('COM_WORKFLOW_GRAPH_TRANSITION')
+              : translate('COM_WORKFLOW_GRAPH_TRANSITIONS') }}
+            </span>
+          </dd>
+        </div>
       </dl>
     </div>
-    <div
-      id="save-message"
+
+    <aside
+      id="save-status"
       class="mb-2 fw-bold"
+      role="status"
+      aria-live="polite"
       :class="{
         'text-warning': saveStatus.value === 'unsaved',
       }"
+      :aria-label="`Save status: ${saveStatus.value === 'unsaved' ? 'Unsaved changes' : 'All changes saved'}`"
     >
       {{
         saveStatus.value === 'unsaved'
           ? translate('COM_WORKFLOW_GRAPH_UNSAVED_CHANGES')
           : translate('COM_WORKFLOW_GRAPH_UP_TO_DATE')
       }}
-    </div>
+    </aside>
   </section>
 </template>
 
