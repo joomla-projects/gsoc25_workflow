@@ -1,13 +1,10 @@
 <template>
-  <article
+  <div
     class="stage-node card border shadow-sm position-relative"
     :class="{ 'shadow': isSelected, 'hover-shadow': !isSelected }"
     :style="stageStyle"
     tabindex="0"
     :data-stage-id="stage?.id"
-    role="button"
-    :aria-label="`Stage: ${stage?.title}. ${stage?.published ? 'Published' : 'Unpublished'}${stage?.default ? ', Default stage' : ''}`"
-    :aria-selected="isSelected"
     :aria-describedby="`stage-${stage?.id}-description`"
     @mouseenter="onNodeEnter"
     @mouseleave="onNodeLeave"
@@ -56,7 +53,6 @@
         class="btn btn-sm btn-secondary text-start text-white fw-semibold text-truncate"
         role="menuitem"
         tabindex="0"
-        :aria-label="`Edit stage ${stage?.title}`"
         :title="`Edit stage ${stage?.title}`"
         @click.stop="handleEdit"
         @keydown.enter.stop="handleEdit"
@@ -76,7 +72,6 @@
         class="btn btn-sm btn-danger mt-1 text-start text-white fw-semibold text-truncate"
         role="menuitem"
         tabindex="0"
-        :aria-label="`Delete stage ${stage?.title}`"
         :title="`Delete stage ${stage?.title}`"
         @click.stop="handleDelete"
         @keydown.enter.stop="handleDelete"
@@ -101,46 +96,47 @@
         class="edge-handler bg-success position-absolute top-0 start-50 translate-middle-x rounded-circle"
         :class="{ 'invisible': !isHoveredOrFocused || showActions }"
         :position="Position.Top"
-        :aria-label="`Connect to top of ${stage?.title}`"
+        aria-hidden="true"
       />
       <Handle
         type="source"
         class="edge-handler bg-success position-absolute bottom-0 start-50 translate-middle-x rounded-circle"
         :class="{ 'invisible': !isHoveredOrFocused || showActions }"
         :position="Position.Bottom"
-        :aria-label="`Connect from bottom of ${stage?.title}`"
+        aria-hidden="true"
       />
       <Handle
         type="target"
         class="edge-handler bg-success position-absolute top-50 start-0 translate-middle-y rounded-circle"
         :class="{ 'invisible': !isHoveredOrFocused || showActions }"
         :position="Position.Left"
-        :aria-label="`Connect to left of ${stage?.title}`"
+        aria-hidden="true"
       />
       <Handle
         type="source"
         class="edge-handler bg-success position-absolute top-50 end-0 translate-middle-y rounded-circle"
         :position="Position.Right"
         :class="{ 'invisible': !isHoveredOrFocused || showActions }"
-        :aria-label="`Connect from right of ${stage?.title}`"
+        aria-hidden="true"
       />
     </div>
 
     <!-- Header -->
-    <header class="card-header d-flex justify-content-between align-items-start p-1 pe-0 z-1 position-relative">
+    <div class="card-header d-flex justify-content-between align-items-start p-1 pe-0 z-1 position-relative">
       <div class="flex-fill w-75 me-3 min-width-0">
-        <h3
+        <span
           class="h3 d-block card-title mb-1 text-white fw-semibold text-truncate"
           :title="stage?.title"
+          aria-level="3"
         >
           {{ stage.title }}
-        </h3>
-        <p
-          class="card-text text-white-50 mb-0 text-truncate"
+        </span>
+        <span
+          class="card-text text-white-50 mb-0 text-truncate d-block"
           :title="stage?.description"
         >
           {{ stage.description }}
-        </p>
+        </span>
       </div>
 
       <!-- Actions Button -->
@@ -155,7 +151,6 @@
           class="btn btn-sm btn-light px-1 py-0"
           :class="{ 'invisible': !isHoveredOrFocused && !showActions }"
           style="transition: opacity 0.2s ease;"
-          :aria-label="showActions ? `Close actions menu for ${stage?.title}` : `Open actions menu for ${stage?.title}`"
           :title="showActions ? `Close actions menu for ${stage?.title}` : `Open actions menu for ${stage?.title}`"
           aria-haspopup="true"
           :aria-expanded="showActions"
@@ -173,7 +168,7 @@
           </span>
         </button>
       </div>
-    </header>
+    </div>
 
     <!-- Body -->
     <div class="card-body px-1 py-0 z-1 position-relative">
@@ -181,8 +176,6 @@
         <span
           :class="stage.published ? 'bg-success' : 'bg-danger'"
           class="badge rounded-pill p-1"
-          role="status"
-          :aria-label="`Status: ${stage.published ? 'Published' : 'Unpublished'}`"
         >
           {{ stage.published ? translate('COM_WORKFLOW_GRAPH_ENABLED') : translate('COM_WORKFLOW_GRAPH_DISABLED') }}
         </span>
@@ -190,8 +183,6 @@
           <span
             v-if="stage.default"
             class="badge bg-warning bg-opacity-10 rounded-pill p-1"
-            role="status"
-            aria-label="Default stage"
           >
             {{ translate('COM_WORKFLOW_GRAPH_DEFAULT') }}
           </span>
@@ -203,10 +194,9 @@
     <span
       class="position-absolute top-0 end-0 mt-2 me-2 rounded-circle d-block w-10 h-10"
       :style="badgeStyle"
-      :aria-label="`Stage color indicator: ${stage?.title}`"
-      role="img"
+      aria-hidden="true"
     />
-  </article>
+  </div>
 </template>
 
 <script>

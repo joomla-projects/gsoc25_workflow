@@ -14,14 +14,13 @@
 
     <!-- Edge label & actions rendered in HTML overlay -->
     <EdgeLabelRenderer>
-      <article
+      <div
         ref="edgeLabel"
         class="edge-label"
         tabindex="0"
         :data-edge-id="data?.id"
         role="button"
-        :aria-label="`Transition: ${data?.title}. From ${sourceStageTitle} to ${targetStageTitle}. ${data?.published ? 'Published' : 'Unpublished'}`"
-        :aria-selected="data?.isSelected"
+        :aria-pressed="data?.isSelected ? 'true' : 'false'"
         :aria-describedby="`transition-${data?.id}-description`"
         :style="{
           position: 'absolute',
@@ -84,7 +83,6 @@
               class="btn btn-sm btn-secondary text-start text-white fw-semibold text-truncate"
               role="menuitem"
               tabindex="0"
-              :aria-label="`Edit transition ${data?.title}`"
               :title="`Edit transition ${data?.title}`"
               @click.stop="handleEdit"
               @keydown.enter.stop="handleEdit"
@@ -101,7 +99,6 @@
               class="btn btn-sm btn-danger text-start mt-1 text-white fw-semibold text-truncate"
               role="menuitem"
               tabindex="0"
-              :aria-label="`Delete transition ${data?.title}`"
               :title="`Delete transition ${data?.title}`"
               @click.stop="handleDelete"
               @keydown.enter.stop="handleDelete"
@@ -113,13 +110,13 @@
           </nav>
 
           <!-- Title Row -->
-          <header class="d-flex justify-content-around align-items-center p-1 pe-1 z-1 position-relative">
-            <h3
+          <div class="d-flex justify-content-around align-items-center p-1 pe-1 z-1 position-relative">
+            <span
               class="h4 d-block card-title text-white fw-semibold text-truncate ms-4"
               :title="data?.title"
             >
               {{ data?.title }}
-            </h3>
+            </span>
 
             <!-- Ellipsis Menu Button -->
             <div class="align-items-center d-flex position-relative">
@@ -130,7 +127,6 @@
                 class="btn btn-sm btn-secondary ms-1 px-1 py-0"
                 :class="{ 'invisible': !isHovered && !showActions }"
                 style="transition: opacity 0.2s ease;"
-                :aria-label="showActions ? `Close actions menu for ${data?.title}` : `Open actions menu for ${data?.title}`"
                 :title="showActions ? `Close actions menu for ${data?.title}` : `Open actions menu for ${data?.title}`"
                 aria-haspopup="true"
                 :aria-expanded="showActions"
@@ -148,7 +144,7 @@
                 </span>
               </button>
             </div>
-          </header>
+          </div>
         </div>
 
         <!-- Hidden measurer -->
@@ -160,7 +156,7 @@
         >
           {{ data?.title }}
         </span>
-      </article>
+      </div>
     </EdgeLabelRenderer>
   </g>
 </template>
