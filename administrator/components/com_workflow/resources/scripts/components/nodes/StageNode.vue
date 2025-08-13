@@ -3,7 +3,6 @@
     class="stage-node card border shadow-sm position-relative"
     :class="{ 'shadow': isSelected, 'hover-shadow': !isSelected }"
     :style="stageStyle"
-    tabindex="0"
     :data-stage-id="stage?.id"
     :aria-describedby="`stage-${stage?.id}-description`"
     @mouseenter="onNodeEnter"
@@ -39,7 +38,6 @@
       id="stage-actions-menu"
       ref="actionsMenu"
       class="workflow-browser-actions-list position-absolute top-25-px end-20-px opacity-100 d-flex flex-column border rounded shadow-sm z-3 p-1"
-      role="menu"
       aria-orientation="vertical"
       :aria-labelledby="`stage-${stage?.id}-menu-button`"
       @mouseenter="onDropdownEnter"
@@ -127,7 +125,6 @@
         <span
           class="h3 d-block card-title mb-1 text-white fw-semibold text-truncate"
           :title="stage?.title"
-          aria-level="3"
         >
           {{ stage.title }}
         </span>

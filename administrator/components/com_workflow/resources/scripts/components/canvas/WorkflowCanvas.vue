@@ -27,8 +27,9 @@
       :snap-to-grid="true"
       :snap-grid="[40, 40]"
       :disable-keyboard-a11y="false"
-      role="img"
-      :aria-label="`Workflow diagram with ${positionedNodes.length} stages and ${styledEdges.length} transitions`"
+      role="application"
+      :aria-label="`Interactive workflow diagram with ${positionedNodes.length} stages and ${styledEdges.length} transitions. Press Tab to navigate between stages and transitions.`"
+      aria-describedby="canvas-description"
       @connect="handleConnect"
       @pane-click="clearSelection"
       @edge-click="selectEdge"
@@ -55,9 +56,9 @@
           class="toolbar-button custom-controls-button position-absolute z-20"
           tabindex="0"
           :style="showMiniMap ? 'bottom: 130px; left: 180px;' : 'bottom: 10px; left: 10px;'"
-          :aria-label="showMiniMap ? translate('COM_WORKFLOW_GRAPH_MINIMAP_HIDE') : translate('COM_WORKFLOW_GRAPH_MINIMAP_SHOW')"
-          :title="showMiniMap ? translate('COM_WORKFLOW_GRAPH_MINIMAP_HIDE') : translate('COM_WORKFLOW_GRAPH_MINIMAP_SHOW')"
-          :aria-pressed="showMiniMap.toString()"
+          :aria-label="showMiniMap ? 'Hide Mini Map' : 'Show Mini Map'"
+          :title="showMiniMap ? 'Hide Mini Map' : 'Show Mini Map'"
+          :aria-pressed="showMiniMap ? 'true' : 'false'"
           @click="showMiniMap = !showMiniMap"
         >
           <span
@@ -200,6 +201,7 @@ import { generatePositionedNodes, createSpecialNode } from '../../utils/position
 import { generateStyledEdges } from '../../utils/edges.es6.js';
 import { setupGlobalShortcuts } from '../../utils/keyboard-manager.es6.js';
 import { debounce } from '../../utils/utils.es6';
+import AccessibilityFixer from '../../utils/accessibility-fixer.es6.js';
 
 export default {
   name: 'WorkflowCanvas',
@@ -236,6 +238,7 @@ export default {
     const saveStatus = ref('upToDate');
     const currentFocusMode = ref('links');
     const previouslyFocusedElement = ref(null);
+    const accessibilityFixer = ref(null);
 
     const showMiniMap = ref(true);
     const workflow = computed(() => store.getters.workflow || {});
@@ -273,9 +276,8 @@ export default {
         ? `${baseUrlwithId}&${extraQuery}`
         : baseUrlwithId;
 
-      const textHeader = id
-        ? translate(`COM_WORKFLOW_GRAPH_EDIT_${type.toUpperCase()}`)
-        : translate(`COM_WORKFLOW_GRAPH_ADD_${type.toUpperCase()}`);
+      const safeType = (typeof type === 'string' && type) ? type : '';
+      const textHeader = "hi";
 
       const dialog = new JoomlaDialog({
         popupType: 'iframe',
@@ -481,6 +483,10 @@ export default {
       },
     })));
     onMounted(() => {
+      // Initialize accessibility fixer
+      accessibilityFixer.value = new AccessibilityFixer();
+      accessibilityFixer.value.init();
+      
       const detach = setupGlobalShortcuts({
         addStage,
         addTransition,
@@ -527,7 +533,12 @@ export default {
         saveNodePosition,
         store,
       });
-      onUnmounted(detach);
+      onUnmounted(() => {
+        detach();
+        if (accessibilityFixer.value) {
+          accessibilityFixer.value.destroy();
+        }
+      });
     });
 
     window.WorkflowGraph.Event.listen('onClickRedoWorkflow', () => {
