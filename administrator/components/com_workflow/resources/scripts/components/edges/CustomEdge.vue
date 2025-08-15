@@ -62,7 +62,7 @@
           aria-hidden="true"
         />
 
-        <div class="d-flex flex-column bg-primary border rounded shadow-sm position-absolute">
+        <div class="custom-edge d-flex flex-column border rounded shadow-sm position-absolute">
           <!-- Actions Dropdown -->
           <nav
             v-if="showActions"

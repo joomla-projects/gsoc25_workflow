@@ -23,6 +23,10 @@
   stroke-width: 3;
 }
 
+.custom-edge {
+  background: rgb(32, 113, 198) !important;
+}
+
 /* ----- Edge Labels ----- */
 .vue-flow__edge-label {
   padding: 4px 8px;
@@ -43,6 +47,15 @@
 .vue-flow__controls,
 .vue-flow__minimap {
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, .1);
+}
+
+.custom-controls {
+  position: absolute;
+  background: var(--secondary);
+  padding: 4px;
+  bottom: 10px;
+  right: 10px;
+  z-index: 10;
 }
 
 /* ----- Nodes ----- */
