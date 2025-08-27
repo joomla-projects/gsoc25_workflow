@@ -51,11 +51,11 @@
 
 .custom-controls {
   position: absolute;
-  background: var(--secondary);
-  padding: 4px;
-  bottom: 10px;
   right: 10px;
+  bottom: 10px;
   z-index: 10;
+  padding: 4px;
+  background: var(--secondary);
 }
 
 /* ----- Nodes ----- */
@@ -107,10 +107,10 @@
 
 /* Focus indicators */
 :focus {
+  border-radius: 0 !important;
   outline: 2px solid #005fcc !important;
   outline-offset: 2px !important;
-  box-shadow: 0 0 0 3px rgba(0, 95, 204, 0.4) !important;
-  border-radius: 0 !important;
+  box-shadow: 0 0 0 3px rgba(0, 95, 204, .4) !important;
 }
 
 /* Skip links */
@@ -118,13 +118,13 @@
   position: absolute;
   top: -40px;
   left: 6px;
-  background: #0d6efd;
-  color: #fff;
-  padding: 8px;
-  text-decoration: none;
-  border-radius: 3px;
   z-index: 9999;
-  transition: top 0.3s;
+  padding: 8px;
+  color: #fff;
+  text-decoration: none;
+  background: #0d6efd;
+  border-radius: 3px;
+  transition: top .3s;
 }
 .skip-link:focus { top: 6px; }
 /* Ensure child elements inside groups remain usable */
@@ -136,22 +136,6 @@
   pointer-events: auto;
 }
 
-/* ----- Color Contrast for Badges ----- */
-.badge.bg-warning { color: #000; }
-.badge.bg-success,
-.badge.bg-danger { color: #fff; }
-
-/* Stage-node states */
-.stage-node[data-published="true"] { border-left: 6px solid #28a745 !important; }
-.stage-node[data-published="false"] { border-left: 6px dashed #dc3545 !important; }
-.stage-node[data-default="true"] {
-  border: 4px double #ffc107 !important;
-  background-image: repeating-linear-gradient(
-    45deg, transparent, transparent 10px,
-    rgba(255,193,7,.1) 10px, rgba(255,193,7,.1) 20px
-  ) !important;
-}
-
 /* ----- High Contrast Mode ----- */
 @media (prefers-contrast: high), (forced-colors: active), screen and (-ms-high-contrast: active) {
   .stage-node,
@@ -159,15 +143,15 @@
   .workflow-browser-actions-list,
   .custom-controls-button,
   .badge {
-    border: 2px solid ButtonText !important;
-    background: ButtonFace !important;
     color: ButtonText !important;
+    background: ButtonFace !important;
+    border: 2px solid ButtonText !important;
     forced-color-adjust: none !important;
   }
   :focus {
-    outline: 3px solid Highlight !important;
-    background: Highlight !important;
     color: HighlightText !important;
+    background: Highlight !important;
+    outline: 3px solid Highlight !important;
   }
 }
 
@@ -188,8 +172,8 @@
   .stage-node,
   .edge-label,
   .custom-controls-button {
-    min-height: 48px !important;
     min-width: 48px !important;
+    min-height: 48px !important;
     padding: 14px 18px !important;
   }
 }
@@ -198,8 +182,8 @@
 @media print {
   .stage-node,
   .edge-label {
-    background: #fff !important;
     color: #000 !important;
+    background: #fff !important;
     border: 2px solid #000 !important;
     box-shadow: none !important;
   }
@@ -208,8 +192,8 @@
   .vue-flow__controls,
   .custom-controls { display: none !important; }
   .badge::after {
-    content: " (" attr(title) ")" !important;
     font-size: 11px !important;
     font-style: italic !important;
+    content: " (" attr(title) ")" !important;
   }
 }
