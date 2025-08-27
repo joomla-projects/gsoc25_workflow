@@ -1,16 +1,18 @@
 <template>
   <div
     class="stage-node card border shadow-sm position-relative"
-    :class="{ 'shadow': isSelected, 'hover-shadow': !isSelected }"
+    tabindex="0"
+    role="button"
     :style="stageStyle"
     :data-stage-id="stage?.id"
     :aria-describedby="`stage-${stage?.id}-description`"
     @mouseenter="onNodeEnter"
     @mouseleave="onNodeLeave"
     @focus="onNodeEnter"
+    @blur="onNodeLeave"
     @click="onSelected"
-    @keydown.enter="openActions"
-    @keydown.space.prevent="openActions"
+    @keydown.enter.stop.prevent="openActions"
+    @keydown.space.prevent.stop="openActions"
     @keydown.esc="closeActions"
     @keydown.tab="closeActions"
   >
@@ -35,7 +37,7 @@
     <!-- Actions Dropdown -->
     <nav
       v-if="showActions"
-      id="stage-actions-menu"
+      :id="`stage-actions-menu-${stage?.id}`"
       ref="actionsMenu"
       class="workflow-browser-actions-list position-absolute top-25-px end-20-px opacity-100 d-flex flex-column border rounded shadow-sm z-3 p-1"
       aria-orientation="vertical"
@@ -52,9 +54,9 @@
         role="menuitem"
         tabindex="0"
         :title="`Edit stage ${stage?.title}`"
-        @click.stop="handleEdit"
-        @keydown.enter.stop="handleEdit"
-        @keydown.space.prevent.stop="handleEdit"
+        @click="handleEdit"
+        @keydown.enter="handleEdit"
+        @keydown.space="handleEdit"
       >
         <span
           class="icon icon-pencil-alt me-1"
@@ -71,8 +73,8 @@
         role="menuitem"
         tabindex="0"
         :title="`Delete stage ${stage?.title}`"
-        @click.stop="handleDelete"
-        @keydown.enter.stop="handleDelete"
+        @click="handleDelete"
+        @keydown.enter="handleDelete"
         @keydown.space.prevent.stop="handleDelete"
       >
         <span
@@ -151,7 +153,7 @@
           :title="showActions ? `Close actions menu for ${stage?.title}` : `Open actions menu for ${stage?.title}`"
           aria-haspopup="true"
           :aria-expanded="showActions"
-          aria-controls="stage-actions-menu"
+          :aria-controls="`stage-actions-menu-${stage?.id}`"
           @click.stop="toggleActions"
           @keydown.enter.stop="toggleActions"
           @keydown.space.prevent.stop="toggleActions"
@@ -198,6 +200,7 @@
 
 <script>
 import { Handle, Position } from '@vue-flow/core';
+import { open } from 'fs-extra';
 
 export default {
   name: 'StageNode',
@@ -230,19 +233,19 @@ export default {
     stageStyle() {
       return {
         borderColor: `${this.stage.color} !important`,
-        borderWidth: this.isSelected ? '4px !important' : '0 !important',
+        borderWidth: this.isSelected ? '1px !important' : '0 !important',
         background: this.data.isSpecial ? 'purple !important' : 'rgb(var(--primary-rgb)) !important',
-        padding: this.isSelected ? '2px !important' : '6px !important',
+        padding: this.isSelected ? '5x !important' : '6px !important',
       };
     },
     badgeStyle() {
       return { backgroundColor: this.stage.color };
     },
     onSelected() {
-      return this.data.onSelect;
+      return this.data.onSelect?.();
     },
     onEscape() {
-      return this.data.onEscape;
+      return this.data.onEscape?.();
     },
   },
   methods: {

@@ -38,8 +38,8 @@
         @focus="onNodeEnter"
         @blur="onNodeLeave"
         @click="onSelected"
-        @keydown.enter="openActions"
-        @keydown.space.prevent="openActions"
+        @keydown.enter.stop.prevent="openActions"
+        @keydown.space.prevent.stop="openActions"
         @keydown.esc="closeActions"
         @keydown.tab="closeActions"
       >
@@ -84,8 +84,8 @@
               role="menuitem"
               tabindex="0"
               :title="`Edit transition ${data?.title}`"
-              @click.stop="handleEdit"
-              @keydown.enter.stop="handleEdit"
+              @click="handleEdit"
+              @keydown.enter.stop.prevent="handleEdit"
               @keydown.space.prevent.stop="handleEdit"
             >
               <span class="icon icon-pencil-alt me-1" aria-hidden="true" />
@@ -100,8 +100,8 @@
               role="menuitem"
               tabindex="0"
               :title="`Delete transition ${data?.title}`"
-              @click.stop="handleDelete"
-              @keydown.enter.stop="handleDelete"
+              @click="handleDelete"
+              @keydown.enter.stop.prevent="handleDelete"
               @keydown.space.prevent.stop="handleDelete"
             >
               <span class="icon icon-trash me-1" aria-hidden="true" />
@@ -247,7 +247,7 @@ export default {
       this.showActions ? this.closeActions() : this.openActions();
     },
     openActions() {
-      this.data.onSelect?.();
+      this.data?.onSelect?.();
       this.showActions = true;
       this.$nextTick(() => {
         // Focus first available action

@@ -14,7 +14,7 @@
       :aria-label="translate('COM_WORKFLOW_GRAPH_ADD_STAGE')"
       :title="`${translate('COM_WORKFLOW_GRAPH_ADD_STAGE')} (Alt+N)`"
       @click="$emit('add-stage')"
-      @keydown.enter="$emit('add-stage')"
+      @keydown.enter.prevent="$emit('add-stage')"
       @keydown.space.prevent="$emit('add-stage')"
     >
       <span
@@ -31,7 +31,7 @@
       :aria-label="translate('COM_WORKFLOW_GRAPH_ADD_TRANSITION')"
       :title="`${translate('COM_WORKFLOW_GRAPH_ADD_TRANSITION')} (Alt+M)`"
       @click="$emit('add-transition')"
-      @keydown.enter="$emit('add-transition')"
+      @keydown.enter.prevent="$emit('add-transition')"
       @keydown.space.prevent="$emit('add-transition')"
     >
       <span

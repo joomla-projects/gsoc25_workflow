@@ -26,7 +26,7 @@
       :elements-selectable="true"
       :snap-to-grid="true"
       :snap-grid="[40, 40]"
-      :disable-keyboard-a11y="false"
+      :disable-keyboard-a11y="true"
       role="application"
       :aria-label="`Interactive workflow diagram with ${positionedNodes.length} stages and ${styledEdges.length} transitions. Press Tab to navigate between stages and transitions.`"
       aria-describedby="canvas-description"
@@ -263,7 +263,6 @@ export default {
       }
     }
 
-    // ... [Keep all the existing functions from the original file: openModal, canEdit, canDelete, etc.]
     function openModal(type, id = null, params = {}) {
       previouslyFocusedElement.value = document.activeElement;
       const extension = Joomla.getOptions('com_workflow', {})?.extension || '';
@@ -276,8 +275,9 @@ export default {
         ? `${baseUrlwithId}&${extraQuery}`
         : baseUrlwithId;
 
-      const safeType = (typeof type === 'string' && type) ? type : '';
-      const textHeader = "hi";
+      const textHeader = id
+        ? translate(`COM_WORKFLOW_GRAPH_EDIT_${type.toUpperCase()}`)
+        : translate(`COM_WORKFLOW_GRAPH_ADD_${type.toUpperCase()}`);
 
       const dialog = new JoomlaDialog({
         popupType: 'iframe',
@@ -486,7 +486,7 @@ export default {
       // Initialize accessibility fixer
       accessibilityFixer.value = new AccessibilityFixer();
       accessibilityFixer.value.init();
-      
+
       const detach = setupGlobalShortcuts({
         addStage,
         addTransition,

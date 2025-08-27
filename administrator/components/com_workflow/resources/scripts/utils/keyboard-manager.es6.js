@@ -39,12 +39,12 @@ export function setupGlobalShortcuts({
     }
 
     const groupSelectors = {
-      buttons: 'button[tabindex="0"], button:not([tabindex="-1"])',
-      stages: '.stage-node[tabindex="0"]',
-      transitions: '.edge-label[tabindex="0"]',
-      toolbar: '.toolbar-button[tabindex="0"]',
-      actions: '.action-button[tabindex="0"]',
-      links: 'a[href][tabindex="0"], a[href]:not([tabindex="-1"])',
+      buttons: 'button, button:not([tabindex="-1"])',
+      stages: '.stage-node',
+      transitions: '.edge-label',
+      toolbar: '.toolbar-button',
+      actions: '.action-button',
+      links: 'a[href], a[href]:not([tabindex="-1"])',
     };
 
     function moveNode(stageId, direction, fast = false) {
