@@ -75,7 +75,7 @@ $tmpl    = $tmpl ? '&tmpl=' . $tmpl : '';
                 </div>
             </div>
             <div class="col-lg-3">
-                <?php echo LayoutHelper::render('joomla.edit.global', $this); ?>
+                <?php echo LayoutHelper::render('joomla.edit.article_options', $this); ?>
             </div>
         </div>
 
