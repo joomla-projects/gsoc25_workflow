@@ -33,9 +33,44 @@ Joomla = window.Joomla || {};
     return makeRequest(`&task=graph.getTransitions&workflow_id=${workflowId}&format=json`);
   }
 
+  function filterWorkflow(stages, transitions) {
+    // Step 1: Filter transitions by run permission
+    let filteredTransitions = transitions.filter(tr => tr.permissions?.run_transition);
+
+    // Step 2: Collect stage IDs that are connected by accessible transitions
+    const connectedStageIds = new Set();
+    filteredTransitions.forEach(tr => {
+      if (tr.from_stage_id !== -1) connectedStageIds.add(tr.from_stage_id);
+      connectedStageIds.add(tr.to_stage_id);
+    });
+
+    // Step 3: Filter stages by edit/delete permission OR connectivity
+    let filteredStages = stages.filter(st => {
+      const editable = st.permissions?.edit || st.permissions?.delete;
+      const connected = connectedStageIds.has(st.id);
+      return editable || connected;
+    });
+
+    // Step 4: Remove transitions pointing to removed stages
+    const validStageIds = new Set(filteredStages.map(st => st.id));
+    filteredTransitions = filteredTransitions.filter(tr =>
+      (tr.from_stage_id === -1 || validStageIds.has(tr.from_stage_id)) &&
+      validStageIds.has(tr.to_stage_id)
+    );
+
+    return { stages: filteredStages, transitions: filteredTransitions };
+  }
+
+
   function calculateAutoLayout(stages, transitions) {
     const needsPosition = stages.filter((stage) => !stage.position || isNaN(stage.position.x) || isNaN(stage.position.y));
     if (needsPosition.length === 0) return stages;
+
+    // Place "From Any" at fixed position if present
+    const fromAnyStage = stages.find((s) => s.id === 'From Any');
+    if (fromAnyStage && (!fromAnyStage.position || isNaN(fromAnyStage.position.x) || isNaN(fromAnyStage.position.y))) {
+      fromAnyStage.position = { x: 600, y: -200 };
+    }
 
     const outgoing = new Map(stages.map((s) => [s.id, []]));
     const inDegree = new Map(stages.map((s) => [s.id, 0]));
@@ -50,14 +85,14 @@ Joomla = window.Joomla || {};
     });
 
     const levels = [];
-    let queue = stages.filter((s) => inDegree.get(s.id) === 0);
+    let queue = stages.filter((s) => inDegree.get(s.id) === 0 && s.id !== 'From Any');
     while (queue.length > 0) {
       levels.push(queue);
       const nextQueue = [];
       for (const stage of queue) {
         for (const targetId of outgoing.get(stage.id) || []) {
           inDegree.set(targetId, inDegree.get(targetId) - 1);
-          if (inDegree.get(targetId) === 0) {
+          if (inDegree.get(targetId) === 0 && targetId !== 'From Any') {
             nextQueue.push(stages.find((s) => s.id === targetId));
           }
         }
@@ -90,7 +125,7 @@ Joomla = window.Joomla || {};
         stage.position.y = parseFloat(stage.position.y);
       }
     });
-    
+
     const hasStart = transitions.some((tr) => tr.from_stage_id === -1);
     if (hasStart && !stages.find((s) => s.id === 'From Any')) stages.unshift({ id: 'From Any', title: 'From Any' });
 
@@ -104,9 +139,14 @@ Joomla = window.Joomla || {};
         data: stage,
         className: `stage ${stage.default ? 'default' : ''} ${isVirtual ? 'virtual' : ''}`,
         innerHTML: `
-          <div class="stage-title">${stage.title}</div>
-          ${stage.description ? `<div class="stage-description">${stage.description}</div>` : ''}
-          ${stage.default ? '<div class="badge bg-warning bg-opacity-10 rounded-pill p-1">DEFAULT</div>' : ''}
+          <div class="stage-title text-truncate" style="max-width: 180px;" title="${stage.title}">${stage.title}</div>
+          ${stage.description ? `<div class="stage-description text-truncate small text-white" style="max-width: 180px;" title="${stage.description}">${stage.description}</div>` : ''}
+          <div style="display: flex; gap: 4px; align-items: center; margin-top: 2px;">
+        ${stage.default ? '<div class="badge bg-warning bg-opacity-10 rounded-pill p-1">DEFAULT</div>' : ''}
+        ${typeof stage.published !== 'undefined'
+            ? `<div class="badge ${stage.published == 1 ? 'bg-success' : 'bg-warning'} rounded-pill p-1">${stage.published == 1 ? 'ENABLED' : 'DISABLED'}</div>`
+            : ''}
+          </div>
         `,
       };
     });
@@ -117,16 +157,16 @@ Joomla = window.Joomla || {};
    */
   function generateEdges(transitions, stages) {
     const STAGE_WIDTH = 200;
-    const STAGE_HEIGHT = 80;
+    const STAGE_HEIGHT = 100;
 
     const getConnectionPoint = (fromStage, toStage, isSource) => {
       const node = isSource ? fromStage : toStage;
       const center = { x: node.position.x + STAGE_WIDTH / 2, y: node.position.y + STAGE_HEIGHT / 2 };
-      const otherCenter = { 
-        x: (isSource ? toStage : fromStage).position.x + STAGE_WIDTH / 2, 
-        y: (isSource ? toStage : fromStage).position.y + STAGE_HEIGHT / 2 
+      const otherCenter = {
+        x: (isSource ? toStage : fromStage).position.x + STAGE_WIDTH / 2,
+        y: (isSource ? toStage : fromStage).position.y + STAGE_HEIGHT / 2
       };
-      
+
       const dx = otherCenter.x - center.x;
       const dy = otherCenter.y - center.y;
 
@@ -174,8 +214,6 @@ Joomla = window.Joomla || {};
 
   function renderNodes(nodes, container, onDrag) {
     container.innerHTML = '';
-    const STAGE_WIDTH = 200;
-    const STAGE_HEIGHT = 80;
 
     nodes.forEach((node) => {
       const div = document.createElement('div');
@@ -184,26 +222,44 @@ Joomla = window.Joomla || {};
       div.innerHTML = node.innerHTML;
       div.style.left = `${node.position.x}px`;
       div.style.top = `${node.position.y}px`;
-      
+
       div.addEventListener('mousedown', (e) => {
         if (e.button !== 0) return;
         e.stopPropagation();
         onDrag(e, node.data);
       });
-      
+
       container.appendChild(div);
     });
   }
-  
+
+  function highlightTransition(edgeId) {
+    // Reset all first
+    document.querySelectorAll('.transition-path').forEach(p => {
+      p.classList.remove('highlighted');
+    });
+    document.querySelectorAll('.transition-label-content').forEach(l => {
+      l.classList.remove('highlighted');
+    });
+
+    // Highlight selected
+    const path = document.querySelector(`.transition-path[data-edge-id="${edgeId}"]`);
+    const label = document.querySelector(`.transition-label-content[data-edge-id="${edgeId}"]`);
+
+    if (path) path.classList.add('highlighted');
+    if (label) label.classList.add('highlighted');
+  }
+
+
   function renderEdges(edges, svg) {
     svg.querySelectorAll('path, foreignObject').forEach((el) => el.remove());
-    
+
     edges.forEach((edge) => {
       const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
       path.setAttribute('d', edge.pathData);
       path.setAttribute('class', 'transition-path');
+      path.setAttribute('data-edge-id', edge.id);   // track edge
       path.setAttribute('marker-end', 'url(#arrowhead)');
-      svg.appendChild(path);
 
       const foreignObject = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
       foreignObject.setAttribute('class', 'transition-label');
@@ -211,12 +267,20 @@ Joomla = window.Joomla || {};
       foreignObject.setAttribute('height', '24');
       foreignObject.setAttribute('x', edge.labelPosition.x - 60);
       foreignObject.setAttribute('y', edge.labelPosition.y - 12);
-      
+
       const labelDiv = document.createElement('div');
       labelDiv.className = 'transition-label-content';
       labelDiv.textContent = edge.label;
+      labelDiv.dataset.edgeId = edge.id;
+      labelDiv.addEventListener('click', (e) => {
+        e.stopPropagation();
+        highlightTransition(edge.id);
+      });
+
       foreignObject.appendChild(labelDiv);
+      svg.appendChild(path);
       svg.appendChild(foreignObject);
+
     });
   }
 
@@ -249,16 +313,16 @@ Joomla = window.Joomla || {};
     // Pan & Zoom state
     svg.innerHTML = `
       <defs>
-        <marker 
-          id="arrowhead" 
-          markerWidth="12" 
-          markerHeight="12" 
-          refX="11" 
-          refY="6" 
-          orient="auto" 
-          markerUnits="strokeWidth">
-          <polygon points="0 0, 12 6, 0 12" class="arrow-marker" />
-        </marker>
+      <marker 
+        id="arrowhead" 
+        markerWidth="8" 
+        markerHeight="8" 
+        refX="7" 
+        refY="4" 
+        orient="auto" 
+        markerUnits="strokeWidth">
+        <polygon points="0 0, 8 4, 0 8" class="arrow-marker" />
+      </marker>
       </defs>`;
     let state = { stages: [], transitions: [], scale: 1, panX: 0, panY: 0, isDraggingStage: false };
 
@@ -280,18 +344,18 @@ Joomla = window.Joomla || {};
         stageY: draggedStage.position.y,
       };
       stageElement.classList.add('dragging');
-      
+
       const onMouseMove = (moveEvent) => {
         draggedStage.position.x = dragStart.stageX + (moveEvent.clientX - dragStart.x) / state.scale;
         draggedStage.position.y = dragStart.stageY + (moveEvent.clientY - dragStart.y) / state.scale;
-        
+
         stageElement.style.left = `${draggedStage.position.x}px`;
         stageElement.style.top = `${draggedStage.position.y}px`;
 
         const edges = generateEdges(state.transitions, state.stages);
         renderEdges(edges, svg);
       };
-      
+
       const onMouseUp = () => {
         document.removeEventListener('mousemove', onMouseMove);
         document.removeEventListener('mouseup', onMouseUp);
@@ -347,7 +411,7 @@ Joomla = window.Joomla || {};
 
       updateTransform();
     }
-    
+
 
     Promise.all([
       getWorkflow(workflowId),
@@ -355,8 +419,17 @@ Joomla = window.Joomla || {};
       getTransitions(workflowId)
     ]).then(([workflowData, stagesData, transitionsData]) => {
       const workflow = workflowData?.data || {};
-      state.stages = stagesData?.data || [];
-      state.transitions = transitionsData?.data || [];
+      let stages = stagesData?.data || [];
+      let transitions = transitionsData?.data || [];
+
+      ({ stages, transitions } = filterWorkflow(stages, transitions));
+
+      console.log('stages:', stages);
+      console.log('transitions:', transitions);
+      state.stages = stages;
+      state.transitions = transitions;
+
+
 
       if (!state.stages.length) {
         stageContainer.innerHTML = "<p>No stages defined.</p>";
@@ -396,9 +469,59 @@ Joomla = window.Joomla || {};
         zoomControls = document.createElement('div');
         zoomControls.className = 'zoom-controls';
         zoomControls.innerHTML = `
-          <button class="zoom-btn zoom-in" title="Zoom In (+)">+</button>
-          <button class="zoom-btn zoom-out" title="Zoom Out (-)">−</button>
-          <button class="zoom-btn fit-screen" title="Fit to Screen (F)">⌂</button>
+          <div
+            ref="controlsContainer"
+            class="custom-controls z-10"
+            role="group"
+            aria-labelledby="canvas-controls-title"
+          >
+            <h2 id="canvas-controls-title" class="visually-hidden">Canvas View Controls</h2>
+
+            <ul class="d-flex flex-column gap-1 list-unstyled mb-0" role="group">
+              <li>
+                <button
+                  class="zoom-btn zoom-in"
+                  tabindex="0"
+                  type="button"
+                  aria-label="Zoom in"
+                  title="Zoom in (+ key)"
+                >
+                  <span class="icon icon-plus" aria-hidden="true" />
+                  <span class="visually-hidden">Zoom In</span>
+                </button>
+              </li>
+              <li>
+                <button
+                  class="zoom-btn zoom-out"
+                  tabindex="0"
+                  type="button"
+                  aria-label="Zoom out"
+                  title="Zoom out (- key)"
+                  @click="zoomOut"
+                  @keydown.enter="zoomOut"
+                  @keydown.space.prevent="zoomOut"
+                >
+                  <span class="icon icon-minus" aria-hidden="true" />
+                  <span class="visually-hidden">Zoom Out</span>
+                </button>
+              </li>
+              <li>
+                <button
+                  class="zoom-btn fit-screen"
+                  tabindex="0"
+                  type="button"
+                  aria-label="Fit view"
+                  title="Fit view (F key)"
+                  @click="customFitView"
+                  @keydown.enter="customFitView"
+                  @keydown.space.prevent="customFitView"
+                >
+                  <span class="icon icon-expand" aria-hidden="true" />
+                  <span class="visually-hidden">Fit View</span>
+                </button>
+              </li>
+            </ul>
+          </div>
         `;
         container.appendChild(zoomControls);
 
