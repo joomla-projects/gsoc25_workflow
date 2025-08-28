@@ -31,9 +31,15 @@ class Dispatcher extends ComponentDispatcher
      */
     protected function checkAccess()
     {
-        $extension = $this->getApplication()->getInput()->getCmd('extension');
+        $input      = $this->getApplication()->getInput();
+        $view       = $input->getCmd('view');
+        $extension  = $input->getCmd('extension');
+        $parts      = explode('.', $extension);
 
-        $parts = explode('.', $extension);
+        // Allow access to the 'graph' view for all users
+        if ($view === 'graph') {
+            return;
+        }
 
         // Check the user has permission to access this component if in the backend
         if ($this->app->isClient('administrator') && !$this->app->getIdentity()->authorise('core.manage.workflow', $parts[0])) {
