@@ -200,7 +200,6 @@
 
 <script>
 import { Handle, Position } from '@vue-flow/core';
-import { open } from 'fs-extra';
 
 export default {
   name: 'StageNode',
