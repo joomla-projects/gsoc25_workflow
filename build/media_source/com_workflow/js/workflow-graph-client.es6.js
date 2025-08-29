@@ -4,13 +4,12 @@
  */
 
 Joomla = window.Joomla || {};
-
 (() => {
-  'use strict';
-
   async function makeRequest(url) {
     try {
-      const response = await fetch('index.php?option=com_workflow&extension=com_content' + url, {
+      const paths = Joomla.getOptions('system.paths');
+      const uri = `${paths ? `${paths.rootFull}administrator/index.php` : window.location.pathname}?option=com_workflow&extension=com_content&layout=modal&view=graph${url}`;
+      const response = await fetch(uri, {
         credentials: 'same-origin'
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -20,62 +19,49 @@ Joomla = window.Joomla || {};
       return null;
     }
   }
-
   async function getWorkflow(id) {
     return makeRequest(`&task=graph.getWorkflow&workflow_id=${id}&format=json`);
   }
-
   async function getStages(workflowId) {
     return makeRequest(`&task=graph.getStages&workflow_id=${workflowId}&format=json`);
   }
-
   async function getTransitions(workflowId) {
     return makeRequest(`&task=graph.getTransitions&workflow_id=${workflowId}&format=json`);
   }
-
   function filterWorkflow(stages, transitions) {
-    // Step 1: Filter transitions by run permission
-    let filteredTransitions = transitions.filter(tr => tr.permissions?.run_transition);
-
-    // Step 2: Collect stage IDs that are connected by accessible transitions
+    let filteredTransitions = transitions.filter(tr => {
+      return tr.permissions == null ? void 0 : tr.permissions.run_transition;
+    });
     const connectedStageIds = new Set();
     filteredTransitions.forEach(tr => {
       if (tr.from_stage_id !== -1) connectedStageIds.add(tr.from_stage_id);
       connectedStageIds.add(tr.to_stage_id);
     });
-
-    // Step 3: Filter stages by edit/delete permission OR connectivity
     let filteredStages = stages.filter(st => {
-      const editable = st.permissions?.edit || st.permissions?.delete;
+      const editable = (st.permissions == null ? void 0 : st.permissions.edit) || (st.permissions == null ? void 0 : st.permissions.delete);
       const connected = connectedStageIds.has(st.id);
       return editable || connected;
     });
-
-    // Step 4: Remove transitions pointing to removed stages
     const validStageIds = new Set(filteredStages.map(st => st.id));
-    filteredTransitions = filteredTransitions.filter(tr =>
-      (tr.from_stage_id === -1 || validStageIds.has(tr.from_stage_id)) &&
-      validStageIds.has(tr.to_stage_id)
-    );
-
-    return { stages: filteredStages, transitions: filteredTransitions };
+    filteredTransitions = filteredTransitions.filter(tr => (tr.from_stage_id === -1 || validStageIds.has(tr.from_stage_id)) && validStageIds.has(tr.to_stage_id));
+    return {
+      stages: filteredStages,
+      transitions: filteredTransitions
+    };
   }
-
-
   function calculateAutoLayout(stages, transitions) {
-    const needsPosition = stages.filter((stage) => !stage.position || isNaN(stage.position.x) || isNaN(stage.position.y));
+    const needsPosition = stages.filter(stage => !stage.position || isNaN(stage.position.x) || isNaN(stage.position.y));
     if (needsPosition.length === 0) return stages;
-
-    // Place "From Any" at fixed position if present
-    const fromAnyStage = stages.find((s) => s.id === 'From Any');
+    const fromAnyStage = stages.find(s => s.id === 'From Any');
     if (fromAnyStage && (!fromAnyStage.position || isNaN(fromAnyStage.position.x) || isNaN(fromAnyStage.position.y))) {
-      fromAnyStage.position = { x: 600, y: -200 };
+      fromAnyStage.position = {
+        x: 600,
+        y: -200
+      };
     }
-
-    const outgoing = new Map(stages.map((s) => [s.id, []]));
-    const inDegree = new Map(stages.map((s) => [s.id, 0]));
-
-    transitions.forEach((tr) => {
+    const outgoing = new Map(stages.map(s => [s.id, []]));
+    const inDegree = new Map(stages.map(s => [s.id, 0]));
+    transitions.forEach(tr => {
       const fromId = tr.from_stage_id === -1 ? 'From Any' : tr.from_stage_id;
       const toId = tr.to_stage_id;
       if (outgoing.has(fromId) && inDegree.has(toId)) {
@@ -83,9 +69,8 @@ Joomla = window.Joomla || {};
         inDegree.set(toId, inDegree.get(toId) + 1);
       }
     });
-
     const levels = [];
-    let queue = stages.filter((s) => inDegree.get(s.id) === 0 && s.id !== 'From Any');
+    let queue = stages.filter(s => inDegree.get(s.id) === 0 && s.id !== 'From Any');
     while (queue.length > 0) {
       levels.push(queue);
       const nextQueue = [];
@@ -93,64 +78,63 @@ Joomla = window.Joomla || {};
         for (const targetId of outgoing.get(stage.id) || []) {
           inDegree.set(targetId, inDegree.get(targetId) - 1);
           if (inDegree.get(targetId) === 0 && targetId !== 'From Any') {
-            nextQueue.push(stages.find((s) => s.id === targetId));
+            nextQueue.push(stages.find(s => s.id === targetId));
           }
         }
       }
       queue = nextQueue;
     }
-
     const levelSpacing = 300;
     const stageSpacing = 120;
     levels.forEach((levelStages, level) => {
       const levelHeight = (levelStages.length - 1) * stageSpacing;
       const startY = -levelHeight / 2;
       levelStages.forEach((stage, index) => {
-        if (needsPosition.some((s) => s.id === stage.id)) {
+        if (needsPosition.some(s => s.id === stage.id)) {
           stage.position = {
             x: level * levelSpacing + 50,
-            y: startY + index * stageSpacing + 300,
+            y: startY + index * stageSpacing + 300
           };
         }
       });
     });
-
     return stages;
   }
-
   function generateNodes(stages, transitions) {
-    stages.forEach((stage) => {
-      if (stage.position) {
-        stage.position.x = parseFloat(stage.position.x);
-        stage.position.y = parseFloat(stage.position.y);
-      }
-    });
-
-    const hasStart = transitions.some((tr) => tr.from_stage_id === -1);
-    if (hasStart && !stages.find((s) => s.id === 'From Any')) stages.unshift({ id: 'From Any', title: 'From Any' });
-
-    const positionedStages = calculateAutoLayout(stages, transitions);
-
-    return positionedStages.map((stage) => {
-      const isVirtual = stage.id === 'From Any';
-      return {
-        id: `stage-${stage.id}`,
-        position: stage.position,
-        data: stage,
-        className: `stage ${stage.default ? 'default' : ''} ${isVirtual ? 'virtual' : ''}`,
-        innerHTML: `
-          <div class="stage-title text-truncate" style="max-width: 180px;" title="${stage.title}">${stage.title}</div>
-          ${stage.description ? `<div class="stage-description text-truncate small text-white" style="max-width: 180px;" title="${stage.description}">${stage.description}</div>` : ''}
-          <div style="display: flex; gap: 4px; align-items: center; margin-top: 2px;">
-        ${stage.default ? '<div class="badge bg-warning bg-opacity-10 rounded-pill p-1">DEFAULT</div>' : ''}
-        ${typeof stage.published !== 'undefined'
-            ? `<div class="badge ${stage.published == 1 ? 'bg-success' : 'bg-warning'} rounded-pill p-1">${stage.published == 1 ? 'ENABLED' : 'DISABLED'}</div>`
-            : ''}
-          </div>
-        `,
-      };
-    });
-  }
+      // Ensure every stage has a position object
+      stages.forEach(stage => {
+        if (!stage.position || isNaN(stage.position.x) || isNaN(stage.position.y)) {
+          stage.position = { x: 0, y: 0 };
+        } else {
+          stage.position.x = parseFloat(stage.position.x);
+          stage.position.y = parseFloat(stage.position.y);
+        }
+      });
+      const hasStart = transitions.some(tr => tr.from_stage_id === -1);
+      if (hasStart && !stages.find(s => s.id === 'From Any')) stages.unshift({
+        id: 'From Any',
+        title: 'From Any',
+        position: { x: 600, y: -200 }
+      });
+      const positionedStages = calculateAutoLayout(stages, transitions);
+      return positionedStages.map(stage => {
+        const isVirtual = stage.id === 'From Any';
+        return {
+          id: `stage-${stage.id}`,
+          position: stage.position,
+          data: stage,
+          className: `stage ${stage.default ? 'default' : ''} ${isVirtual ? 'virtual' : ''}`,
+          innerHTML: `
+            <div class="stage-title text-truncate" style="max-width: 180px;" title="${stage.title}">${stage.title}</div>
+            ${stage.description ? `<div class="stage-description text-truncate small text-white" style="max-width: 180px;" title="${stage.description}">${stage.description}</div>` : ''}
+            <div style="display: flex; gap: 4px; align-items: center; margin-top: 2px;">
+          ${stage.default ? '<div class="badge bg-warning bg-opacity-10 rounded-pill p-1">DEFAULT</div>' : ''}
+          ${typeof stage.published !== 'undefined' ? `<div class="badge ${stage.published == 1 ? 'bg-success' : 'bg-warning'} rounded-pill p-1">${stage.published == 1 ? 'ENABLED' : 'DISABLED'}</div>` : ''}
+            </div>
+          `
+        };
+      });
+    }
 
   /**
    * Generates edge objects with robust pathing and centered labels.
@@ -158,81 +142,86 @@ Joomla = window.Joomla || {};
   function generateEdges(transitions, stages) {
     const STAGE_WIDTH = 200;
     const STAGE_HEIGHT = 100;
-
     const getConnectionPoint = (fromStage, toStage, isSource) => {
       const node = isSource ? fromStage : toStage;
-      const center = { x: node.position.x + STAGE_WIDTH / 2, y: node.position.y + STAGE_HEIGHT / 2 };
+      const center = {
+        x: node.position.x + STAGE_WIDTH / 2,
+        y: node.position.y + STAGE_HEIGHT / 2
+      };
       const otherCenter = {
         x: (isSource ? toStage : fromStage).position.x + STAGE_WIDTH / 2,
         y: (isSource ? toStage : fromStage).position.y + STAGE_HEIGHT / 2
       };
-
       const dx = otherCenter.x - center.x;
       const dy = otherCenter.y - center.y;
-
       if (Math.abs(dx) > Math.abs(dy)) {
-        return { x: dx > 0 ? node.position.x + STAGE_WIDTH : node.position.x, y: center.y };
+        return {
+          x: dx > 0 ? node.position.x + STAGE_WIDTH : node.position.x,
+          y: center.y
+        };
       }
-      return { x: center.x, y: dy > 0 ? node.position.y + STAGE_HEIGHT : node.position.y };
+      return {
+        x: center.x,
+        y: dy > 0 ? node.position.y + STAGE_HEIGHT : node.position.y
+      };
     };
-
-    return transitions.map((tr) => {
-      const fromStage = stages.find((s) => s.id === (tr.from_stage_id === -1 ? 'From Any' : tr.from_stage_id));
-      const toStage = stages.find((s) => s.id === (tr.to_stage_id));
-      if (!fromStage?.position || !toStage?.position) return null;
-
+    return transitions.map(tr => {
+      const fromStage = stages.find(s => s.id === (tr.from_stage_id === -1 ? 'From Any' : tr.from_stage_id));
+      const toStage = stages.find(s => s.id === tr.to_stage_id);
+      if (!(fromStage != null && fromStage.position) || !(toStage != null && toStage.position)) return null;
       const sourcePoint = getConnectionPoint(fromStage, toStage, true);
       const targetPoint = getConnectionPoint(fromStage, toStage, false);
-      const toCenter = { x: toStage.position.x + STAGE_WIDTH / 2, y: toStage.position.y + STAGE_HEIGHT / 2 };
-
+      const toCenter = {
+        x: toStage.position.x + STAGE_WIDTH / 2,
+        y: toStage.position.y + STAGE_HEIGHT / 2
+      };
       let pathData;
       let labelPosition;
 
       // Determine if the entry to the target node is vertical (top/bottom) or horizontal (left/right)
       const isVerticalEntry = Math.abs(targetPoint.x - toCenter.x) < 1;
-
       if (isVerticalEntry) {
         // Entry is top/bottom. Path must end with a vertical line for the arrow.
         const midY = (sourcePoint.y + targetPoint.y) / 2;
         pathData = `M ${sourcePoint.x},${sourcePoint.y} L ${sourcePoint.x},${midY} L ${targetPoint.x},${midY} L ${targetPoint.x},${targetPoint.y}`;
-        labelPosition = { x: (sourcePoint.x + targetPoint.x) / 2, y: midY };
+        labelPosition = {
+          x: (sourcePoint.x + targetPoint.x) / 2,
+          y: midY
+        };
       } else {
         // Entry is left/right. Path must end with a horizontal line.
         const midX = (sourcePoint.x + targetPoint.x) / 2;
         pathData = `M ${sourcePoint.x},${sourcePoint.y} L ${midX},${sourcePoint.y} L ${midX},${targetPoint.y} L ${targetPoint.x},${targetPoint.y}`;
-        labelPosition = { x: midX, y: (sourcePoint.y + targetPoint.y) / 2 };
+        labelPosition = {
+          x: midX,
+          y: (sourcePoint.y + targetPoint.y) / 2
+        };
       }
-
       return {
         id: `transition-${tr.id}`,
         pathData,
         label: tr.title || 'Transition',
-        labelPosition,
+        labelPosition
       };
     }).filter(Boolean);
   }
-
   function renderNodes(nodes, container, onDrag) {
     container.innerHTML = '';
-
-    nodes.forEach((node) => {
+    nodes.forEach(node => {
       const div = document.createElement('div');
       div.id = node.id;
       div.className = node.className;
       div.innerHTML = node.innerHTML;
       div.style.left = `${node.position.x}px`;
       div.style.top = `${node.position.y}px`;
-
-      div.addEventListener('mousedown', (e) => {
+      div.addEventListener('mousedown', e => {
         if (e.button !== 0) return;
         e.stopPropagation();
         onDrag(e, node.data);
       });
-
       container.appendChild(div);
     });
   }
-
   function highlightTransition(edgeId) {
     // Reset all first
     document.querySelectorAll('.transition-path').forEach(p => {
@@ -245,46 +234,36 @@ Joomla = window.Joomla || {};
     // Highlight selected
     const path = document.querySelector(`.transition-path[data-edge-id="${edgeId}"]`);
     const label = document.querySelector(`.transition-label-content[data-edge-id="${edgeId}"]`);
-
     if (path) path.classList.add('highlighted');
     if (label) label.classList.add('highlighted');
   }
-
-
   function renderEdges(edges, svg) {
-    svg.querySelectorAll('path, foreignObject').forEach((el) => el.remove());
-
-    edges.forEach((edge) => {
+    svg.querySelectorAll('path, foreignObject').forEach(el => el.remove());
+    edges.forEach(edge => {
       const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
       path.setAttribute('d', edge.pathData);
       path.setAttribute('class', 'transition-path');
-      path.setAttribute('data-edge-id', edge.id);   // track edge
+      path.setAttribute('data-edge-id', edge.id); // track edge
       path.setAttribute('marker-end', 'url(#arrowhead)');
-
       const foreignObject = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
       foreignObject.setAttribute('class', 'transition-label');
       foreignObject.setAttribute('width', '120');
       foreignObject.setAttribute('height', '24');
       foreignObject.setAttribute('x', edge.labelPosition.x - 60);
       foreignObject.setAttribute('y', edge.labelPosition.y - 12);
-
       const labelDiv = document.createElement('div');
       labelDiv.className = 'transition-label-content';
       labelDiv.textContent = edge.label;
       labelDiv.dataset.edgeId = edge.id;
-      labelDiv.addEventListener('click', (e) => {
+      labelDiv.addEventListener('click', e => {
         e.stopPropagation();
         highlightTransition(edge.id);
       });
-
       foreignObject.appendChild(labelDiv);
       svg.appendChild(path);
       svg.appendChild(foreignObject);
-
     });
   }
-
-
   function initWorkflowGraph() {
     const container = document.getElementById("workflow-container");
     const containerTitle = document.getElementById("workflow-main-title");
@@ -292,7 +271,6 @@ Joomla = window.Joomla || {};
     const stageContainer = document.getElementById("stages");
     const svg = document.getElementById("connections");
     const statusBadge = document.querySelector(".badge[role='status']");
-
     if (!container || !graph || !stageContainer || !svg) {
       console.warn("[Workflow Graph] Missing required DOM elements.");
       return;
@@ -306,9 +284,12 @@ Joomla = window.Joomla || {};
 
     // Mark as initialized
     container.setAttribute('data-workflow-initialized', 'true');
+    const workflowId = parseInt(container.dataset.workflowId, 10) || 2;
+    if (!workflowId) {
+      console.warn("[Workflow Graph] Invalid workflow ID.");
+      return;
+    }
 
-    const workflowMeta = container.dataset.workflow ? JSON.parse(container.dataset.workflow) : {};
-    const workflowId = workflowMeta.id || parseInt(container.dataset.workflowId, 10) || 1;
 
     // Pan & Zoom state
     svg.innerHTML = `
@@ -324,16 +305,21 @@ Joomla = window.Joomla || {};
         <polygon points="0 0, 8 4, 0 8" class="arrow-marker" />
       </marker>
       </defs>`;
-    let state = { stages: [], transitions: [], scale: 1, panX: 0, panY: 0, isDraggingStage: false };
+    let state = {
+      stages: [],
+      transitions: [],
+      scale: 1,
+      panX: 0,
+      panY: 0,
+      isDraggingStage: false
+    };
 
     // Stage dimensions
     const STAGE_WIDTH = 200;
     const STAGE_HEIGHT = 80;
-
     function updateTransform() {
       graph.style.transform = `translate(${state.panX}px, ${state.panY}px) scale(${state.scale})`;
     }
-
     const handleNodeDrag = (startEvent, draggedStage) => {
       state.isDraggingStage = true;
       const stageElement = document.getElementById(`stage-${draggedStage.id}`);
@@ -341,37 +327,34 @@ Joomla = window.Joomla || {};
         x: startEvent.clientX,
         y: startEvent.clientY,
         stageX: draggedStage.position.x,
-        stageY: draggedStage.position.y,
+        stageY: draggedStage.position.y
       };
       stageElement.classList.add('dragging');
-
-      const onMouseMove = (moveEvent) => {
+      const onMouseMove = moveEvent => {
         draggedStage.position.x = dragStart.stageX + (moveEvent.clientX - dragStart.x) / state.scale;
         draggedStage.position.y = dragStart.stageY + (moveEvent.clientY - dragStart.y) / state.scale;
-
         stageElement.style.left = `${draggedStage.position.x}px`;
         stageElement.style.top = `${draggedStage.position.y}px`;
-
         const edges = generateEdges(state.transitions, state.stages);
         renderEdges(edges, svg);
       };
-
       const onMouseUp = () => {
         document.removeEventListener('mousemove', onMouseMove);
         document.removeEventListener('mouseup', onMouseUp);
         stageElement.classList.remove('dragging');
-        setTimeout(() => { state.isDraggingStage = false; }, 0);
+        setTimeout(() => {
+          state.isDraggingStage = false;
+        }, 0);
       };
-
       document.addEventListener('mousemove', onMouseMove);
       document.addEventListener('mouseup', onMouseUp);
     };
-
     function getBoundingBox() {
       if (!state.stages.length) return null;
-
-      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-
+      let minX = Infinity,
+        minY = Infinity,
+        maxX = -Infinity,
+        maxY = -Infinity;
       state.stages.forEach(stage => {
         if (stage.position) {
           minX = Math.min(minX, stage.position.x);
@@ -380,20 +363,19 @@ Joomla = window.Joomla || {};
           maxY = Math.max(maxY, stage.position.y + STAGE_HEIGHT);
         }
       });
-
       if (minX === Infinity) return null;
-
       return {
-        minX, minY, maxX, maxY,
+        minX,
+        minY,
+        maxX,
+        maxY,
         width: maxX - minX,
         height: maxY - minY
       };
     }
-
     function fitToScreen() {
       const bounds = getBoundingBox();
       if (!bounds) return;
-
       const containerRect = container.getBoundingClientRect();
       const padding = 100;
       const availableWidth = containerRect.width - padding;
@@ -408,29 +390,20 @@ Joomla = window.Joomla || {};
       // Center the content
       state.panX = (containerRect.width - bounds.width * state.scale) / 2 - bounds.minX * state.scale;
       state.panY = (containerRect.height - bounds.height * state.scale) / 2 - bounds.minY * state.scale;
-
       updateTransform();
     }
-
-
-    Promise.all([
-      getWorkflow(workflowId),
-      getStages(workflowId),
-      getTransitions(workflowId)
-    ]).then(([workflowData, stagesData, transitionsData]) => {
-      const workflow = workflowData?.data || {};
-      let stages = stagesData?.data || [];
-      let transitions = transitionsData?.data || [];
-
-      ({ stages, transitions } = filterWorkflow(stages, transitions));
-
+    Promise.all([getWorkflow(workflowId), getStages(workflowId), getTransitions(workflowId)]).then(([workflowData, stagesData, transitionsData]) => {
+      const workflow = (workflowData == null ? void 0 : workflowData.data) || {};
+      let stages = (stagesData == null ? void 0 : stagesData.data) || [];
+      let transitions = (transitionsData == null ? void 0 : transitionsData.data) || [];
+      ({
+        stages,
+        transitions
+      } = filterWorkflow(stages, transitions));
       console.log('stages:', stages);
       console.log('transitions:', transitions);
       state.stages = stages;
       state.transitions = transitions;
-
-
-
       if (!state.stages.length) {
         stageContainer.innerHTML = "<p>No stages defined.</p>";
         return;
@@ -440,181 +413,101 @@ Joomla = window.Joomla || {};
       if (containerTitle) {
         containerTitle.innerHTML = workflow.title || 'Workflow';
       }
-
       if (statusBadge) {
         const isPublished = workflow.published || workflow.state === 1;
         statusBadge.className = `badge ${isPublished ? 'bg-success' : 'bg-warning'}`;
         statusBadge.textContent = isPublished ? 'Enabled' : 'Disabled';
       }
-
       const stageCountSpan = document.querySelectorAll('dd span')[1];
       if (stageCountSpan) {
         stageCountSpan.textContent = `${state.stages.length} ${state.stages.length === 1 ? 'Stage' : 'Stages'}`;
       }
-
       const transitionCountSpan = document.querySelectorAll('dd span')[2];
       if (transitionCountSpan) {
         transitionCountSpan.textContent = `${state.transitions.length} ${state.transitions.length === 1 ? 'Transition' : 'Transitions'}`;
       }
-
       const nodes = generateNodes(state.stages, state.transitions);
       renderNodes(nodes, stageContainer, handleNodeDrag);
-
       const edges = generateEdges(state.transitions, state.stages);
       renderEdges(edges, svg);
 
       // Add zoom controls
-      let zoomControls = container.querySelector('.zoom-controls');
-      if (!zoomControls) {
-        zoomControls = document.createElement('div');
-        zoomControls.className = 'zoom-controls';
-        zoomControls.innerHTML = `
-          <div
-            ref="controlsContainer"
-            class="custom-controls z-10"
-            role="group"
-            aria-labelledby="canvas-controls-title"
-          >
-            <h2 id="canvas-controls-title" class="visually-hidden">Canvas View Controls</h2>
+      const zoomControls = container.querySelector('.zoom-controls');
+      const zoomInBtn = zoomControls.querySelector('.zoom-in');
+      const zoomOutBtn = zoomControls.querySelector('.zoom-out');
+      const fitBtn = zoomControls.querySelector('.fit-screen');
+      zoomInBtn.addEventListener('click', e => {
+        e.preventDefault();
+        e.stopPropagation();
+        const rect = container.getBoundingClientRect();
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const oldScale = state.scale;
+        state.scale = Math.min(state.scale * 1.2, 3);
 
-            <ul class="d-flex flex-column gap-1 list-unstyled mb-0" role="group">
-              <li>
-                <button
-                  class="zoom-btn zoom-in"
-                  tabindex="0"
-                  type="button"
-                  aria-label="Zoom in"
-                  title="Zoom in (+ key)"
-                >
-                  <span class="icon icon-plus" aria-hidden="true" />
-                  <span class="visually-hidden">Zoom In</span>
-                </button>
-              </li>
-              <li>
-                <button
-                  class="zoom-btn zoom-out"
-                  tabindex="0"
-                  type="button"
-                  aria-label="Zoom out"
-                  title="Zoom out (- key)"
-                  @click="zoomOut"
-                  @keydown.enter="zoomOut"
-                  @keydown.space.prevent="zoomOut"
-                >
-                  <span class="icon icon-minus" aria-hidden="true" />
-                  <span class="visually-hidden">Zoom Out</span>
-                </button>
-              </li>
-              <li>
-                <button
-                  class="zoom-btn fit-screen"
-                  tabindex="0"
-                  type="button"
-                  aria-label="Fit view"
-                  title="Fit view (F key)"
-                  @click="customFitView"
-                  @keydown.enter="customFitView"
-                  @keydown.space.prevent="customFitView"
-                >
-                  <span class="icon icon-expand" aria-hidden="true" />
-                  <span class="visually-hidden">Fit View</span>
-                </button>
-              </li>
-            </ul>
-          </div>
-        `;
-        container.appendChild(zoomControls);
+        // Zoom towards center
+        const factor = state.scale / oldScale;
+        state.panX = centerX - (centerX - state.panX) * factor;
+        state.panY = centerY - (centerY - state.panY) * factor;
+        updateTransform();
+      });
+      zoomOutBtn.addEventListener('click', e => {
+        e.preventDefault();
+        e.stopPropagation();
+        const rect = container.getBoundingClientRect();
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const oldScale = state.scale;
+        state.scale = Math.max(state.scale / 1.2, 0.1);
 
-        // Fixed zoom button event handlers
-        const zoomInBtn = zoomControls.querySelector('.zoom-in');
-        const zoomOutBtn = zoomControls.querySelector('.zoom-out');
-        const fitBtn = zoomControls.querySelector('.fit-screen');
-
-        zoomInBtn.addEventListener('click', (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          const rect = container.getBoundingClientRect();
-          const centerX = rect.width / 2;
-          const centerY = rect.height / 2;
-
-          const oldScale = state.scale;
-          state.scale = Math.min(state.scale * 1.2, 3);
-
-          // Zoom towards center
-          const factor = state.scale / oldScale;
-          state.panX = centerX - (centerX - state.panX) * factor;
-          state.panY = centerY - (centerY - state.panY) * factor;
-
-          updateTransform();
-        });
-
-        zoomOutBtn.addEventListener('click', (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          const rect = container.getBoundingClientRect();
-          const centerX = rect.width / 2;
-          const centerY = rect.height / 2;
-
-          const oldScale = state.scale;
-          state.scale = Math.max(state.scale / 1.2, 0.1);
-
-          // Zoom from center
-          const factor = state.scale / oldScale;
-          state.panX = centerX - (centerX - state.panX) * factor;
-          state.panY = centerY - (centerY - state.panY) * factor;
-
-          updateTransform();
-        });
-
-        fitBtn.addEventListener('click', (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          fitToScreen();
-        });
-      }
+        // Zoom from center
+        const factor = state.scale / oldScale;
+        state.panX = centerX - (centerX - state.panX) * factor;
+        state.panY = centerY - (centerY - state.panY) * factor;
+        updateTransform();
+      });
+      fitBtn.addEventListener('click', e => {
+        e.preventDefault();
+        e.stopPropagation();
+        fitToScreen();
+      });
 
       // Pan functionality - improved to not conflict with stage dragging
-      let isPanning = false, panStart = {};
-
-      container.addEventListener("mousedown", (e) => {
-        if (e.target.closest('.stage') ||
-          e.target.closest('.zoom-controls') ||
-          state.isDraggingStage) return;
-
+      let isPanning = false,
+        panStart = {};
+      container.addEventListener("mousedown", e => {
+        if (e.target.closest('.stage') || e.target.closest('.zoom-controls') || state.isDraggingStage) return;
         isPanning = true;
-        panStart = { x: e.clientX - state.panX, y: e.clientY - state.panY };
+        panStart = {
+          x: e.clientX - state.panX,
+          y: e.clientY - state.panY
+        };
         container.style.cursor = 'grabbing';
         e.preventDefault();
       });
-
-      container.addEventListener("mousemove", (e) => {
+      container.addEventListener("mousemove", e => {
         if (!isPanning || state.isDraggingStage) return;
         state.panX = e.clientX - panStart.x;
         state.panY = e.clientY - panStart.y;
         updateTransform();
       });
-
       container.addEventListener("mouseup", () => {
         isPanning = false;
         container.style.cursor = 'default';
       });
-
       container.addEventListener("mouseleave", () => {
         isPanning = false;
         container.style.cursor = 'default';
       });
 
       // Zoom with wheel - fixed to zoom towards mouse position
-      container.addEventListener("wheel", (e) => {
+      container.addEventListener("wheel", e => {
         e.preventDefault();
-
         const rect = container.getBoundingClientRect();
         const mouseX = e.clientX - rect.left;
         const mouseY = e.clientY - rect.top;
-
         const oldScale = state.scale;
         const zoomFactor = 0.1;
-
         if (e.deltaY < 0) {
           state.scale = Math.min(state.scale * (1 + zoomFactor), 3);
         } else {
@@ -625,16 +518,12 @@ Joomla = window.Joomla || {};
         const factor = state.scale / oldScale;
         state.panX = mouseX - (mouseX - state.panX) * factor;
         state.panY = mouseY - (mouseY - state.panY) * factor;
-
         updateTransform();
       });
 
       // Keyboard shortcuts
-      const handleKeyDown = (e) => {
-        if (document.activeElement.tagName === 'INPUT' ||
-          document.activeElement.tagName === 'TEXTAREA' ||
-          document.activeElement.isContentEditable) return;
-
+      const handleKeyDown = e => {
+        if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA' || document.activeElement.isContentEditable) return;
         switch (e.key.toLowerCase()) {
           case '+':
           case '=':
@@ -651,7 +540,6 @@ Joomla = window.Joomla || {};
             break;
         }
       };
-
       document.addEventListener('keydown', handleKeyDown);
 
       // Auto-fit initially with proper delay
@@ -660,7 +548,6 @@ Joomla = window.Joomla || {};
           fitToScreen();
         });
       }, 100); // Reduced delay for faster fitting
-
     }).catch(error => {
       console.error('[Workflow Graph] Failed to initialize:', error);
       stageContainer.innerHTML = `<p class="error">Failed to load workflow data: ${error.message}</p>`;
@@ -668,15 +555,12 @@ Joomla = window.Joomla || {};
   }
 
   // Observer for dynamic content
-  const observer = new MutationObserver((mutationsList) => {
+  const observer = new MutationObserver(mutationsList => {
     for (const mutation of mutationsList) {
       if (mutation.type === 'childList') {
         mutation.addedNodes.forEach(node => {
           if (node.nodeType === Node.ELEMENT_NODE) {
-            const workflowContainer = node.querySelector ?
-              node.querySelector('#workflow-container') :
-              (node.id === 'workflow-container' ? node : null);
-
+            const workflowContainer = node.querySelector ? node.querySelector('#workflow-container') : node.id === 'workflow-container' ? node : null;
             if (workflowContainer && !workflowContainer.hasAttribute('data-workflow-initialized')) {
               setTimeout(initWorkflowGraph, 100);
             }
@@ -685,23 +569,19 @@ Joomla = window.Joomla || {};
       }
     }
   });
-
   function init() {
     const existingContainer = document.getElementById('workflow-container');
     if (existingContainer && !existingContainer.hasAttribute('data-workflow-initialized')) {
       setTimeout(initWorkflowGraph, 100);
     }
-
     observer.observe(document.body, {
       childList: true,
       subtree: true
     });
   }
-
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
     init();
   }
-
 })();

@@ -31,13 +31,14 @@ class Dispatcher extends ComponentDispatcher
      */
     protected function checkAccess()
     {
-        $input      = $this->getApplication()->getInput();
+        $input      = $this->app->getInput();
         $view       = $input->getCmd('view');
+        $layout     = $input->getCmd('layout');
         $extension  = $input->getCmd('extension');
         $parts      = explode('.', $extension);
 
-        // Allow access to the 'graph' view for all users
-        if ($view === 'graph') {
+        // Allow access to the 'graph' view for all users with access
+        if ($this->app->isClient('administrator')  && $view === 'graph' && $layout === 'modal') {
             return;
         }
 

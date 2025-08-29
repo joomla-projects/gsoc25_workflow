@@ -1,14 +1,45 @@
-/* Container with proper overflow handling */
+/* ================================
+   Workflow Graph Styles
+   ================================ */
+
+/* Color Variables */
+:root {
+  --wf-bg: var(--bg-primary);
+  --wf-border: var(--border-color);
+  --wf-border-hover: var(--border-color-translucent);
+  --wf-dot-color: var(--primary);
+
+  --stage-bg: rgb(var(--primary-rgb));
+  --stage-border: var(--border-color);
+  --stage-text: var(--white);
+  --stage-desc: var(--ext-secondary);
+  --stage-virtual-bg: #800080;
+
+  --transition-stroke: var(--primary);
+  --transition-hover: var(--border-color-hover);
+  --transition-label-bg: rgb(49, 135, 226);
+  --transition-label-color: var(--white);
+  --transition-highlight: #ff6868;
+
+  --zoom-btn-bg: transparent;
+  --zoom-btn-hover: var(--border-color);
+  --zoom-btn-color: var(--text-primary);
+}
+
+/* ================================
+   Containers
+   ================================ */
+
 #workflow-graph {
+  position: relative;
   width: 100%;
   height: 80vh;
-  position: relative;
   overflow: hidden;
-  background-image: radial-gradient(circle at 1px 1px, var(--primary-text-emphasis) 1px, transparent 1px);
-  background-size: 18px 18px;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
   cursor: grab;
+  background-image: radial-gradient(circle at 1px 1px, var(--wf-dot-color) 1px, transparent 1px);
+  background-size: 18px 18px;
+  border: 1px solid var(--stage-border);
+  border-radius: 8px;
 }
 
 #workflow-graph:active {
@@ -16,19 +47,19 @@
 }
 
 #workflow-container {
+  position: relative;
   width: 100%;
   height: 100%;
-  position: relative;
   overflow: hidden;
 }
 
 #graph {
   position: relative;
-  transform-origin: 0 0;
-  transition: transform 0.15s ease-out;
   width: fit-content;
   min-width: 100%;
   min-height: 100%;
+  transition: transform .15s ease-out;
+  transform-origin: 0 0;
 }
 
 #graph.dragging {
@@ -45,409 +76,223 @@
   position: absolute;
   top: 0;
   left: 0;
+  z-index: 1;
   width: 100%;
   height: 100%;
-  pointer-events: none;
-  z-index: 1;
   overflow: visible;
+  pointer-events: none;
 }
 
-/* Stage styling - Vue Flow inspired */
+/* ================================
+   Stage Styling
+   ================================ */
+
 .stage {
   position: absolute;
-  width: 200px;
-  min-height: 80px;
-  padding: 12px 16px;
-  border-radius: 6px;
-  background: rgb(var(--primary-rgb));
-  border: 1px solid var(--border-color);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, .6);
-  cursor: move;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 10;
-  user-select: none;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  width: 200px;
+  min-height: 80px;
+  padding: 12px 16px;
+  cursor: move;
+  user-select: none;
+  background: var(--stage-bg);
+  border: 1px solid var(--stage-border);
+  border-radius: 6px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, .6);
+  transition: all .2s cubic-bezier(.4, 0, .2, 1);
+  animation: slideIn .3s ease-out forwards;
 }
 
 .stage:hover {
-  border-color: var(--border-color);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, .6);
   transform: translateY(-1px);
 }
 
 .stage.dragging {
-  box-shadow: 0 4px 10px rgba(0, 0, 0, .6);
-  transform: rotate(1deg) scale(1.02);
   z-index: 1000;
-  border-color: var(--border-color);
+  transform: rotate(1deg) scale(1.02);
 }
 
 .stage.virtual {
+  background: var(--stage-virtual-bg);
   border-style: dashed;
   border-width: 2px;
-  background: purple;
 }
 
 /* Stage content */
 .stage-title {
+  margin: 0 0 6px;
   font-size: 14px;
   font-weight: 600;
-  color: var(--white);
-  margin: 0 0 6px 0;
   line-height: 1.3;
+  color: var(--stage-text);
   word-wrap: break-word;
 }
 
 .stage-description {
+  margin: 0 0 8px;
   font-size: 12px;
-  color: var(--ext-secondary);
   line-height: 1.4;
-  margin: 0 0 8px 0;
+  color: var(--stage-desc);
   word-wrap: break-word;
 }
 
 .stage-badge {
   display: inline-block;
+  align-self: flex-start;
   padding: 2px 6px;
-  border-radius: 3px;
   font-size: 10px;
   font-weight: 500;
+  color: var(--stage-text);
   text-transform: uppercase;
-  background: var(--border-color);
-  color: white;
-  letter-spacing: 0.5px;
-  align-self: flex-start;
+  letter-spacing: .5px;
+  background: var(--stage-border);
+  border-radius: 3px;
 }
 
-/* Transitions - Vue Flow inspired smooth curves */
+/* ================================
+   Transitions
+   ================================ */
+
 .transition-path {
-  stroke: var(--primary);
-  stroke-width: 4;
-  transition: stroke .2s ease, stroke-width .2s ease;
+  stroke: var(--transition-stroke);
+  stroke-width: 3;
   fill: none;
-  opacity: 0.8;
+  opacity: .8;
+  transition: stroke .2s ease, stroke-width .2s ease;
 }
 
 .transition-path:hover {
   stroke-width: 3;
   opacity: 1;
-  stroke: var(--border-color-hover);
+  stroke: var(--transition-hover);
 }
 
 .arrow-marker {
-  fill: var(--primary);
-  transition: fill 0.2s ease;
+  fill: var(--transition-stroke);
+  transition: fill .2s ease;
 }
 
 .transition-path:hover + .arrow-marker {
-  fill: var(--border-color-hover);
+  fill: var(--transition-hover);
 }
 
-/* Transition labels with proper background boxes */
-.transition-label {
-  pointer-events: none;
+/* Highlighted transitions */
+.transition-path.highlighted {
+  stroke: var(--transition-highlight);
+  stroke-width: 5;
+  stroke-dasharray: 8 6;
+  animation: dashmove 1s linear infinite;
 }
 
+/* ================================
+   Transition Labels
+   ================================ */
 .transition-label-content {
-  background: rgb(32, 113, 198) !important;
-  border: 1px solid var(--border);
-  border-radius: 4px;
+  position: relative;
+  z-index: 10;
   padding: 4px 8px;
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--white);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--transition-label-color);
   text-align: center;
   white-space: nowrap;
-  box-shadow: 0 2px 4px var(--shadow);
+  pointer-events: auto;
   user-select: none;
-  line-height: 1.2;
+  background: var(--transition-label-bg) !important;
+  border: 1px solid var(--stage-border);
+  border-radius: 4px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, .6);
 }
 
-/* Zoom controls - fixed positioning and functionality */
+.transition-label-content.highlighted {
+  font-weight: 700;
+  background: var(--transition-highlight) !important;
+  transition: transform .2s ease, background .2s ease;
+  transform: scale(1.1);
+}
+
+/* ================================
+   Zoom Controls
+   ================================ */
+
 .zoom-controls {
   position: absolute;
-  bottom: 20px;
   right: 20px;
+  bottom: 20px;
+  z-index: 1000;
   display: flex;
   flex-direction: column;
   gap: 2px;
-  z-index: 1000;
-  background: var(--wf-bg-primary);
+  padding: 4px;
   border: 1px solid var(--wf-border);
   border-radius: 6px;
-  padding: 4px;
-  box-shadow: 0 4px 12px var(--wf-shadow);
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(4px);
 }
 
 .zoom-btn {
-  width: 32px;
-  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: none;
-  border-radius: 4px;
-  background: transparent;
-  color: var(--text-primary);
+  width: 32px;
+  height: 32px;
   font-size: 14px;
   font-weight: 600;
+  color: var(--zoom-btn-color);
   cursor: pointer;
-  transition: all 0.15s ease;
   user-select: none;
+  background: var(--zoom-btn-bg);
+  border: none;
+  border-radius: 4px;
+  transition: all .15s ease;
 }
 
 .zoom-btn:hover {
-  background: var(--border-color);
+  background: var(--zoom-btn-hover);
   transform: scale(1.05);
 }
 
 .zoom-btn:active {
-  transform: scale(0.95);
-  transition: transform 0.05s ease;
+  transition: transform .05s ease;
+  transform: scale(.95);
 }
 
-.zoom-btn:focus {
-  outline: 2px solid var(--border-color);
-  outline-offset: -2px;
-}
+/* ================================
+   Accessibility & Preferences
+   ================================ */
 
-/* Connection handles (invisible but functional) */
-.stage::before,
-.stage::after {
-  content: '';
-  position: absolute;
-  width: 8px;
-  height: 8px;
-  background: var(--border-color);
-  border-radius: 50%;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-  z-index: 15;
-}
-
-.stage::before {
-  top: 50%;
-  left: -4px;
-  transform: translateY(-50%);
-}
-
-.stage::after {
-  top: 50%;
-  right: -4px;
-  transform: translateY(-50%);
-}
-
-.stage:hover::before,
-.stage:hover::after {
-  opacity: 0.7;
-}
-
-.stage.dragging::before,
-.stage.dragging::after {
-  opacity: 1;
-}
-
-/* Error and loading states */
-.error {
-  color: var(--wf-danger);
-  text-align: center;
-  padding: 40px 20px;
-  font-size: 14px;
-  background: var(--wf-bg-tertiary);
-  border: 1px solid var(--wf-border);
-  border-radius: 6px;
-  margin: 20px;
-}
-
-/* Responsive design */
-@media (max-width: 768px) {
-  #workflow-graph {
-    height: 60vh;
-  }
-  
-  .stage {
-    width: 160px;
-    min-height: 70px;
-    padding: 10px 12px;
-  }
-  
-  .stage-title {
-    font-size: 13px;
-  }
-  
-  .stage-description {
-    font-size: 11px;
-  }
-  
-  .zoom-controls {
-    bottom: 12px;
-    right: 12px;
-    gap: 1px;
-  }
-  
-  .zoom-btn {
-    width: 28px;
-    height: 28px;
-    font-size: 12px;
-  }
-  
-  .transition-label-content {
-    font-size: 10px;
-    padding: 2px 6px;
-  }
-}
-
-@media (max-width: 480px) {
-  .stage {
-    width: 140px;
-    min-height: 60px;
-    padding: 8px 10px;
-  }
-  
-  .stage-title {
-    font-size: 12px;
-  }
-  
-  .transition-label foreignObject {
-    width: 100px !important;
-  }
-  
-  .transition-label-content {
-    font-size: 9px;
-    padding: 2px 4px;
-  }
-}
-
-/* Accessibility improvements */
-.stage:focus-visible {
-  outline: 2px solid var(--border-color);
-  outline-offset: 2px;
-}
-
+.stage:focus-visible,
 .zoom-btn:focus-visible {
-  outline: 2px solid var(--border-color);
+  outline: 2px solid var(--stage-border);
   outline-offset: 2px;
 }
 
-/* High contrast mode support */
 @media (prefers-contrast: high) {
-  .stage {
-    border-width: 2px;
-  }
-  
-  .transition-path {
-    stroke-width: 3;
-  }
-  
+  .stage { border-width: 2px; }
+  .transition-path { stroke-width: 3; }
   .transition-label-content {
-    border-width: 2px;
     font-weight: 600;
+    border-width: 2px;
   }
 }
 
-/* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
-  .stage,
-  .transition-path,
-  .zoom-btn,
-  #graph {
-    transition: none;
-  }
-  
-  .stage:hover {
-    transform: none;
-  }
-  
-  .zoom-btn:hover {
-    transform: none;
-  }
-  
-  .stage.dragging {
-    transform: none;
-  }
+  .stage, .transition-path, .zoom-btn, #graph { transition: none; }
+  .stage:hover, .zoom-btn:hover, .stage.dragging { transform: none; }
 }
 
-/* Loading animation */
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
+/* ================================
+   Animations
+   ================================ */
 
-.stage.loading {
-  animation: pulse 1.5s ease-in-out infinite;
-}
-
-/* Smooth stage appearance */
 @keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px) scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+  from { opacity: 0; transform: translateY(20px) scale(.9); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-.stage {
-  animation: slideIn 0.3s ease-out forwards;
-}
-
-/* Connection point styling when visible */
-.connection-point {
-  position: absolute;
-  width: 6px;
-  height: 6px;
-  background: var(--border-color);
-  border-radius: 50%;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-  z-index: 20;
-  pointer-events: none;
-}
-
-.stage:hover .connection-point {
-  opacity: 1;
-}
-
-/* Highlight state */
-.transition-path.highlighted {
-  stroke: #ff9800;              /* orange highlight */
-  stroke-width: 5;
-  stroke-dasharray: 8 6;        /* dashed line */
-  animation: dashmove 1s linear infinite;
-}
-
-.transition-label-content.highlighted {
-  background: #ff9800 !important;
-  color: white;
-  font-weight: 700;
-  transform: scale(1.1);
-  transition: transform 0.2s ease, background 0.2s ease;
-}
-
-/* Dotted line movement effect */
 @keyframes dashmove {
-  to {
-    stroke-dashoffset: -50;
-  }
-}
-
-svg, .transition-path, .transition-label, .transition-label-content {
-  pointer-events: auto !important;
-  cursor: pointer;
-}
-
-
-.transition-label {
-  pointer-events: none; /* label container itself won’t block */
-}
-
-.transition-label-content {
-  position: relative;
-  z-index: 10; /* always above lines */
-  pointer-events: auto; /* still clickable */
+  to { stroke-dashoffset: -50; }
 }

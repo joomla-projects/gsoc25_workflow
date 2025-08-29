@@ -101,7 +101,12 @@ if (!$params->exists('show_publishing_options')) {
 
             <?php echo HTMLHelper::_('uitab.addTab', $this->tab_name, 'publishing', Text::_('COM_CONTENT_PUBLISHING')); ?>
 
-                <?php echo $this->form->renderField('transition'); ?>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <div class="w-100">
+                        <?php echo $this->form->renderField('transition'); ?>
+                    </div>
+                <?php echo LayoutHelper::render('joomla.workflow.workflowgraphbtn', $this); ?>
+                </div>
                 <?php echo $this->form->renderField('state'); ?>
                 <?php echo $this->form->renderField('catid'); ?>
                 <?php echo $this->form->renderField('tags'); ?>
@@ -177,3 +182,4 @@ if (!$params->exists('show_publishing_options')) {
         </div>
     </form>
 </div>
+<?php echo LayoutHelper::render('joomla.workflow.graphmodal', $this); ?>
