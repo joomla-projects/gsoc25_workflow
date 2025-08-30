@@ -182,7 +182,3 @@ $tmpl    = $tmpl ? '&tmpl=' . $tmpl : '';
         <?php echo $this->form->renderControlFields(); ?>
     </div>
 </form>
-<?php echo LayoutHelper::render('joomla.workflow.graphmodal', [
-    'workflow_id' => isset($this->item->workflow_id) ? $this->item->workflow_id : null,
-]);
-?>

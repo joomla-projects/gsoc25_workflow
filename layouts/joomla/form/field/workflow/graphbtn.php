@@ -9,17 +9,41 @@
  */
 
 defined('_JEXEC') or die;
+
 use Joomla\CMS\Factory;
+use Joomla\CMS\Language\Text;
 
-$app = Factory::getApplication();
-$wa = $app->getDocument()->getWebAssetManager();
-
+$wa   = Factory::getApplication()->getDocument()->getWebAssetManager();
 $wa->getRegistry()->addExtensionRegistryFile('com_workflow');
-$wa->useStyle('com_workflow.workflowgraphclient');
-$script = $wa->getAsset('script', name: 'com_workflow.workflowgraphclient')->getUri(true);
 
-$workflowId = $displayData['workflow_id'];
+$wa->useScript('joomla.dialog-autocreate');
+$wa->useStyle('com_workflow.workflowgraphclient');
+
+$script     = $wa->getAsset('script', name: 'com_workflow.workflowgraphclient')->getUri(true);
+$field      = $displayData['field'] ?? null;
+$workflowId = $field ? $field->getAttribute('workflow_id') : null;
+$ishidden  = $field && $field->getAttribute('type') === 'hidden';
+if ($ishidden || !$workflowId) {
+    return;
+}
+$popupId = 'workflow-graph-modal-content';
+$popupOptions = json_encode([
+    'src'             => '#' . $popupId,
+    'height'          => 'fit-content',
+    'textHeader'      => Text::_('COM_WORKFLOW_GRAPH'),
+    'preferredParent' => 'body',
+    'modal'           => true,
+]);
+
 ?>
+<div class="align-center text-center btns" style="width: max-content;">
+    <button type="button" class="btn btn-primary px-3 py-2" data-joomla-dialog="<?php echo htmlspecialchars($popupOptions, ENT_QUOTES, 'UTF-8'); ?>">
+        <span class="fa fa-diagram-project" aria-hidden="true"></span>
+    </button>
+    <div role="tooltip" id="tip-graph">
+        <?php echo Text::_('COM_WORKFLOW_GRAPH'); ?>
+    </div>
+</div>
 <template id="workflow-graph-modal-content">
 
 <div class="p-3">

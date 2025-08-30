@@ -105,7 +105,7 @@ if (!$params->exists('show_publishing_options')) {
                     <div class="w-100">
                         <?php echo $this->form->renderField('transition'); ?>
                     </div>
-                <?php echo LayoutHelper::render('joomla.workflow.workflowgraphbtn'); ?>
+                <?php echo $this->form->renderField('workflowgraphbtn'); ?>
                 </div>
                 <?php echo $this->form->renderField('state'); ?>
                 <?php echo $this->form->renderField('catid'); ?>
@@ -182,7 +182,3 @@ if (!$params->exists('show_publishing_options')) {
         </div>
     </form>
 </div>
-<?php echo LayoutHelper::render('joomla.workflow.graphmodal', [
-    'workflow_id' => isset($this->item->workflow_id) ? $this->item->workflow_id : null,
-]);
-?>

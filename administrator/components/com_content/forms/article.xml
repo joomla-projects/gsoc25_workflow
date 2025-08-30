@@ -260,6 +260,14 @@
 			validate="rules"
 		/>
 
+		<field
+			name="workflowgraphbtn"
+			type="transition"
+			workflow_stage="0"
+			extension="com_content"
+			layout="joomla.form.field.workflow.graphbtn"
+		/>
+
 	</fieldset>
 
 	<fields name="attribs" label="COM_CONTENT_ATTRIBS_FIELDSET_LABEL">

@@ -14,7 +14,6 @@ use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Multilanguage;
 use Joomla\CMS\Language\Text;
-use Joomla\CMS\Layout\LayoutHelper;
 
 $app       = Factory::getApplication();
 $wa        = Factory::getDocument()->getWebAssetManager();
@@ -71,10 +70,13 @@ foreach ($fields as $field) {
 
           // Special handling for transition field
             if ($f === 'transition') {
-                $html[] = '<div style="display:flex;align-items:center;gap:8px;"><div class="w-100">';
+                $html[] = '<div class="d-flex align-items-center gap-3">';
+                $html[] = '<div class="flex-grow-1">';
                 $html[] = $form->renderField($f);
                 $html[] = '</div>';
-                $html[] = LayoutHelper::render('joomla.workflow.workflowgraphbtn');
+                $html[] = '<div class="flex-shrink-0 w-15">';
+                $html[] = $form->renderField('workflowgraphbtn');
+                $html[] = '</div>';
                 $html[] = '</div>';
             } else {
                 $html[] = $form->renderField($f);

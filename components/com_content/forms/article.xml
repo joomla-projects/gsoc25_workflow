@@ -211,6 +211,15 @@
 			validate="captcha"
 			namespace="article"
 		/>
+
+		<field
+			name="workflowgraphbtn"
+			type="transition"
+			workflow_stage="0"
+			extension="com_content"
+			layout="joomla.form.field.workflow.graphbtn"
+		/>
+
 	</fieldset>
 		<fields name="images">
 		<fieldset name="image-intro">
