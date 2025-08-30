@@ -356,11 +356,6 @@ trait WorkflowBehaviorTrait
             if (!empty($assoc->stage_id)) {
                 $form->setFieldAttribute('transition', 'workflow_stage', (int) $assoc->stage_id);
             }
-
-            if (!empty($assoc->workflow_id)) {
-                $form->setFieldAttribute('workflowgraphbtn', 'workflow_id', (int) $assoc->workflow_id);
-                $form->setFieldAttribute('workflowgraphbtn', 'type', $this->workflowEnabled ? 'transition' : 'hidden');
-            }
         } else {
             $stage_id = $this->getStageForNewItem($form, $data);
 

@@ -101,12 +101,7 @@ if (!$params->exists('show_publishing_options')) {
 
             <?php echo HTMLHelper::_('uitab.addTab', $this->tab_name, 'publishing', Text::_('COM_CONTENT_PUBLISHING')); ?>
 
-                <div style="display:flex;align-items:center;gap:8px;">
-                    <div class="w-100">
-                        <?php echo $this->form->renderField('transition'); ?>
-                    </div>
-                <?php echo $this->form->renderField('workflowgraphbtn'); ?>
-                </div>
+                <?php echo $this->form->renderField('transition'); ?>
                 <?php echo $this->form->renderField('state'); ?>
                 <?php echo $this->form->renderField('catid'); ?>
                 <?php echo $this->form->renderField('tags'); ?>

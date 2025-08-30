@@ -404,11 +404,6 @@ class ArticleModel extends AdminModel implements WorkflowModelInterface, Version
             if (!empty($item->id)) {
                 $item->tags = new TagsHelper();
                 $item->tags->getTagIds($item->id, 'com_content.article');
-                $workflow_assoc = $this->workflow->getAssociation($item->id);
-
-                if (!empty($workflow_assoc->workflow_id)) {
-                    $item->workflow_id = $workflow_assoc->workflow_id;
-                }
 
                 $item->featured_up   = null;
                 $item->featured_down = null;
@@ -1048,6 +1043,8 @@ class ArticleModel extends AdminModel implements WorkflowModelInterface, Version
         }
 
         $this->workflowPreprocessForm($form, $data);
+
+        $form->setFieldAttribute('transition', 'layout', 'joomla.form.field.groupedlist-transition');
 
         parent::preprocessForm($form, $data, $group);
     }
