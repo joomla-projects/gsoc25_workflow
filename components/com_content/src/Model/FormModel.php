@@ -177,12 +177,13 @@ class FormModel extends \Joomla\Component\Content\Administrator\Model\ArticleMod
             }
         }
 
-        $workflow_assoc = $this->workflow->getAssociation($value->id);
+        if (!empty($value->id)) {
+            $workflow_assoc = $this->workflow->getAssociation($value->id);
 
-        if (!empty($workflow_assoc->workflow_id)) {
-            $value->workflow_id = $workflow_assoc->workflow_id;
+            if (!empty($workflow_assoc->workflow_id)) {
+                $value->workflow_id = $workflow_assoc->workflow_id;
+            }
         }
-
         return $value;
     }
 
