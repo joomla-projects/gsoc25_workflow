@@ -269,9 +269,9 @@ class GraphController extends AdminController
                     'ordering'      => (int) $transition->ordering,
                     'workflow_id'   => (int) $transition->workflow_id,
                     'permissions'   => [
-                        'edit'   => $canEdit,
-                        'delete' => $canDelete,
-                        'run_transition' => $canRun
+                        'edit'           => $canEdit,
+                        'delete'         => $canDelete,
+                        'run_transition' => $canRun,
                     ],
                 ];
             }
