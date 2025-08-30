@@ -3,19 +3,15 @@ defined('_JEXEC') or die;
 
 
 use Joomla\CMS\Factory;
-use Joomla\CMS\Language\Text;
 
 $app = Factory::getApplication();
 $wa = $app->getDocument()->getWebAssetManager();
-$registry = $app->getUserState('registry');
-$wa->getRegistry()->addExtensionRegistryFile('com_workflow');
-// add transitions registry
-$wa->getRegistry()->addExtensionRegistryFile('com_workflow.transitions');
 
+$wa->getRegistry()->addExtensionRegistryFile('com_workflow');
 $wa->useStyle('com_workflow.workflowgraphclient');
 $script = $wa->getAsset('script', name: 'com_workflow.workflowgraphclient')->getUri(true);
 
-$workflowId = $app->getUserState('com_workflow.transitions.filter.workflow_id', 0);
+$workflowId = $displayData->workflow_id;
 ?>
 <template id="workflow-graph-modal-content">
 

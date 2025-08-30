@@ -45,7 +45,7 @@ $fields = $displayData->get('fields') ?? [
     'tags',
     'note',
     'version_note',
-  ];
+];
 
   $hiddenFields = $displayData->get('hidden_fields') ?? [];
 
@@ -88,4 +88,3 @@ foreach ($fields as $field) {
       $html[] = '</fieldset>';
 
       echo implode('', $html);
-      echo LayoutHelper::render('joomla.workflow.graphmodal', $displayData);
