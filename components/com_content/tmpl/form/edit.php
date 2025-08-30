@@ -26,7 +26,6 @@ $wa->useScript('keepalive')
 $this->tab_name = 'com-content-form';
 $this->ignore_fieldsets = ['image-intro', 'image-full', 'jmetadata', 'item_associations'];
 $this->useCoreUI = true;
-$this->workflow_id = $this->item->workflow_id;
 
 // Create shortcut to parameters.
 $params = $this->state->get('params');
@@ -106,7 +105,7 @@ if (!$params->exists('show_publishing_options')) {
                     <div class="w-100">
                         <?php echo $this->form->renderField('transition'); ?>
                     </div>
-                <?php echo LayoutHelper::render('joomla.workflow.workflowgraphbtn', $this->item); ?>
+                <?php echo LayoutHelper::render('joomla.workflow.workflowgraphbtn'); ?>
                 </div>
                 <?php echo $this->form->renderField('state'); ?>
                 <?php echo $this->form->renderField('catid'); ?>
@@ -183,4 +182,7 @@ if (!$params->exists('show_publishing_options')) {
         </div>
     </form>
 </div>
-<?php echo LayoutHelper::render('joomla.workflow.graphmodal', $this); ?>
+<?php echo LayoutHelper::render('joomla.workflow.graphmodal', [
+    'workflow_id' => $this->item->workflow_id,
+]);
+?>

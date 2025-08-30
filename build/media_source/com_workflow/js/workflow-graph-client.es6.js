@@ -8,17 +8,56 @@ Joomla = window.Joomla || {};
   async function makeRequest(url) {
     try {
       const paths = Joomla.getOptions('system.paths');
-      const uri = `${paths ? `${paths.rootFull}administrator/index.php` : window.location.pathname}?option=com_workflow&extension=com_content&layout=modal&view=graph${url}`;
-      const response = await fetch(uri, {
-        credentials: 'same-origin'
-      });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const uri = `${paths ? `${paths.rootFull}administrator/index.php` : window.location.pathname
+        }?option=com_workflow&extension=com_content&layout=modal&view=graph${url}`;
+
+      const response = await fetch(uri, { credentials: 'same-origin' });
+
+      if (!response.ok) {
+        // Normalize message based on status
+        let message = 'An unexpected error occurred.';
+        if (response.status === 401) {
+          message = 'Not authenticated.';
+        } else if (response.status === 403 || response.status === 404) {
+          message = 'You do not have permission to access the workflows.';
+        } else {
+          message = `Request failed with status ${response.status}`;
+        }
+        throw new Error(message);
+      }
+
       return await response.json();
+
     } catch (err) {
-      console.error('[Workflow Graph] Request failed:', url, err);
-      return null;
+      showErrorInModal(err.message);
+      throw err;
     }
   }
+
+  function showErrorInModal(errorMessage) {
+    const container = document.getElementById("workflow-container");
+    const stageContainer = document.getElementById("stages");
+
+    if (container) {
+      // Clear the main container and show error
+      container.innerHTML = `
+        <div class="alert alert-danger" role="alert">
+          <h4 class="alert-heading">Error Loading Workflow</h4>
+          <p class="mb-0">${errorMessage}</p>
+        </div>
+      `;
+    } else if (stageContainer) {
+      // Fallback: show in stages container
+      stageContainer.innerHTML = `
+        <div class="alert alert-danger" role="alert">
+          <h4 class="alert-heading">Error Loading Workflow</h4>
+          <p class="mb-0">${errorMessage}</p>
+        </div>
+      `;
+    }
+  }
+
+
   async function getWorkflow(id) {
     return makeRequest(`&task=graph.getWorkflow&workflow_id=${id}&format=json`);
   }
@@ -101,30 +140,30 @@ Joomla = window.Joomla || {};
     return stages;
   }
   function generateNodes(stages, transitions) {
-      // Ensure every stage has a position object
-      stages.forEach(stage => {
-        if (!stage.position || isNaN(stage.position.x) || isNaN(stage.position.y)) {
-          stage.position = { x: 0, y: 0 };
-        } else {
-          stage.position.x = parseFloat(stage.position.x);
-          stage.position.y = parseFloat(stage.position.y);
-        }
-      });
-      const hasStart = transitions.some(tr => tr.from_stage_id === -1);
-      if (hasStart && !stages.find(s => s.id === 'From Any')) stages.unshift({
-        id: 'From Any',
-        title: 'From Any',
-        position: { x: 600, y: -200 }
-      });
-      const positionedStages = calculateAutoLayout(stages, transitions);
-      return positionedStages.map(stage => {
-        const isVirtual = stage.id === 'From Any';
-        return {
-          id: `stage-${stage.id}`,
-          position: stage.position,
-          data: stage,
-          className: `stage ${stage.default ? 'default' : ''} ${isVirtual ? 'virtual' : ''}`,
-          innerHTML: `
+    // Ensure every stage has a position object
+    stages.forEach(stage => {
+      if (!stage.position || isNaN(stage.position.x) || isNaN(stage.position.y)) {
+        stage.position = { x: 0, y: 0 };
+      } else {
+        stage.position.x = parseFloat(stage.position.x);
+        stage.position.y = parseFloat(stage.position.y);
+      }
+    });
+    const hasStart = transitions.some(tr => tr.from_stage_id === -1);
+    if (hasStart && !stages.find(s => s.id === 'From Any')) stages.unshift({
+      id: 'From Any',
+      title: 'From Any',
+      position: { x: 600, y: -200 }
+    });
+    const positionedStages = calculateAutoLayout(stages, transitions);
+    return positionedStages.map(stage => {
+      const isVirtual = stage.id === 'From Any';
+      return {
+        id: `stage-${stage.id}`,
+        position: stage.position,
+        data: stage,
+        className: `stage ${stage.default ? 'default' : ''} ${isVirtual ? 'virtual' : ''}`,
+        innerHTML: `
             <div class="stage-title text-truncate" style="max-width: 180px;" title="${stage.title}">${stage.title}</div>
             ${stage.description ? `<div class="stage-description text-truncate small text-white" style="max-width: 180px;" title="${stage.description}">${stage.description}</div>` : ''}
             <div style="display: flex; gap: 4px; align-items: center; margin-top: 2px;">
@@ -132,9 +171,9 @@ Joomla = window.Joomla || {};
           ${typeof stage.published !== 'undefined' ? `<div class="badge ${stage.published == 1 ? 'bg-success' : 'bg-warning'} rounded-pill p-1">${stage.published == 1 ? 'ENABLED' : 'DISABLED'}</div>` : ''}
             </div>
           `
-        };
-      });
-    }
+      };
+    });
+  }
 
   /**
    * Generates edge objects with robust pathing and centered labels.
@@ -284,7 +323,7 @@ Joomla = window.Joomla || {};
 
     // Mark as initialized
     container.setAttribute('data-workflow-initialized', 'true');
-    const workflowId = parseInt(container.dataset.workflowId, 10) || 2;
+    const workflowId = parseInt(container.dataset.workflowId, 10);
     if (!workflowId) {
       console.warn("[Workflow Graph] Invalid workflow ID.");
       return;
@@ -405,7 +444,7 @@ Joomla = window.Joomla || {};
       state.stages = stages;
       state.transitions = transitions;
       if (!state.stages.length) {
-        stageContainer.innerHTML = "<p>No stages defined.</p>";
+        showErrorInModal('No stages found.');
         return;
       }
 
@@ -550,7 +589,7 @@ Joomla = window.Joomla || {};
       }, 100); // Reduced delay for faster fitting
     }).catch(error => {
       console.error('[Workflow Graph] Failed to initialize:', error);
-      stageContainer.innerHTML = `<p class="error">Failed to load workflow data: ${error.message}</p>`;
+      showErrorInModal(`Failed to load workflow data: ${error.message}`);
     });
   }
 

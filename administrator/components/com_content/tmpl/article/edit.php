@@ -33,7 +33,6 @@ $fieldsetsInImages = ['image-intro', 'image-full'];
 $fieldsetsInLinks = ['linka', 'linkb', 'linkc'];
 $this->ignore_fieldsets = array_merge(['jmetadata', 'item_associations'], $fieldsetsInImages, $fieldsetsInLinks);
 $this->useCoreUI = true;
-$this->workflow_id = $this->item->workflow_id;
 
 // Create shortcut to parameters.
 $params = clone $this->state->get('params');
@@ -183,4 +182,7 @@ $tmpl    = $tmpl ? '&tmpl=' . $tmpl : '';
         <?php echo $this->form->renderControlFields(); ?>
     </div>
 </form>
-<?php echo LayoutHelper::render('joomla.workflow.graphmodal', $this); ?>
+<?php echo LayoutHelper::render('joomla.workflow.graphmodal', [
+    'workflow_id' => $this->item->workflow_id,
+]);
+?>

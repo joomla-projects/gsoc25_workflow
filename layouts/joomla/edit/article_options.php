@@ -74,7 +74,7 @@ foreach ($fields as $field) {
                 $html[] = '<div style="display:flex;align-items:center;gap:8px;"><div class="w-100">';
                 $html[] = $form->renderField($f);
                 $html[] = '</div>';
-                $html[] = LayoutHelper::render('joomla.workflow.workflowgraphbtn', $displayData);
+                $html[] = LayoutHelper::render('joomla.workflow.workflowgraphbtn');
                 $html[] = '</div>';
             } else {
                 $html[] = $form->renderField($f);

@@ -11,7 +11,7 @@ $wa->getRegistry()->addExtensionRegistryFile('com_workflow');
 $wa->useStyle('com_workflow.workflowgraphclient');
 $script = $wa->getAsset('script', name: 'com_workflow.workflowgraphclient')->getUri(true);
 
-$workflowId = $displayData->workflow_id;
+$workflowId = $displayData['workflow_id'];
 ?>
 <template id="workflow-graph-modal-content">
 
