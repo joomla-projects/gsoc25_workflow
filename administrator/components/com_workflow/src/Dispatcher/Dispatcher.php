@@ -38,7 +38,7 @@ class Dispatcher extends ComponentDispatcher
         $parts      = explode('.', $extension);
 
         // Allow access to the 'graph' view for all users with access
-        if ($this->app->isClient('administrator')  && $view === 'graph' && $layout === 'modal') {
+        if ($this->app->isClient('administrator') && $view === 'graph' && $layout === 'modal') {
             return;
         }
 
