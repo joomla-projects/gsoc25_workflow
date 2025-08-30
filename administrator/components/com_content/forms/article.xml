@@ -259,6 +259,7 @@
 			section="article"
 			validate="rules"
 		/>
+
 	</fieldset>
 
 	<fields name="attribs" label="COM_CONTENT_ATTRIBS_FIELDSET_LABEL">
