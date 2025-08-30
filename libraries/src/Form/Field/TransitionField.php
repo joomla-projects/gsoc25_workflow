@@ -80,7 +80,7 @@ class TransitionField extends GroupedlistField
                 $this->workflowStage = $input->getInt('id');
             }
 
-            $db    = $this->getDatabase();
+            $db            = $this->getDatabase();
             $workflowStage = (int) $this->workflowStage;
 
 
