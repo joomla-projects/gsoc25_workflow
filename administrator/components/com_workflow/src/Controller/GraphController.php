@@ -257,6 +257,7 @@ class GraphController extends AdminController
             foreach ($transitions as $transition) {
                 $canEdit   = $user->authorise('core.edit', $this->extension . '.transition.' . (int) $transition->id);
                 $canDelete = $user->authorise('core.delete', $this->extension . '.transition.' . (int) $transition->id);
+                $canRun    = $user->authorise('core.execute.transition', $this->extension . '.transition.' . (int) $transition->id);
 
                 $response[] = [
                     'id'            => (int) $transition->id,
@@ -268,8 +269,9 @@ class GraphController extends AdminController
                     'ordering'      => (int) $transition->ordering,
                     'workflow_id'   => (int) $transition->workflow_id,
                     'permissions'   => [
-                        'edit'   => $canEdit,
-                        'delete' => $canDelete,
+                        'edit'           => $canEdit,
+                        'delete'         => $canDelete,
+                        'run_transition' => $canRun,
                     ],
                 ];
             }
