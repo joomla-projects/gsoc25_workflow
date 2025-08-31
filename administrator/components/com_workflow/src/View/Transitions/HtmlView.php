@@ -133,6 +133,12 @@ class HtmlView extends BaseHtmlView
         $this->activeFilters = $model->getActiveFilters();
         $this->workflow      = $model->getWorkflow();
 
+        if ($this->getLayout() === 'modalreturn') {
+            parent::display($tpl);
+
+            return;
+        }
+
         // Check for errors.
         if (\count($errors = $model->getErrors())) {
             throw new GenericDataException(implode("\n", $errors), 500);
